@@ -2349,9 +2349,9 @@
       const input = inputEl ? inputEl.value : '';
       let isMatch = false;
       try {
-        isMatch = (btoa(input) === state.settings.adminPassword) || (input === 'hala2026');
+        isMatch = false; // Legacy password login disabled; Supabase OTP is required.
       } catch (e) {
-        isMatch = (input === 'hala2026');
+        isMatch = false; // Legacy password login disabled.
       }
 
       if (isMatch) {
@@ -3383,7 +3383,7 @@
     const halaLocalSaveState = saveState;
     const halaPublicFields = ['visitorCount','brand','categories','products','reels','counters','reviews','customBuilderFields','voucherSettings','checkoutFields'];
     function halaPublicSnapshot() { const out={}; halaPublicFields.forEach(k=>out[k]=state[k]); return out; }
-    function halaPrivateSnapshot() { return { settings: state.settings, whatsappApi: state.whatsappApi, aiConfig: state.aiConfig, whatsappGroups: state.whatsappGroups, socialPlatforms: state.socialPlatforms, customers: state.customers }; }
+    function halaPrivateSnapshot() { return { settings: {...state.settings, adminPassword: ''}, whatsappApi: state.whatsappApi, aiConfig: state.aiConfig, whatsappGroups: state.whatsappGroups, socialPlatforms: state.socialPlatforms, customers: state.customers }; }
     function halaMergeSnapshot(target, data) { if(!data || typeof data!=='object') return; Object.keys(data).forEach(k=>{ if(k==='settings'||k==='brand'||k==='whatsappApi'||k==='aiConfig'||k==='voucherSettings') target[k]={...(target[k]||{}),...(data[k]||{})}; else target[k]=data[k]; }); }
     async function halaLoadPublic() {
       const {data,error}=await halaSupabase.from('hala_store_public').select('data').eq('id','main').maybeSingle();
@@ -3468,6 +3468,10 @@
     };
     async function halaAdminEnter() {
       try { await halaLoadPrivate(); await halaLoadPublic();
+        // First authorized administrator visit seeds the cloud catalog and settings from the original storefront defaults.
+        const {data:publicRow,error:publicCheckError}=await halaSupabase.from('hala_store_public').select('id').eq('id','main').maybeSingle();
+        if(publicCheckError) throw publicCheckError;
+        if(!publicRow) { await halaPersistPublic(); await halaPersistPrivate(); }
         const gate=document.getElementById('adminGateModal'); if(gate){gate.classList.add('hidden');gate.classList.remove('flex');}
         openAdminDashboard();
         const header=document.querySelector('#adminDashboardOverlay .hala-header .flex.items-center.gap-2\\.5');
