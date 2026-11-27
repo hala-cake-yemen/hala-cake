@@ -3078,9 +3078,9 @@
       if (!value) return '';
       try {
         const url = new URL(value);
-        if (!/(^|\\.)drive\\.google\\.com$/i.test(url.hostname)) throw new Error('رابط Google Drive غير صحيح');
-        const pathMatch = url.pathname.match(/\\/file\\/d\\/([a-zA-Z0-9_-]+)/);
-        const fileId = (pathMatch && pathMatch[1]) || url.searchParams.get('id') || '';
+        if (!/(^|\.)drive\.google\.com$/i.test(url.hostname)) throw new Error('رابط Google Drive غير صحيح');
+        const pathParts = url.pathname.split('/').filter(Boolean);
+        const fileId = (pathParts[0] === 'file' && pathParts[1] === 'd' && pathParts[2]) || url.searchParams.get('id') || '';        const fileId = (pathMatch && pathMatch[1]) || url.searchParams.get('id') || '';
         if (!fileId) throw new Error('تعذر استخراج معرف الفيديو من رابط Google Drive');
         return 'https://drive.google.com/file/d/' + encodeURIComponent(fileId) + '/preview';
       } catch (error) { throw new Error(error.message || 'أدخل رابط مشاركة صحيحاً من Google Drive'); }
@@ -3113,8 +3113,8 @@
         showToast('يوجد فيديو يتجاوز الحد الأقصى 50 ميجابايت. احذف الملف الكبير ثم أعد المحاولة.', 'warning');
         return;
       }
-      if (files.length && !await refreshHalaStorageAuthStatus()) {
-        showToast('تعذر تفعيل التخزين باستخدام كلمة مرور لوحة التحكم. تأكد أن كلمة المرور نفسها مفعّلة لحساب الإدارة في Supabase.', 'error');
+      if ((files.length || driveVideoUrl) && !await refreshHalaStorageAuthStatus()) {
+        showToast('تعذر حفظ الفيديو. تأكد من أن كلمة مرور لوحة التحكم هي نفسها كلمة مرور حساب الإدارة في Supabase.', 'error');
         return;
       }
 
@@ -3222,7 +3222,7 @@
         const { data: sessionData } = await halaSupabase.auth.getSession();
         const session = sessionData?.session;
         if (!session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
-          showToast('سجّل الدخول بحساب الإدارة لحذف الفيديو من المتجر.', 'warning');
+          showToast('سجّل الدخول إلى لوحة التحكم أولاً لحذف الفيديو.', 'warning');
           return;
         }
         const { error } = await halaSupabase.from('hala_reels').delete().eq('id', reel.id);
@@ -3666,17 +3666,27 @@
       showToast('تم تصفير عداد الزائرين');
     }
 
-    function savePaymentAndSecuritySettings() {
+    async function savePaymentAndSecuritySettings() {
       state.settings.kuraimiAccount = document.getElementById('settingKuraimiAccount').value.trim();
       state.settings.jaibAccount = document.getElementById('settingJaibAccount').value.trim();
       const newPass = document.getElementById('newAdminPasswordInput').value.trim();
       if (newPass) {
+        const session = await refreshHalaStorageAuthStatus();
+        if (!session) {
+          showToast('لا يمكن توحيد كلمة المرور حالياً. سجّل الدخول أولاً بكلمة المرور الحالية نفسها في لوحة التحكم وSupabase.', 'error');
+          return;
+        }
+        const { error } = await halaSupabase.auth.updateUser({ password: newPass });
+        if (error) {
+          showToast('تعذر تحديث كلمة مرور الحساب: ' + error.message, 'error');
+          return;
+        }
         state.settings.adminPassword = btoa(newPass);
         document.getElementById('newAdminPasswordInput').value = '';
       }
       saveState();
       syncPaymentSettingsUI();
-      showToast('تم حفظ إعدادات السداد والأمان بنجاح 🔒');
+      showToast('تم حفظ إعدادات السداد وكلمة مرور الدخول الموحدة بنجاح 🔒');
     }
   </script>
 </body>
