@@ -817,7 +817,7 @@
             <textarea id="newReelDesc" rows="2" placeholder="وصف الفيديو الترويجي..." class="md:col-span-2 p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
             <div>
               <label class="block text-xs font-bold mb-1">رفع عدة فيديوهات (حتى 50 ميجابايت لكل فيديو)</label>
-              <input type="file" id="newReelVideoFile" accept="video/mp4,video/webm,video/quicktime,video/*" multiple class="w-full text-xs" />
+              <input type="file" id="newReelVideoFile" accept="video/mp4,video/webm,video/quicktime" multiple class="w-full text-xs" />
               <p class="text-[10px] text-[#88777a] mt-1">يمكن اختيار عدة ملفات دفعة واحدة. تُرفع الفيديوهات واحداً تلو الآخر مع حفظ تقدم كل ملف.</p>
             </div>
             <div>
@@ -1659,7 +1659,7 @@
 
     async function uploadHalaVideo(file, progress) {
       if (file.size > HALA_VIDEO_MAX_BYTES) throw new Error('حجم الفيديو يتجاوز 50 ميجابايت');
-      if (!file.type.startsWith('video/')) throw new Error('الملف المحدد ليس فيديو');
+      if (!['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type)) throw new Error('الصيغ المدعومة هي MP4 وWEBM وMOV فقط');
       if (!window.tus?.Upload) throw new Error('تعذر تحميل مكتبة الرفع الآمن. أعد تحميل الصفحة.');
       const { data: sessionData, error: sessionError } = await halaSupabase.auth.getSession();
       const session = sessionData?.session;
