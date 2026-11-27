@@ -1972,11 +1972,11 @@
       const isDriveVideo = /^https:\/\/drive\.google\.com\/file\/d\//i.test(reel.videoUrl || '');
       const mediaHtml = reel.videoUrl
         ? (isDriveVideo
-          ? \`<div class="w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><iframe src="\${reel.videoUrl}\${reel.videoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=0" title="\${reel.title}" allow="autoplay; fullscreen" allowfullscreen class="w-full h-full"></iframe></div>\`
-          : \`<div class="relative w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><video id="activeReelVideo" src="\${reel.videoUrl}" controls autoplay playsinline preload="auto" class="w-full h-full object-cover"></video></div>\`)
-        : \`<div class="w-full h-56 sm:h-64 rounded-2xl bg-[#fffaf3] border border-[#c49a50] p-4 flex items-center justify-center">
-             <img src="\${linkedProd ? linkedProd.image : DEFAULT_IMAGES.logo}" alt="\${reel.title}" class="max-h-48 w-auto object-contain" />
-           </div>\`;
+          ? `<div class="w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><iframe src="${reel.videoUrl}${reel.videoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=0" title="${reel.title}" allow="autoplay; fullscreen" allowfullscreen class="w-full h-full"></iframe></div>`
+          : `<div class="relative w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><video id="activeReelVideo" src="${reel.videoUrl}" controls autoplay playsinline preload="auto" class="w-full h-full object-cover"></video></div>`)
+        : `<div class="w-full h-56 sm:h-64 rounded-2xl bg-[#fffaf3] border border-[#c49a50] p-4 flex items-center justify-center">
+             <img src="${linkedProd ? linkedProd.image : DEFAULT_IMAGES.logo}" alt="${reel.title}" class="max-h-48 w-auto object-contain" />
+           </div>`;
 
       container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5 p-5 sm:p-6 items-center">
