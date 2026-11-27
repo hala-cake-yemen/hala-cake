@@ -3443,28 +3443,58 @@
     function halaDataUrlToBlob(dataUrl) { const parts=dataUrl.split(','); const mime=(parts[0].match(/:(.*?);/)||[])[1]||'application/octet-stream'; const raw=atob(parts[1]); const bytes=new Uint8Array(raw.length); for(let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i); return new Blob([bytes],{type:mime}); }
     function halaBlobFile(blob,name) { return new File([blob],name,{type:blob.type||'application/octet-stream'}); }
 
-    // The admin gate now uses a one-time email link, not the old client-side password.
+    // Restore the original password-based admin gate; Supabase validates the password securely.
     const halaOriginalOpenAdminGate = openAdminGate;
-    openAdminGate = async function() {
-      const modal=document.getElementById('adminGateModal');
+    openAdminGate = function() {
       const input=document.getElementById('adminPasswordInput');
-      if(input) { input.type='email'; input.value=HALA_ADMIN_EMAIL; input.placeholder='hala.cake.yemen@gmail.com'; input.autocomplete='email'; input.required=true; }
-      const label=document.querySelector('#adminGateModal label[for="adminPasswordInput"]') || document.querySelector('#adminGateModal label');
-      if(label) label.textContent='البريد الإلكتروني المعتمد للإدارة:';
-      const err=document.getElementById('adminGateErrorMsg'); if(err) {err.textContent='سيتم إرسال رابط دخول آمن إلى بريد الإدارة';err.classList.remove('hidden');err.classList.remove('bg-red-50','border-red-200','text-red-700');err.classList.add('bg-blue-50','border-blue-200','text-blue-800');}
-      if(modal){modal.classList.remove('hidden');modal.classList.add('flex');}
-      const {data}=await halaSupabase.auth.getSession();
-      if(data?.session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL){ await halaAdminEnter(); }
+      if(input) { input.type='password'; input.value=''; input.placeholder='أدخل رمز الدخول السري'; input.autocomplete='current-password'; input.required=true; }
+      const label=document.querySelector('#adminGateModal label');
+      if(label) label.textContent='كلمة مرور الإدارة:';
+      const err=document.getElementById('adminGateErrorMsg');
+      if(err) { err.textContent=''; err.classList.add('hidden'); err.classList.remove('bg-blue-50','border-blue-200','text-blue-800'); err.classList.add('bg-red-50','border-red-200','text-red-700'); }
+      halaOriginalOpenAdminGate();
     };
     verifyAdminPassword = async function(event) {
       if(event) event.preventDefault();
-      const input=document.getElementById('adminPasswordInput'); const email=(input?.value||'').trim().toLowerCase();
+      const input=document.getElementById('adminPasswordInput');
+      const password=input?.value || '';
       const err=document.getElementById('adminGateErrorMsg');
-      if(email!==HALA_ADMIN_EMAIL){ if(err){err.textContent='هذا البريد غير مصرح له بإدارة المتجر';err.classList.remove('hidden');} return; }
-      const btn=document.querySelector('#adminGateModal button[type="submit"]'); if(btn){btn.disabled=true;btn.textContent='جاري إرسال رابط الدخول...';}
-      const {error}=await halaSupabase.auth.signInWithOtp({email:HALA_ADMIN_EMAIL,options:{emailRedirectTo:window.location.href,shouldCreateUser:true}});
-      if(btn){btn.disabled=false;btn.textContent='إرسال رابط الدخول الآمن ✉️';}
-      if(err){err.textContent=error?('تعذر إرسال رابط الدخول: '+error.message):'تم إرسال رابط دخول آمن إلى بريد الإدارة. افتح الرسالة من نفس الجهاز ثم ارجع إلى المتجر.';err.classList.remove('hidden');}
+      const btn=document.querySelector('#adminGateModal button[type="submit"]');
+      if(!password) { if(err){err.textContent='أدخل كلمة مرور الإدارة';err.classList.remove('hidden');} return; }
+      if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق من كلمة المرور...';}
+      try {
+        const {data,error}=await halaSupabase.auth.signInWithPassword({email:HALA_ADMIN_EMAIL,password});
+        if(error) throw error;
+        if(data?.user?.email?.toLowerCase()!==HALA_ADMIN_EMAIL) throw new Error('هذا الحساب غير مصرح له بإدارة المتجر');
+        if(input) input.value='';
+        if(err) err.classList.add('hidden');
+        await halaAdminEnter();
+      } catch(e) {
+        if(err){err.textContent=(e?.message==='Invalid login credentials')?'كلمة المرور غير صحيحة':('تعذر تسجيل الدخول: '+(e?.message||'خطأ غير معروف'));err.classList.remove('hidden');}
+      } finally {
+        if(btn){btn.disabled=false;btn.textContent='دخول لوحة التحكم 👑';}
+      }
+    };
+    // Change the Supabase account password from inside the authenticated admin dashboard.
+    const halaOriginalSavePaymentAndSecuritySettings = savePaymentAndSecuritySettings;
+    savePaymentAndSecuritySettings = async function() {
+      const input=document.getElementById('newAdminPasswordInput');
+      const newPassword=(input?.value||'').trim();
+      if(newPassword) {
+        if(newPassword.length<8) { showToast('يجب أن تتكون كلمة المرور الجديدة من 8 أحرف على الأقل','warning'); return; }
+        try {
+          const {data}=await halaSupabase.auth.getSession();
+          if(data?.session?.user?.email?.toLowerCase()!==HALA_ADMIN_EMAIL) throw new Error('يجب تسجيل الدخول إلى الإدارة أولاً');
+          const {error}=await halaSupabase.auth.updateUser({password:newPassword});
+          if(error) throw error;
+          if(input) input.value='';
+          showToast('تم تحديث كلمة مرور الإدارة بنجاح ✓','success');
+        } catch(e) {
+          showToast('تعذر تحديث كلمة المرور: '+(e?.message||'خطأ غير معروف'),'warning');
+          return;
+        }
+      }
+      halaOriginalSavePaymentAndSecuritySettings();
     };
     async function halaAdminEnter() {
       try { await halaLoadPrivate(); await halaLoadPublic();
