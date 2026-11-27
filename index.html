@@ -3080,7 +3080,7 @@
         const url = new URL(value);
         if (!/(^|\.)drive\.google\.com$/i.test(url.hostname)) throw new Error('رابط Google Drive غير صحيح');
         const pathParts = url.pathname.split('/').filter(Boolean);
-        const fileId = (pathParts[0] === 'file' && pathParts[1] === 'd' && pathParts[2]) || url.searchParams.get('id') || '';        const fileId = (pathMatch && pathMatch[1]) || url.searchParams.get('id') || '';
+        const fileId = (pathParts[0] === 'file' && pathParts[1] === 'd' && pathParts[2]) || url.searchParams.get('id') || '';
         if (!fileId) throw new Error('تعذر استخراج معرف الفيديو من رابط Google Drive');
         return 'https://drive.google.com/file/d/' + encodeURIComponent(fileId) + '/preview';
       } catch (error) { throw new Error(error.message || 'أدخل رابط مشاركة صحيحاً من Google Drive'); }
