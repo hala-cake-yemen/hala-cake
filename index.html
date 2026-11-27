@@ -1790,6 +1790,11 @@
         updateWishlistBadge();
         updateVisitorCounterUI();
         syncPaymentSettingsUI();
+        if (recoveryHash.includes('type=recovery')) {
+          document.getElementById('halaStorageRecoveryBox')?.classList.remove('hidden');
+          openAdminDashboard();
+          switchAdminTab('reels');
+        }
       } catch (err) {
         console.error('Initialization error:', err);
       }
