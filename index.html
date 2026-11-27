@@ -112,6 +112,7 @@
       .no-print { display: none !important; }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="pb-20 md:pb-0">
 
@@ -996,8 +997,8 @@
       <div id="adminTab-settings" class="admin-tab-panel hidden space-y-6">
         <!-- Visual Identity & Images -->
         <div class="hala-card p-5 space-y-4">
-          <h3 class="text-lg font-black text-[#690d28]">🎨 الهوية البصرية والصور الرئيسية</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">            <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
+          <h3 class="text-lg font-black text-[#690d28]">🎨 الهوية البصرية والصور الرئيسية</h3>          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
               <label class="block font-extrabold text-[#690d28]">🖼️ تغيير صورة البانر العلوي الكامل:</label>
               <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'topBanner')" class="w-full" />
             </div>
@@ -1139,6 +1140,16 @@
   </div>
 
   <script>
+    // Hala Cake cloud backend (Supabase)
+    const HALA_SUPABASE_URL = 'https://llwsqazncxdailyxbjci.supabase.co';
+    const HALA_SUPABASE_KEY = 'sb_publishable_yx2MstMbhRkHFDc64fNM6Q_PfBNqDEc';
+    const halaSupabase = window.supabase.createClient(HALA_SUPABASE_URL, HALA_SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    const HALA_ADMIN_EMAIL = 'hala.cake.yemen@gmail.com';
+    let halaCloudReady = false;
+    let halaCloudAdmin = false;
+    let halaCloudSyncTimer = null;
+    const halaUploadedOrderIds = new Set();
+
     // =========================================================================
     // 1. SELF-CONTAINED SVG DATA URI GENERATORS (ZERO BROKEN IMAGES EVER)
     // =========================================================================
@@ -1305,7 +1316,7 @@
         creamColor: '#fffaf3'
       },
       settings: {
-        adminPassword: btoa('hala2026'),
+        adminPassword: '',
         whatsappNumber: '967771211154',
         kuraimiAccount: '3014892510 — باسم: حلا كيك',
         jaibAccount: '771211154 — محفظة جيب حلا كيك',
@@ -1321,7 +1332,7 @@
         webhookUrl: ''
       },
       aiConfig: {
-        geminiApiKey: 'AQ.Ab8RN6IBO2BE8yKgl351qNw3Tajb6_a1pRBirNQPV8Are9MupQ',
+        geminiApiKey: '',
         flowEmail: 'hala.cake.yemen@gmail.com',
         flowWebhookUrl: ''
       },
@@ -1985,8 +1996,7 @@
 
       if (!state.cart.length) {
         container.innerHTML = `<div class="p-6 text-center rounded-2xl bg-[#f7efe5] text-xs font-bold text-[#88777a]">سلة المشتريات فارغة حالياً. أضيفي تورتتك المفضلة من المتجر!</div>`;
-        totalEl.textContent = '0 ر.ي';
-        return;
+        totalEl.textContent = '0 ر.ي';        return;
       }
 
       let total = 0;
@@ -1996,7 +2006,8 @@
         return `
           <div class="p-3 rounded-2xl bg-white border border-[#ead9cf] flex items-center gap-3">
             <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded-xl object-contain bg-[#fffaf3] border border-[#ead9cf] p-1 shrink-0" />
-            <div class="flex-1 min-w-0">              <div class="text-xs font-extrabold text-[#690d28] truncate">${item.name}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-extrabold text-[#690d28] truncate">${item.name}</div>
               ${item.customSpecs ? `<div class="text-[10px] text-[#88777a] line-clamp-2 mt-0.5">${item.customSpecs}</div>` : ''}
               <div class="text-xs font-black text-[#a87931] mt-1">${formatYER(sub)}</div>
             </div>
@@ -2984,8 +2995,7 @@
       const waCfg = state.whatsappApi;
       box.classList.remove('hidden');
 
-      if (!waCfg.phoneNumberId || !waCfg.accessToken) {
-        box.className = 'p-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
+      if (!waCfg.phoneNumberId || !waCfg.accessToken) {        box.className = 'p-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
         box.textContent = '⚠️ يرجى إدخال Phone Number ID و Access Token أولاً، أو الاعتماد على الإرسال المباشر عبر wa.me.';
         return;
       }
@@ -2995,7 +3005,8 @@
 
       try {
         const res = await fetch(`https://graph.facebook.com/${waCfg.apiVersion}/${waCfg.phoneNumberId}`, {
-          headers: { 'Authorization': `Bearer ${waCfg.accessToken}` }        });
+          headers: { 'Authorization': `Bearer ${waCfg.accessToken}` }
+        });
         const data = await res.json();
         if (res.ok) {
           box.className = 'p-2.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800';
@@ -3366,6 +3377,168 @@
       syncPaymentSettingsUI();
       showToast('تم حفظ إعدادات السداد والأمان بنجاح 🔒');
     }
-  </script>
+  
+
+    // ---------------- Hala Cake: cloud persistence, admin auth and media ----------------
+    const halaLocalSaveState = saveState;
+    const halaPublicFields = ['visitorCount','brand','categories','products','reels','counters','reviews','customBuilderFields','voucherSettings','checkoutFields'];
+    function halaPublicSnapshot() { const out={}; halaPublicFields.forEach(k=>out[k]=state[k]); return out; }
+    function halaPrivateSnapshot() { return { settings: state.settings, whatsappApi: state.whatsappApi, aiConfig: state.aiConfig, whatsappGroups: state.whatsappGroups, socialPlatforms: state.socialPlatforms, customers: state.customers }; }
+    function halaMergeSnapshot(target, data) { if(!data || typeof data!=='object') return; Object.keys(data).forEach(k=>{ if(k==='settings'||k==='brand'||k==='whatsappApi'||k==='aiConfig'||k==='voucherSettings') target[k]={...(target[k]||{}),...(data[k]||{})}; else target[k]=data[k]; }); }
+    async function halaLoadPublic() {
+      const {data,error}=await halaSupabase.from('hala_store_public').select('data').eq('id','main').maybeSingle();
+      if(error) throw error; if(data?.data) halaMergeSnapshot(state,data.data);
+    }
+    async function halaLoadPrivate() {
+      const {data:userData,error:userError}=await halaSupabase.auth.getUser();
+      if(userError || userData?.user?.email?.toLowerCase()!==HALA_ADMIN_EMAIL) throw new Error('هذا الحساب غير مخوّل لإدارة المتجر');
+      halaCloudAdmin=true;
+      const [priv,orders]=await Promise.all([
+        halaSupabase.from('hala_store_private').select('data').eq('id','main').maybeSingle(),
+        halaSupabase.from('hala_orders').select('id,order_data,created_at').order('created_at',{ascending:false})
+      ]);
+      if(priv.error) throw priv.error; if(priv.data?.data) halaMergeSnapshot(state,priv.data.data);
+      if(orders.error) throw orders.error;
+      if(Array.isArray(orders.data)) { state.orders=orders.data.map(x=>x.order_data).filter(Boolean); orders.data.forEach(x=>halaUploadedOrderIds.add(x.id)); }
+      halaLocalSaveState();
+    }
+    async function halaPersistPublic() {
+      const {error}=await halaSupabase.from('hala_store_public').upsert({id:'main',data:halaPublicSnapshot(),updated_at:new Date().toISOString()});
+      if(error) throw error;
+    }
+    async function halaPersistPrivate() {
+      if(!halaCloudAdmin) return;
+      const {error}=await halaSupabase.from('hala_store_private').upsert({id:'main',data:halaPrivateSnapshot(),updated_at:new Date().toISOString()});
+      if(error) throw error;
+    }
+    async function halaPersistNewOrders() {
+      const pending=(state.orders||[]).filter(o=>o?.id && !halaUploadedOrderIds.has(o.id));
+      for(const order of pending) {
+        const {error}=await halaSupabase.from('hala_orders').insert({id:String(order.id),order_data:order});
+        if(error && !String(error.code||'').includes('23505')) { console.error('Hala order cloud sync:',error); continue; }
+        halaUploadedOrderIds.add(order.id);
+      }
+    }
+    async function halaSyncAll() {
+      if(!halaCloudReady) return;
+      try { await halaPersistNewOrders(); if(halaCloudAdmin) { await halaPersistPublic(); await halaPersistPrivate(); } }
+      catch(e) { console.error('Hala cloud sync:',e); showToast('تعذر مزامنة بعض البيانات السحابية. تحقق من الاتصال.', 'warning'); }
+    }
+    saveState = function() {
+      halaLocalSaveState();
+      if(halaCloudReady) { clearTimeout(halaCloudSyncTimer); halaCloudSyncTimer=setTimeout(halaSyncAll,650); }
+    };
+
+    async function halaUploadFile(file, folder, bucket='hala-media', maxBytes=52428800) {
+      if(!file) throw new Error('لم يتم اختيار ملف');
+      if(file.size>maxBytes) throw new Error(`حجم الملف يتجاوز الحد المسموح (${Math.round(maxBytes/1048576)} MB)`);
+      const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const path=`${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const {data,error}=await halaSupabase.storage.from(bucket).upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false,cacheControl:'3600'});
+      if(error) throw error;
+      if(bucket==='hala-private') return {path:data.path,url:null};
+      const {data:pub}=halaSupabase.storage.from(bucket).getPublicUrl(data.path);
+      return {path:data.path,url:pub.publicUrl};
+    }
+    function halaDataUrlToBlob(dataUrl) { const parts=dataUrl.split(','); const mime=(parts[0].match(/:(.*?);/)||[])[1]||'application/octet-stream'; const raw=atob(parts[1]); const bytes=new Uint8Array(raw.length); for(let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i); return new Blob([bytes],{type:mime}); }
+    function halaBlobFile(blob,name) { return new File([blob],name,{type:blob.type||'application/octet-stream'}); }
+
+    // The admin gate now uses a one-time email link, not the old client-side password.
+    const halaOriginalOpenAdminGate = openAdminGate;
+    openAdminGate = async function() {
+      const modal=document.getElementById('adminGateModal');
+      const input=document.getElementById('adminPasswordInput');
+      if(input) { input.type='email'; input.value=HALA_ADMIN_EMAIL; input.placeholder='hala.cake.yemen@gmail.com'; input.autocomplete='email'; input.required=true; }
+      const label=document.querySelector('#adminGateModal label[for="adminPasswordInput"]') || document.querySelector('#adminGateModal label');
+      if(label) label.textContent='البريد الإلكتروني المعتمد للإدارة:';
+      const err=document.getElementById('adminGateErrorMsg'); if(err) {err.textContent='سيتم إرسال رابط دخول آمن إلى بريد الإدارة';err.classList.remove('hidden');err.classList.remove('bg-red-50','border-red-200','text-red-700');err.classList.add('bg-blue-50','border-blue-200','text-blue-800');}
+      if(modal){modal.classList.remove('hidden');modal.classList.add('flex');}
+      const {data}=await halaSupabase.auth.getSession();
+      if(data?.session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL){ await halaAdminEnter(); }
+    };
+    verifyAdminPassword = async function(event) {
+      if(event) event.preventDefault();
+      const input=document.getElementById('adminPasswordInput'); const email=(input?.value||'').trim().toLowerCase();
+      const err=document.getElementById('adminGateErrorMsg');
+      if(email!==HALA_ADMIN_EMAIL){ if(err){err.textContent='هذا البريد غير مصرح له بإدارة المتجر';err.classList.remove('hidden');} return; }
+      const btn=document.querySelector('#adminGateModal button[type="submit"]'); if(btn){btn.disabled=true;btn.textContent='جاري إرسال رابط الدخول...';}
+      const {error}=await halaSupabase.auth.signInWithOtp({email:HALA_ADMIN_EMAIL,options:{emailRedirectTo:window.location.href,shouldCreateUser:true}});
+      if(btn){btn.disabled=false;btn.textContent='إرسال رابط الدخول الآمن ✉️';}
+      if(err){err.textContent=error?('تعذر إرسال رابط الدخول: '+error.message):'تم إرسال رابط دخول آمن إلى بريد الإدارة. افتح الرسالة من نفس الجهاز ثم ارجع إلى المتجر.';err.classList.remove('hidden');}
+    };
+    async function halaAdminEnter() {
+      try { await halaLoadPrivate(); await halaLoadPublic();
+        const gate=document.getElementById('adminGateModal'); if(gate){gate.classList.add('hidden');gate.classList.remove('flex');}
+        openAdminDashboard();
+        const header=document.querySelector('#adminDashboardOverlay .hala-header .flex.items-center.gap-2\\.5');
+        if(header && !document.getElementById('halaAdminLogoutBtn')) { const b=document.createElement('button'); b.id='halaAdminLogoutBtn'; b.type='button'; b.className='px-3 py-2 rounded-xl bg-white/15 border border-[#c49a50] text-[#e8ce91] text-xs font-bold'; b.textContent='تسجيل الخروج'; b.onclick=halaAdminLogout; header.appendChild(b); }
+        showToast('تم تسجيل دخول الإدارة ومزامنة بيانات المتجر ✓','success');
+      } catch(e) { console.error(e); showToast('تعذر تحميل بيانات الإدارة: '+e.message,'warning'); }
+    }
+    async function halaAdminLogout() { await halaSupabase.auth.signOut(); halaCloudAdmin=false; closeAdminDashboard(); showToast('تم تسجيل خروج الإدارة'); }
+    halaSupabase.auth.onAuthStateChange((event,session)=>{
+      if(session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL && (event==='SIGNED_IN'||event==='TOKEN_REFRESHED')) setTimeout(()=>halaAdminEnter(),0);
+      if(!session) halaCloudAdmin=false;
+    });
+
+    // Media uploads are stored in Supabase Storage; HTML/localStorage only retain URLs.
+    uploadBrandAsset = async function(event,assetKey) {
+      const file=event.target.files?.[0]; if(!file) return;
+      try { const up=await halaUploadFile(file,'brand');
+        if(assetKey==='topBanner') state.brand.topBannerImg=up.url;
+        if(assetKey==='chefPortrait') state.brand.chefPortraitImg=up.url;
+        if(assetKey==='logo') state.brand.logoImg=up.url;
+        saveState(); applyBranding(); showToast('تم رفع الصورة إلى التخزين السحابي وتحديث المتجر ✓','success');
+      } catch(e){showToast('فشل رفع الصورة: '+e.message,'warning');}
+    };
+    saveNewProduct = async function() {
+      const name=document.getElementById('newProdName').value.trim(); const price=Number(document.getElementById('newProdPrice').value);
+      const category=document.getElementById('newProdCategory').value; const desc=document.getElementById('newProdDesc').value.trim(); const featured=document.getElementById('newProdFeatured').checked;
+      if(!name||!price){showToast('يرجى إدخال اسم المنتج والسعر بالريال اليمني','warning');return;}
+      try { let image=generateCakeSvg('#f5dce2','#690d28','#fffaf3');
+        if(newProdProcessedDataUrl && !newProdProcessedDataUrl.startsWith('data:image/svg+xml')) { const blob=halaDataUrlToBlob(newProdProcessedDataUrl); const up=await halaUploadFile(halaBlobFile(blob,'product.png'),'products'); image=up.url; }
+        const prod={id:'prod-'+Date.now(),name,price,category,desc:desc||'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',image,featured};
+        state.products.unshift(prod); saveState(); renderProducts(); renderFeaturedProducts(); renderAdminProducts();
+        document.getElementById('newProdName').value=''; document.getElementById('newProdPrice').value=''; document.getElementById('newProdDesc').value=''; newProdProcessedDataUrl=''; newProdOriginalDataUrl=''; document.getElementById('newProdImagePreviewWrap').classList.add('hidden'); showToast('تم نشر المنتج ورفع صورته سحابياً 🎂','success');
+      } catch(e){showToast('تعذر رفع صورة المنتج: '+e.message,'warning');}
+    };
+    saveNewReel = async function() {
+      const title=document.getElementById('newReelTitle').value.trim(); const badge=document.getElementById('newReelBadge').value.trim(); const desc=document.getElementById('newReelDesc').value.trim(); const productId=document.getElementById('newReelProductSelect').value; const videoFile=document.getElementById('newReelVideoFile').files[0];
+      if(!title){showToast('يرجى إدخال عنوان الفيديو الترويجي','warning');return;}
+      try { let videoUrl=''; if(videoFile){const up=await halaUploadFile(videoFile,'videos','hala-media',52428800);videoUrl=up.url;}
+        state.reels.unshift({id:'reel-'+Date.now(),title,badge:badge||'عرض حلا كيك ✨',desc,videoUrl,productId}); saveState(); activeReelIndex=0; renderActiveReel(); renderAdminReels();
+        document.getElementById('newReelTitle').value=''; document.getElementById('newReelDesc').value=''; document.getElementById('newReelVideoFile').value=''; showToast('تم رفع الفيديو وحفظه في التخزين السحابي 🎬','success');
+      } catch(e){showToast('تعذر رفع الفيديو: '+e.message,'warning');}
+    };
+    addCustomerReviewScreenshot = async function() {
+      const customerName=document.getElementById('newReviewCustomerName').value.trim(); const platform=document.getElementById('newReviewPlatform').value; const caption=document.getElementById('newReviewCaption').value.trim()||'تجربة رائعة ومذاق لا يُقاوم من حلا كيك!'; const file=document.getElementById('newReviewScreenshotInput').files[0];
+      if(!customerName){showToast('يرجى إدخال اسم العميل','warning');return;}
+      try { let image=generateReviewScreenshotSvg(platform,customerName,caption.slice(0,38),caption.slice(38,76)); if(file){const up=await halaUploadFile(file,'reviews');image=up.url;}
+        state.reviews.unshift({id:'rev-'+Date.now(),customerName,platform,caption,image}); saveState(); renderCustomerReviews(); renderAdminSettingsTab(); document.getElementById('newReviewCustomerName').value=''; document.getElementById('newReviewCaption').value=''; document.getElementById('newReviewScreenshotInput').value=''; showToast('تم نشر رأي العميل ورفع صورته سحابياً 💬','success');
+      } catch(e){showToast('تعذر رفع صورة الرأي: '+e.message,'warning');}
+    };
+    handleReceiptImageUpload = async function(event) {
+      const file=event.target.files?.[0]; if(!file)return;
+      if(!file.type.startsWith('image/')){showToast('يرجى اختيار صورة صحيحة','warning');return;}
+      try { const local=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=e=>resolve(e.target.result);rd.onerror=reject;rd.readAsDataURL(file);});
+        const up=await halaUploadFile(file,'incoming','hala-private',10485760); currentReceiptDataUrl='private:'+up.path; const prev=document.getElementById('checkoutReceiptPreview');prev.src=local;prev.classList.remove('hidden'); showToast('تم رفع سند الحوالة بأمان إلى التخزين الخاص ✓','success');
+      } catch(e){showToast('تعذر رفع سند الحوالة: '+e.message,'warning');}
+    };
+    handleCustomCakeRefImage = async function(event) {
+      const file=event.target.files?.[0]; if(!file)return;
+      try { const local=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=e=>resolve(e.target.result);rd.onerror=reject;rd.readAsDataURL(file);});
+        const up=await halaUploadFile(file,'incoming','hala-private',10485760); customCakeRefDataUrl='private:'+up.path; document.getElementById('customCakeRefPreviewImg').src=local; document.getElementById('customCakeRefPreviewBox').classList.remove('hidden'); showToast('تم رفع صورة النموذج إلى التخزين الخاص ✓','success');
+      } catch(e){showToast('تعذر رفع صورة النموذج: '+e.message,'warning');}
+    };
+
+    // Public catalog is read-only for visitors; orders and customer details are never exposed publicly.
+    window.addEventListener('DOMContentLoaded',async()=>{
+      try { const {data}=await halaSupabase.auth.getSession(); halaCloudAdmin=data?.session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL;
+        await halaLoadPublic(); if(halaCloudAdmin) await halaLoadPrivate();
+        halaCloudReady=true; renderCategories(); renderProducts(); renderFeaturedProducts(); renderActiveReel(); renderCustomCakeBuilder(); renderStoreCounters(); renderCustomerReviews(); updateVisitorCounterUI();
+        if(halaCloudAdmin) await halaAdminEnter();
+      } catch(e){console.error('Hala cloud initialization:',e); halaCloudReady=true; showToast('المتجر يعمل محلياً مؤقتاً؛ تعذر تحميل بعض بيانات السحابة.','warning');}
+    });
+</script>
 </body>
 </html>
