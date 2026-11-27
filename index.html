@@ -644,7 +644,7 @@
   <!-- =========================================================
        17. FULL-SCREEN ADMIN DASHBOARD OVERLAY
        ========================================================= -->
-  <div id="adminDashboardOverlay" class="fixed inset-0 bg-[#fffaf3] z-[80] hidden flex-col overflow-hidden">
+  <div id="adminDashboardOverlay" class="fixed inset-0 bg-[#fffaf3] z-[80] hidden flex-col overflow-y-auto">
     <div class="hala-header px-4 py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-md">
       <div class="flex items-center gap-2.5">
         <span class="text-2xl">👑</span>
@@ -664,7 +664,7 @@
     </div>
 
     <!-- Admin Tabs Navigation (Organized Button Grid) -->
-    <div class="bg-[#f7efe5] border-b border-[#ead9cf] px-3 py-3 shrink-0">
+    <div class="bg-[#f7efe5] border-b border-[#ead9cf] px-3 py-3">
       <div class="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <button type="button" onclick="switchAdminTab('orders')" data-tab="orders" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center btn-hala-primary">📦 الطلبات والسندات والتوصيل</button>
         <button type="button" onclick="switchAdminTab('vouchers')" data-tab="vouchers" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">📄 إعدادات السندات والتوصيل</button>
@@ -679,7 +679,7 @@
     </div>
 
     <!-- Admin Content Body -->
-    <div class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl w-full mx-auto space-y-6">
+    <div class="p-4 sm:p-6 pb-10 max-w-6xl w-full mx-auto space-y-6">
 
       <!-- TAB 1: ORDERS & DELIVERY RECEIPT VOUCHERS -->
       <div id="adminTab-orders" class="admin-tab-panel space-y-4">
@@ -818,7 +818,8 @@
             <textarea id="newReelDesc" rows="2" placeholder="وصف الفيديو الترويجي..." class="md:col-span-2 p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
             <div>
               <label class="block text-xs font-bold mb-1">رفع ملف فيديو MP4 (اختياري)</label>
-              <input type="file" id="newReelVideoFile" accept="video/*" class="w-full text-xs" />
+              <input type="file" id="newReelVideoFile" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v,.3gp" class="w-full text-xs" />
+              <p class="text-[11px] text-[#88777a] mt-1">الصيغ المدعومة: MP4 وWEBM وMOV — الحد الأقصى للملف 50 ميجابايت</p>
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">المنتج المرتبط بالطلب الفوري</label>
@@ -3437,11 +3438,20 @@
 
     async function halaUploadFile(file, folder, bucket='hala-media', maxBytes=52428800) {
       if(!file) throw new Error('لم يتم اختيار ملف');
-      if(file.size>maxBytes) throw new Error(`حجم الملف يتجاوز الحد المسموح (${Math.round(maxBytes/1048576)} MB)`);
+      if(file.size>maxBytes) throw new Error(`حجم الملف ${(file.size/1048576).toFixed(1)} MB ويتجاوز الحد المسموح ${Math.round(maxBytes/1048576)} MB. قلّل حجم الفيديو ثم أعد المحاولة.`);
       const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const inferredMime=({mp4:'video/mp4',m4v:'video/x-m4v',webm:'video/webm',mov:'video/quicktime',3gp:'video/3gpp',avi:'video/x-msvideo',mkv:'video/x-matroska'})[ext]||'application/octet-stream';
+      const contentType=(file.type && file.type!=='application/octet-stream')?file.type:inferredMime;
+      if(bucket==='hala-media' && folder==='videos' && !contentType.startsWith('video/')) throw new Error('صيغة الفيديو غير مدعومة. استخدم MP4 أو WEBM أو MOV.');
       const path=`${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-      const {data,error}=await halaSupabase.storage.from(bucket).upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false,cacheControl:'3600'});
-      if(error) throw error;
+      const {data,error}=await halaSupabase.storage.from(bucket).upload(path,file,{contentType,upsert:false,cacheControl:'3600'});
+      if(error) {
+        const msg=error.message||String(error);
+        if(/mime|content.?type/i.test(msg)) throw new Error('نوع ملف الفيديو غير مقبول في التخزين. استخدم MP4 أو WEBM أو MOV.');
+        if(/size|large|payload|limit/i.test(msg)) throw new Error('الفيديو أكبر من حد التخزين الحالي (50 MB). قلّل حجمه ثم أعد المحاولة.');
+        if(/row.level|policy|permission|unauthorized|jwt|auth/i.test(msg)) throw new Error('رفض التخزين الرفع لعدم وجود جلسة إدارة سحابية موثّقة. كلمة مرور المتجر وحدها لا تمنح صلاحية التخزين.');
+        throw new Error('تعذر رفع الملف إلى التخزين: '+msg);
+      }
       if(bucket==='hala-private') return {path:data.path,url:null};
       const {data:pub}=halaSupabase.storage.from(bucket).getPublicUrl(data.path);
       return {path:data.path,url:pub.publicUrl};
@@ -3532,10 +3542,14 @@
     saveNewReel = async function() {
       const title=document.getElementById('newReelTitle').value.trim(); const badge=document.getElementById('newReelBadge').value.trim(); const desc=document.getElementById('newReelDesc').value.trim(); const productId=document.getElementById('newReelProductSelect').value; const videoFile=document.getElementById('newReelVideoFile').files[0];
       if(!title){showToast('يرجى إدخال عنوان الفيديو الترويجي','warning');return;}
+      if(videoFile && videoFile.size>52428800){showToast('حجم الفيديو أكبر من 50 ميجابايت. قلّل حجمه ثم أعد المحاولة.','warning');return;}
+      const btn=document.querySelector('#adminTab-reels button[onclick="saveNewReel()"]');
+      if(btn){btn.disabled=true;btn.textContent='جارٍ رفع الفيديو وحفظه...';}
       try { let videoUrl=''; if(videoFile){const up=await halaUploadFile(videoFile,'videos','hala-media',52428800);videoUrl=up.url;}
         state.reels.unshift({id:'reel-'+Date.now(),title,badge:badge||'عرض حلا كيك ✨',desc,videoUrl,productId}); await halaSaveAdminChanges(); activeReelIndex=0; renderActiveReel(); renderAdminReels();
         document.getElementById('newReelTitle').value=''; document.getElementById('newReelDesc').value=''; document.getElementById('newReelVideoFile').value=''; showToast('تم رفع الفيديو وحفظه في التخزين السحابي 🎬','success');
       } catch(e){showToast('تعذر رفع الفيديو: '+e.message,'warning');}
+      finally {if(btn){btn.disabled=false;btn.textContent='➕ إضافة لشريط الفيديوهات';}}
     };
     addCustomerReviewScreenshot = async function() {
       const customerName=document.getElementById('newReviewCustomerName').value.trim(); const platform=document.getElementById('newReviewPlatform').value; const caption=document.getElementById('newReviewCaption').value.trim()||'تجربة رائعة ومذاق لا يُقاوم من حلا كيك!'; const file=document.getElementById('newReviewScreenshotInput').files[0];
