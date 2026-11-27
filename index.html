@@ -1598,9 +1598,18 @@
         if (error) throw error;
         const cloudReels = (data || []).map(row => row.reel).filter(Boolean);
         if (cloudReels.length) {
+          const localById = new Map((state.reels || []).map(reel => [reel.id, reel]));
           const cloudIds = new Set(cloudReels.map(reel => reel.id));
+          const mergedCloud = cloudReels.map(cloudReel => {
+            const localReel = localById.get(cloudReel.id);
+            // Keep an older locally stored video until it has been migrated to Storage.
+            if (localReel?.videoUrl && !cloudReel.videoUrl) {
+              return { ...cloudReel, videoUrl: localReel.videoUrl };
+            }
+            return cloudReel;
+          });
           const localOnly = (state.reels || []).filter(reel => !cloudIds.has(reel.id));
-          state.reels = [...cloudReels, ...localOnly];
+          state.reels = [...mergedCloud, ...localOnly];
           saveState();
         }
       } catch (error) {
