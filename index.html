@@ -3468,7 +3468,7 @@
         if(data?.user?.email?.toLowerCase()!==HALA_ADMIN_EMAIL) throw new Error('هذا الحساب غير مصرح له بإدارة المتجر');
         if(input) input.value='';
         if(err) err.classList.add('hidden');
-        await halaAdminEnter();
+        // The authenticated-state listener opens the admin dashboard once.
       } catch(e) {
         if(err){err.textContent=(e?.message==='Invalid login credentials')?'كلمة المرور غير صحيحة':('تعذر تسجيل الدخول: '+(e?.message||'خطأ غير معروف'));err.classList.remove('hidden');}
       } finally {
