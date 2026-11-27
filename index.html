@@ -876,7 +876,8 @@
           </div>
 
           <div class="flex flex-wrap gap-2">
-            <button type="button" onclick="generateAiPromptScript()" class="px-4 py-2.5 btn-hala-gold text-xs">✨ توليد البرومت بالذكاء الاصطناعي</button>
+            <button type="button" onclick="generateAiPromptScript()" class="px-4 py-2.5 btn-hala-gold text-xs">✨ توليد السيناريو بالذكاء الاصطناعي</button>
+            <button type="button" id="aiGenerateVideoButton" onclick="generateAiVideoWithFlow()" class="px-4 py-2.5 btn-hala-primary text-xs">🎬 توليد الفيديو بالذكاء الاصطناعي عبر Flow</button>
             <button type="button" onclick="transferPromptAndMediaToPublisher()" class="px-4 py-2.5 btn-hala-primary text-xs">🚀 نقل البرومت والوسائط إلى محرر النشر</button>
           </div>
         </div>
@@ -1971,11 +1972,11 @@
       const isDriveVideo = /^https:\/\/drive\.google\.com\/file\/d\//i.test(reel.videoUrl || '');
       const mediaHtml = reel.videoUrl
         ? (isDriveVideo
-          ? `<div class="w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><iframe src="${reel.videoUrl}" title="${reel.title}" allow="autoplay; fullscreen" allowfullscreen class="w-full h-full"></iframe></div>`
-          : `<div class="w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><video src="${reel.videoUrl}" controls autoplay muted loop playsinline class="w-full h-full object-cover"></video></div>`)
-        : `<div class="w-full h-56 sm:h-64 rounded-2xl bg-[#fffaf3] border border-[#c49a50] p-4 flex items-center justify-center">
-             <img src="${linkedProd ? linkedProd.image : DEFAULT_IMAGES.logo}" alt="${reel.title}" class="max-h-48 w-auto object-contain" />
-           </div>`;
+          ? \`<div class="w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><iframe src="\${reel.videoUrl}\${reel.videoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=0" title="\${reel.title}" allow="autoplay; fullscreen" allowfullscreen class="w-full h-full"></iframe></div>\`
+          : \`<div class="relative w-full max-w-[320px] aspect-[9/16] mx-auto overflow-hidden rounded-2xl border border-[#c49a50]"><video id="activeReelVideo" src="\${reel.videoUrl}" controls autoplay playsinline preload="auto" class="w-full h-full object-cover"></video></div>\`)
+        : \`<div class="w-full h-56 sm:h-64 rounded-2xl bg-[#fffaf3] border border-[#c49a50] p-4 flex items-center justify-center">
+             <img src="\${linkedProd ? linkedProd.image : DEFAULT_IMAGES.logo}" alt="\${reel.title}" class="max-h-48 w-auto object-contain" />
+           </div>\`;
 
       container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5 p-5 sm:p-6 items-center">
@@ -1990,7 +1991,37 @@
             </div>
           </div>
         </div>
-      `;
+      \`;
+
+      const activeVideo = document.getElementById('activeReelVideo');
+      if (activeVideo) {
+        activeVideo.addEventListener('ended', playNextReel);
+        activeVideo.muted = false;
+        const playAttempt = activeVideo.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') {
+          playAttempt.catch(() => {
+            activeVideo.muted = true;
+            activeVideo.play().catch(() => {});
+            const soundButton = document.createElement('button');
+            soundButton.type = 'button';
+            soundButton.textContent = '🔊 اضغط لتشغيل الصوت';
+            soundButton.className = 'absolute bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full bg-[#c49a50] text-[#3d0719] text-xs font-black shadow-lg';
+            soundButton.addEventListener('click', () => {
+              activeVideo.muted = false;
+              activeVideo.play().catch(() => {});
+              soundButton.remove();
+            }, { once: true });
+            activeVideo.parentElement.appendChild(soundButton);
+          });
+        }
+      }
+    }
+
+    function playNextReel() {
+      if (activeReelIndex < state.reels.length - 1) {
+        activeReelIndex++;
+        renderActiveReel();
+      }
     }
 
     function nextReel() { activeReelIndex++; renderActiveReel(); }
@@ -3322,25 +3353,167 @@
       }
     }
 
-    function generateAiPromptScript() {
+    function saveAiApiConfig() {
+      state.aiConfig = {
+        ...(state.aiConfig || {}),
+        geminiApiKey: document.getElementById('adminGeminiApiKey').value.trim(),
+        flowWebhookUrl: document.getElementById('adminFlowWebhookUrl').value.trim(),
+        flowEmail: 'hala.cake.yemen@gmail.com'
+      };
+      saveState();
+      showToast('تم حفظ إعدادات Gemini وFlow ✓');
+    }
+
+    async function testGeminiConnection() {
+      saveAiApiConfig();
+      const box = document.getElementById('aiConnectionStatusBox');
+      const apiKey = (state.aiConfig.geminiApiKey || '').trim();
+      box.classList.remove('hidden');
+      if (!apiKey) {
+        box.className = 'p-3 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
+        box.textContent = 'أدخل مفتاح Gemini API أولاً.';
+        return;
+      }
+      box.className = 'p-3 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
+      box.textContent = 'جارٍ اختبار الاتصال بخدمة Gemini...';
+      try {
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(apiKey), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with exactly: OK' }] }] })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.error?.message || ('HTTP ' + response.status));
+        box.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800';
+        box.textContent = '✓ الاتصال بـ Gemini يعمل بنجاح.';
+      } catch (error) {
+        box.className = 'p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700';
+        box.textContent = 'فشل اتصال Gemini: ' + error.message;
+      }
+    }
+
+    async function generateAiPromptScript() {
       const prodId = document.getElementById('aiStudioProductSelect').value;
       const tone = document.getElementById('aiStudioToneSelect').value;
       const prod = state.products.find(p => p.id === prodId) || state.products[0];
-
-      const prompt = `🎥 فيديو ترويجي (${tone}) لمنتج: ${prod.name}\n` +
-        `الوصف البصري: لقطة سينمائية مقربة لتورتة "${prod.name}" بإضاءة دافئة ولمسات ذهبية فاخرة على حامل ملكي، مع إبراز تفاصيل الكريمة والتزيين.\n` +
-        `النص الإعلاني: ✨ دلّلوا مناسباتكم مع "${prod.name}" من حلا كيك! ${prod.desc} — متوفرة بسعر ${formatYER(prod.price)}. للطلب عبر واتساب: 00967771211154 🎂`;
-
-      document.getElementById('aiStudioPromptOutput').value = prompt;
-      showToast('تم توليد البرومت والسيناريو بنجاح ✨');
+      const output = document.getElementById('aiStudioPromptOutput');
+      const apiKey = (state.aiConfig?.geminiApiKey || '').trim();
+      if (!prod) { showToast('أضف منتجاً إلى المتجر أولاً.', 'warning'); return; }
+      if (!apiKey) { showToast('أدخل مفتاح Gemini API من إعدادات الذكاء الاصطناعي أولاً.', 'warning'); return; }
+      output.value = '🤖 جارٍ إنشاء سيناريو الفيديو بواسطة Gemini...';
+      try {
+        const requestPrompt = [
+          'اكتب سيناريو وبرومت إنتاج فيديو إعلاني قصير لمتجر حلويات اسمه حلا كيك.',
+          'اكتب باللغة العربية وبأسلوب: ' + tone,
+          'المنتج: ' + prod.name,
+          'الوصف: ' + prod.desc,
+          'السعر: ' + formatYER(prod.price),
+          'المطلوب: مشاهد متتابعة، وصف بصري سينمائي، حركة كاميرا، إضاءة، نص تعليق صوتي، ونصوص قصيرة تظهر على الشاشة.',
+          'اجعل الفيديو عمودياً بنسبة 9:16، ولا تخترع مكونات أو مزايا غير موجودة.'
+        ].join('\n');
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(apiKey), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: requestPrompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1200 }
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.error?.message || ('HTTP ' + response.status));
+        const generated = (data.candidates?.[0]?.content?.parts || []).map(part => part.text || '').join('').trim();
+        if (!generated) throw new Error('لم يُرجع Gemini نصاً صالحاً.');
+        output.value = generated;
+        showToast('تم إنشاء سيناريو الفيديو بالذكاء الاصطناعي ✓');
+      } catch (error) {
+        output.value = '';
+        showToast('تعذر توليد السيناريو: ' + error.message, 'error');
+      }
     }
 
-    function handleAiStudioMediaUpload(event) {
-      const file = event.target.files[0];
+    async function handleAiStudioMediaUpload(event) {
+      const file = event.target.files?.[0];
       if (!file) return;
-      aiStudioAttachedMedia = { name: file.name, type: file.type };
-      document.getElementById('aiStudioMediaStatus').textContent = `✓ تم إرفاق الملف: ${file.name}`;
-      showToast('تم تجهيز الملف للنقل إلى محرر النشر');
+      const status = document.getElementById('aiStudioMediaStatus');
+      status.textContent = 'جارٍ رفع الملف إلى التخزين السحابي...';
+      try {
+        if (!await refreshHalaStorageAuthStatus()) throw new Error('سجّل الدخول إلى لوحة الإدارة أولاً.');
+        let publicUrl = '';
+        if (file.type.startsWith('video/')) {
+          publicUrl = await uploadHalaVideo(file, {
+            update(percent, message) { status.textContent = message || Math.round(percent) + '%'; }
+          });
+        } else if (file.type.startsWith('image/')) {
+          if (file.size > 10 * 1024 * 1024) throw new Error('حجم الصورة يجب ألا يتجاوز 10 ميجابايت.');
+          const safeName = file.name.replace(/[^a-zA-Z0-9._()-]+/g, '_').slice(-100) || 'image';
+          const path = 'ai-media/' + Date.now() + '-' + safeName;
+          const uploadResult = await halaSupabase.storage.from(HALA_VIDEO_BUCKET).upload(path, file, {
+            cacheControl: '3600', upsert: false, contentType: file.type
+          });
+          if (uploadResult.error) throw uploadResult.error;
+          publicUrl = halaSupabase.storage.from(HALA_VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;
+        } else {
+          throw new Error('اختر صورة أو فيديو بصيغة مدعومة.');
+        }
+        aiStudioAttachedMedia = { name: file.name, type: file.type, url: publicUrl };
+        status.textContent = '✓ تم رفع الملف وحفظه سحابياً بنجاح.';
+        showToast('تم رفع الوسيط بنجاح إلى التخزين السحابي ✓');
+      } catch (error) {
+        aiStudioAttachedMedia = null;
+        status.textContent = '✕ فشل الرفع: ' + error.message;
+        showToast('تعذر رفع الوسيط: ' + error.message, 'error');
+      }
+    }
+
+    async function generateAiVideoWithFlow() {
+      const webhook = (state.aiConfig?.flowWebhookUrl || '').trim();
+      const prompt = document.getElementById('aiStudioPromptOutput').value.trim();
+      const prodId = document.getElementById('aiStudioProductSelect').value;
+      const prod = state.products.find(p => p.id === prodId) || state.products[0];
+      if (!webhook) { showToast('أضف رابط Webhook الخاص بتوليد الفيديو في إعدادات Flow أولاً.', 'warning'); return; }
+      if (!prompt) { showToast('ولّد سيناريو الفيديو أولاً ثم اطلب إنشاء الفيديو.', 'warning'); return; }
+      const button = document.getElementById('aiGenerateVideoButton');
+      if (button) { button.disabled = true; button.textContent = 'جارٍ إرسال طلب التوليد...'; }
+      try {
+        const response = await fetch(webhook, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: prompt,
+            aspect_ratio: '9:16',
+            brand: 'Hala Cake',
+            product: prod ? { id: prod.id, name: prod.name, description: prod.desc } : null,
+            source_media_url: aiStudioAttachedMedia?.url || null
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.message || data?.error || ('HTTP ' + response.status));
+        const videoUrl = data.video_url || data.url || data.output?.video_url || data.data?.video_url || data.result?.video_url;
+        if (!videoUrl) {
+          const jobId = data.job_id || data.id || data.operation_id;
+          showToast(jobId ? 'تم إرسال طلب التوليد. معرّف المهمة: ' + jobId : 'استقبل Flow الطلب لكنه لم يُرجع رابط فيديو مباشر. راجع إعدادات الـWebhook.', 'warning');
+          return;
+        }
+        const reel = {
+          id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+          title: prod?.name ? 'فيديو ' + prod.name : 'فيديو حلا كيك',
+          badge: 'مولّد بالذكاء الاصطناعي ✨',
+          desc: 'فيديو ترويجي عمودي مولّد بالذكاء الاصطناعي',
+          videoUrl: videoUrl,
+          productId: prod?.id || ''
+        };
+        await saveReelToCloud(reel);
+        state.reels.unshift(reel);
+        saveState();
+        activeReelIndex = 0;
+        renderActiveReel();
+        renderAdminReels();
+        showToast('تم توليد الفيديو وحفظه في قائمة فيديوهات المتجر ✓');
+      } catch (error) {
+        showToast('تعذر توليد الفيديو عبر Flow: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '🎬 توليد الفيديو بالذكاء الاصطناعي عبر Flow'; }
+      }
     }
 
     function transferPromptAndMediaToPublisher() {
@@ -3350,7 +3523,7 @@
         prompt = document.getElementById('aiStudioPromptOutput').value.trim();
       }
       const editor = document.getElementById('socialPostEditorText');
-      editor.value = prompt + (aiStudioAttachedMedia ? `\n\n📎 [مرفق جاهز للنشر: ${aiStudioAttachedMedia.name}]` : '');
+      editor.value = prompt + (aiStudioAttachedMedia ? `\n\n📎 الوسيط المرفوع: ${aiStudioAttachedMedia.name}\n${aiStudioAttachedMedia.url || ''}` : '');
       editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
       showToast('تم نقل البرومت والوسائط إلى محرر النشر وجارٍ الصياغة 🤖');
     }
