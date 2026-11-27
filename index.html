@@ -816,15 +816,31 @@
             <input type="text" id="newReelBadge" placeholder="شارة العرض (مثال: عرض خاص 🔥)" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
             <textarea id="newReelDesc" rows="2" placeholder="وصف الفيديو الترويجي..." class="md:col-span-2 p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
             <div>
-              <label class="block text-xs font-bold mb-1">رفع ملف فيديو MP4 (اختياري)</label>
-              <input type="file" id="newReelVideoFile" accept="video/*" class="w-full text-xs" />
+              <label class="block text-xs font-bold mb-1">رفع عدة فيديوهات (حتى 50 ميجابايت لكل فيديو)</label>
+              <input type="file" id="newReelVideoFile" accept="video/mp4,video/webm,video/quicktime,video/*" multiple class="w-full text-xs" />
+              <p class="text-[10px] text-[#88777a] mt-1">يمكن اختيار عدة ملفات دفعة واحدة. تُرفع الفيديوهات واحداً تلو الآخر مع حفظ تقدم كل ملف.</p>
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">المنتج المرتبط بالطلب الفوري</label>
               <select id="newReelProductSelect" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"></select>
             </div>
           </div>
-          <button type="button" onclick="saveNewReel()" class="px-6 py-2.5 btn-hala-primary text-xs sm:text-sm">➕ إضافة لشريط الفيديوهات</button>
+          <div class="rounded-xl border border-[#ead9cf] bg-[#fffaf3] p-3 space-y-2">
+            <div class="font-extrabold text-[#690d28] text-xs">🔐 ربط حساب التخزين الآمن</div>
+            <p id="halaStorageAuthStatus" class="text-[11px] text-[#88777a]">يلزم تسجيل الدخول بحساب الإدارة لرفع الفيديوهات وحفظها في السحابة.</p>
+            <input id="halaStorageAuthEmail" type="email" value="hala.cake.yemen@gmail.com" readonly dir="ltr" class="w-full p-2 text-xs border border-[#ead9cf] rounded-lg bg-gray-50" />
+            <input id="halaStorageAuthPassword" type="password" autocomplete="current-password" placeholder="كلمة مرور حساب التخزين" class="w-full p-2 text-xs border border-[#ead9cf] rounded-lg" />
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="loginHalaStorage()" class="px-4 py-2 btn-hala-primary text-xs">تسجيل الدخول للتخزين</button>
+              <button type="button" onclick="sendHalaStoragePasswordReset()" class="px-4 py-2 rounded-lg border border-[#c49a50] text-[#690d28] text-xs font-bold">نسيت كلمة المرور؟</button>
+            </div>
+            <div id="halaStorageRecoveryBox" class="hidden space-y-2 border-t border-[#ead9cf] pt-2">
+              <input id="halaStorageNewPassword" type="password" autocomplete="new-password" placeholder="كلمة المرور الجديدة (8 أحرف على الأقل)" class="w-full p-2 text-xs border border-[#ead9cf] rounded-lg" />
+              <button type="button" onclick="saveHalaStorageRecoveryPassword()" class="px-4 py-2 btn-hala-gold text-xs">حفظ كلمة المرور الجديدة</button>
+            </div>
+          </div>
+          <div id="halaVideoUploadProgress" class="space-y-2"></div>
+          <button id="newReelSaveButton" type="button" onclick="saveNewReel()" class="px-6 py-2.5 btn-hala-primary text-xs sm:text-sm">➕ إضافة / رفع الفيديوهات</button>
         </div>
         <div id="adminReelsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </div>
@@ -1139,7 +1155,19 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
   <script>
+    // Supabase Storage: large video uploads are sent directly in resumable chunks.
+    const HALA_SUPABASE_URL = 'https://llwsqazncxdailyxbjci.supabase.co';
+    const HALA_SUPABASE_ANON_KEY = 'sb_publishable_yx2MstMbhRkHFDc64fNM6Q_PfBNqDEc';
+    const HALA_SUPABASE_REF = 'llwsqazncxdailyxbjci';
+    const HALA_VIDEO_BUCKET = 'hala-media';
+    const HALA_VIDEO_MAX_BYTES = 50 * 1024 * 1024;
+    const halaSupabase = window.supabase?.createClient
+      ? window.supabase.createClient(HALA_SUPABASE_URL, HALA_SUPABASE_ANON_KEY)
+      : null;
+
     // =========================================================================
     // 1. SELF-CONTAINED SVG DATA URI GENERATORS (ZERO BROKEN IMAGES EVER)
     // =========================================================================
@@ -1495,6 +1523,211 @@
     let secretTapTimer = null;
     let currentVoucherOrderId = null;
 
+    function setHalaStorageAuthStatus(message, isReady = false) {
+      const el = document.getElementById('halaStorageAuthStatus');
+      if (el) {
+        el.textContent = message;
+        el.className = isReady ? 'text-[11px] text-green-700 font-bold' : 'text-[11px] text-[#88777a]';
+      }
+    }
+
+    async function refreshHalaStorageAuthStatus() {
+      if (!halaSupabase) {
+        setHalaStorageAuthStatus('تعذر تحميل مكتبة الاتصال. أعد تحميل الصفحة بعد التأكد من الاتصال بالإنترنت.');
+        return null;
+      }
+      const { data, error } = await halaSupabase.auth.getSession();
+      const session = data?.session || null;
+      if (error) console.warn('Storage auth status:', error.message);
+      if (session?.user?.email === 'hala.cake.yemen@gmail.com') {
+        setHalaStorageAuthStatus('✓ حساب الإدارة متصل بالتخزين الآمن. يمكنك رفع الفيديوهات.', true);
+        return session;
+      }
+      setHalaStorageAuthStatus('لم يتم ربط حساب التخزين بعد. سجّل الدخول أو اطلب رابط إعادة تعيين كلمة المرور.');
+      return null;
+    }
+
+    async function loginHalaStorage() {
+      if (!halaSupabase) return showToast('تعذر الاتصال بخدمة التخزين. أعد تحميل الصفحة.', 'error');
+      const password = document.getElementById('halaStorageAuthPassword')?.value || '';
+      if (!password) return showToast('أدخل كلمة مرور حساب الإدارة أولاً.', 'warning');
+      setHalaStorageAuthStatus('جارٍ التحقق من حساب الإدارة...');
+      const { data, error } = await halaSupabase.auth.signInWithPassword({
+        email: 'hala.cake.yemen@gmail.com',
+        password
+      });
+      if (error) {
+        setHalaStorageAuthStatus('تعذر تسجيل الدخول. إذا نسيت كلمة المرور استخدم زر إعادة التعيين.');
+        return showToast('فشل تسجيل الدخول للتخزين: ' + error.message, 'error');
+      }
+      document.getElementById('halaStorageAuthPassword').value = '';
+      setHalaStorageAuthStatus('✓ تم ربط حساب الإدارة بالتخزين. جارٍ فحص الفيديوهات القديمة...', true);
+      showToast('تم ربط حساب التخزين بنجاح');
+      await migrateLegacyReelVideos();
+      await refreshHalaStorageAuthStatus();
+    }
+
+    async function sendHalaStoragePasswordReset() {
+      if (!halaSupabase) return showToast('تعذر الاتصال بخدمة التخزين. أعد تحميل الصفحة.', 'error');
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await halaSupabase.auth.resetPasswordForEmail('hala.cake.yemen@gmail.com', { redirectTo });
+      if (error) return showToast('تعذر إرسال رابط إعادة التعيين: ' + error.message, 'error');
+      showToast('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريد إدارة حلا كيك.');
+      setHalaStorageAuthStatus('افتح بريد الإدارة واضغط رابط إعادة التعيين ثم ارجع إلى هذه الصفحة.');
+    }
+
+    async function saveHalaStorageRecoveryPassword() {
+      if (!halaSupabase) return;
+      const password = document.getElementById('halaStorageNewPassword')?.value || '';
+      if (password.length < 8) return showToast('كلمة المرور يجب ألا تقل عن 8 أحرف.', 'warning');
+      const { error } = await halaSupabase.auth.updateUser({ password });
+      if (error) return showToast('تعذر تحديث كلمة المرور: ' + error.message, 'error');
+      document.getElementById('halaStorageNewPassword').value = '';
+      document.getElementById('halaStorageRecoveryBox').classList.add('hidden');
+      showToast('تم تحديث كلمة مرور حساب التخزين بنجاح.');
+      await refreshHalaStorageAuthStatus();
+    }
+
+    async function loadCloudReels() {
+      if (!halaSupabase) return;
+      try {
+        const { data, error } = await halaSupabase
+          .from('hala_reels')
+          .select('reel, sort_order')
+          .order('sort_order', { ascending: false });
+        if (error) throw error;
+        const cloudReels = (data || []).map(row => row.reel).filter(Boolean);
+        if (cloudReels.length) {
+          const cloudIds = new Set(cloudReels.map(reel => reel.id));
+          const localOnly = (state.reels || []).filter(reel => !cloudIds.has(reel.id));
+          state.reels = [...cloudReels, ...localOnly];
+          saveState();
+        }
+      } catch (error) {
+        console.warn('Could not load cloud reels:', error);
+      }
+    }
+
+    async function saveReelToCloud(reel) {
+      if (!halaSupabase) throw new Error('مكتبة التخزين غير متاحة');
+      const { data: sessionData } = await halaSupabase.auth.getSession();
+      const session = sessionData?.session;
+      if (!session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
+        throw new Error('سجّل الدخول بحساب الإدارة أولاً لحفظ الفيديو في المتجر');
+      }
+      const { error } = await halaSupabase.from('hala_reels').upsert({
+        id: reel.id,
+        reel,
+        sort_order: Math.floor(Date.now() / 1000),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      if (error) throw error;
+    }
+
+    function makeHalaVideoProgressRow(fileName) {
+      const container = document.getElementById('halaVideoUploadProgress');
+      const row = document.createElement('div');
+      row.className = 'rounded-lg border border-[#ead9cf] bg-white p-2 text-xs space-y-1';
+      const name = document.createElement('div');
+      name.className = 'font-bold text-[#690d28] truncate';
+      name.textContent = fileName;
+      const bar = document.createElement('progress');
+      bar.max = 100;
+      bar.value = 0;
+      bar.className = 'w-full h-2';
+      const status = document.createElement('div');
+      status.className = 'text-[10px] text-[#88777a]';
+      status.textContent = 'في انتظار الرفع...';
+      row.append(name, bar, status);
+      container?.appendChild(row);
+      return {
+        update(percent, message) {
+          bar.value = Math.max(0, Math.min(100, percent));
+          status.textContent = message || (Math.round(percent) + '%');
+        }
+      };
+    }
+
+    async function uploadHalaVideo(file, progress) {
+      if (file.size > HALA_VIDEO_MAX_BYTES) throw new Error('حجم الفيديو يتجاوز 50 ميجابايت');
+      if (!file.type.startsWith('video/')) throw new Error('الملف المحدد ليس فيديو');
+      if (!window.tus?.Upload) throw new Error('تعذر تحميل مكتبة الرفع الآمن. أعد تحميل الصفحة.');
+      const { data: sessionData, error: sessionError } = await halaSupabase.auth.getSession();
+      const session = sessionData?.session;
+      if (sessionError || !session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
+        throw new Error('يجب تسجيل الدخول بحساب الإدارة قبل رفع الفيديوهات');
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._()-]+/g, '_').slice(-100) || 'video';
+      const path = 'videos/' + Date.now() + '-' + Math.random().toString(36).slice(2, 10) + '-' + safeName;
+      const endpoint = 'https://' + HALA_SUPABASE_REF + '.storage.supabase.co/storage/v1/upload/resumable';
+
+      await new Promise((resolve, reject) => {
+        const upload = new window.tus.Upload(file, {
+          endpoint,
+          retryDelays: [0, 3000, 5000, 10000, 20000],
+          headers: {
+            authorization: 'Bearer ' + session.access_token,
+            apikey: HALA_SUPABASE_ANON_KEY,
+            'x-upsert': 'false'
+          },
+          uploadDataDuringCreation: true,
+          removeFingerprintOnSuccess: true,
+          chunkSize: 6 * 1024 * 1024,
+          metadata: {
+            bucketName: HALA_VIDEO_BUCKET,
+            objectName: path,
+            contentType: file.type || 'video/mp4',
+            cacheControl: '3600'
+          },
+          onError(error) { reject(error); },
+          onProgress(bytesUploaded, bytesTotal) {
+            const percent = bytesTotal ? (bytesUploaded / bytesTotal) * 100 : 0;
+            progress?.update(percent, Math.round(percent) + '% — ' + (bytesUploaded / 1048576).toFixed(1) + ' / ' + (bytesTotal / 1048576).toFixed(1) + ' MB');
+          },
+          onSuccess() { resolve(); }
+        });
+        upload.findPreviousUploads().then(previous => {
+          if (previous.length) upload.resumeFromPreviousUpload(previous[0]);
+          upload.start();
+        }).catch(reject);
+      });
+
+      const { data } = halaSupabase.storage.from(HALA_VIDEO_BUCKET).getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    async function migrateLegacyReelVideos() {
+      const legacy = (state.reels || []).filter(reel => typeof reel.videoUrl === 'string' && reel.videoUrl.startsWith('data:video/'));
+      if (!legacy.length) return;
+      let migrated = 0;
+      for (const reel of legacy) {
+        try {
+          const blob = await (await fetch(reel.videoUrl)).blob();
+          if (blob.size > HALA_VIDEO_MAX_BYTES) {
+            showToast('الفيديو القديم "' + reel.title + '" أكبر من 50 ميجابايت ولم يتم نقله.', 'warning');
+            continue;
+          }
+          const file = new File([blob], (reel.id || 'legacy-video') + '.mp4', { type: blob.type || 'video/mp4' });
+          const progress = makeHalaVideoProgressRow('نقل فيديو قديم: ' + reel.title);
+          const url = await uploadHalaVideo(file, progress);
+          reel.videoUrl = url;
+          await saveReelToCloud(reel);
+          saveState();
+          progress.update(100, '✓ تم نقل الفيديو إلى التخزين السحابي');
+          migrated++;
+        } catch (error) {
+          console.error('Legacy video migration failed:', error);
+          showToast('تعذر نقل أحد الفيديوهات القديمة: ' + error.message, 'error');
+        }
+      }
+      if (migrated) {
+        renderActiveReel();
+        renderAdminReels();
+        showToast('تم نقل ' + migrated + ' فيديو قديم إلى التخزين السحابي.');
+      }
+    }
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1529,8 +1762,14 @@
     // =========================================================================
     // 3. INITIALIZATION & VISITOR COUNTER
     // =========================================================================
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       try {
+        await loadCloudReels();
+        const recoveryHash = window.location.hash || '';
+        if (recoveryHash.includes('type=recovery')) {
+          document.getElementById('halaStorageRecoveryBox')?.classList.remove('hidden');
+        }
+        await refreshHalaStorageAuthStatus();
         // Increment visitor counter once per session
         if (!sessionStorage.getItem('hala_visited_session')) {
           state.visitorCount = (Number(state.visitorCount) || 0) + 1;
@@ -2867,42 +3106,107 @@
       showToast('تمت صياغة بيانات الفيديو بالذكاء الاصطناعي 🤖');
     }
 
-    function saveNewReel() {
+    async function saveNewReel() {
       const title = document.getElementById('newReelTitle').value.trim();
       const badge = document.getElementById('newReelBadge').value.trim();
       const desc = document.getElementById('newReelDesc').value.trim();
       const productId = document.getElementById('newReelProductSelect').value;
-      const videoFile = document.getElementById('newReelVideoFile').files[0];
+      const input = document.getElementById('newReelVideoFile');
+      const files = Array.from(input.files || []);
+      const button = document.getElementById('newReelSaveButton');
+      const progressContainer = document.getElementById('halaVideoUploadProgress');
 
       if (!title) {
         showToast('يرجى إدخال عنوان الفيديو الترويجي', 'warning');
         return;
       }
 
-      const addReelObj = (videoUrl) => {
-        state.reels.unshift({
-          id: 'reel-' + Date.now(),
-          title,
-          badge: badge || 'عرض حلا كيك ✨',
-          desc,
-          videoUrl,
-          productId
-        });
-        saveState();
+      if (files.some(file => file.size > HALA_VIDEO_MAX_BYTES)) {
+        showToast('يوجد فيديو يتجاوز الحد الأقصى 50 ميجابايت. احذف الملف الكبير ثم أعد المحاولة.', 'warning');
+        return;
+      }
+      if (files.length && !await refreshHalaStorageAuthStatus()) {
+        showToast('سجّل الدخول بحساب الإدارة في مربع ربط التخزين قبل رفع الفيديوهات.', 'warning');
+        return;
+      }
+
+      if (progressContainer) progressContainer.innerHTML = '';
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'جارٍ تجهيز الفيديوهات...';
+      }
+
+      let successCount = 0;
+      let failureCount = 0;
+      try {
+        if (!files.length) {
+          const reel = {
+            id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+            title,
+            badge: badge || 'عرض حلا كيك ✨',
+            desc,
+            videoUrl: '',
+            productId
+          };
+          state.reels.unshift(reel);
+          saveState();
+          try { await saveReelToCloud(reel); } catch (error) {
+            console.warn('Reel saved locally only:', error);
+          }
+          successCount = 1;
+        } else {
+          for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            const progress = makeHalaVideoProgressRow(file.name);
+            try {
+              progress.update(0, 'جارٍ رفع الفيديو إلى التخزين السحابي...');
+              const videoUrl = await uploadHalaVideo(file, progress);
+              const fileTitle = files.length > 1
+                ? title + ' — ' + file.name.replace(/\.[^.]+$/, '')
+                : title;
+              const reel = {
+                id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+                title: fileTitle,
+                badge: badge || 'عرض حلا كيك ✨',
+                desc,
+                videoUrl,
+                productId
+              };
+              state.reels.unshift(reel);
+              saveState();
+              await saveReelToCloud(reel);
+              progress.update(100, '✓ اكتمل الرفع والحفظ في المتجر');
+              successCount++;
+            } catch (error) {
+              console.error('Video upload failed:', file.name, error);
+              progress.update(0, '✕ فشل الرفع: ' + error.message);
+              failureCount++;
+            }
+          }
+        }
+
         activeReelIndex = 0;
         renderActiveReel();
         renderAdminReels();
-        document.getElementById('newReelTitle').value = '';
-        document.getElementById('newReelDesc').value = '';
-        showToast('تمت إضافة الفيديو لشريط الأحداث التفاعلي 🎬');
-      };
-
-      if (videoFile) {
-        const reader = new FileReader();
-        reader.onload = e => addReelObj(e.target.result);
-        reader.readAsDataURL(videoFile);
-      } else {
-        addReelObj('');
+        if (successCount) {
+          document.getElementById('newReelTitle').value = '';
+          document.getElementById('newReelDesc').value = '';
+          input.value = '';
+        }
+        if (successCount && !failureCount) {
+          showToast('تم رفع وحفظ ' + successCount + ' فيديو بنجاح في متجر حلا كيك 🎬');
+        } else if (successCount && failureCount) {
+          showToast('تم رفع ' + successCount + ' فيديو، وتعذر رفع ' + failureCount + '. راجع حالة الملفات.', 'warning');
+        } else if (failureCount) {
+          showToast('لم يكتمل رفع الفيديوهات. راجع تفاصيل الخطأ بجانب كل ملف.', 'error');
+        } else {
+          showToast('تمت إضافة الفيديو لشريط الأحداث التفاعلي 🎬');
+        }
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = '➕ إضافة / رفع الفيديوهات';
+        }
       }
     }
 
@@ -2922,7 +3226,22 @@
       `).join('');
     }
 
-    function deleteReel(idx) {
+    async function deleteReel(idx) {
+      const reel = state.reels[idx];
+      if (!reel) return;
+      if (halaSupabase) {
+        const { data: sessionData } = await halaSupabase.auth.getSession();
+        const session = sessionData?.session;
+        if (!session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
+          showToast('سجّل الدخول بحساب الإدارة لحذف الفيديو من المتجر.', 'warning');
+          return;
+        }
+        const { error } = await halaSupabase.from('hala_reels').delete().eq('id', reel.id);
+        if (error) {
+          showToast('تعذر حذف الفيديو من التخزين السحابي: ' + error.message, 'error');
+          return;
+        }
+      }
       state.reels.splice(idx, 1);
       activeReelIndex = 0;
       saveState();
