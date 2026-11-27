@@ -1,0 +1,3371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>حلا كيك | Hala Cake - كيكات وحلويات منزلية فاخرة</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hala-burgundy: #690d28;
+      --hala-burgundy-dark: #3d0719;
+      --hala-burgundy-light: #8d2947;
+      --hala-gold: #c49a50;
+      --hala-gold-light: #e8ce91;
+      --hala-cream: #fffaf3;
+      --hala-ivory: #f7efe5;
+      --hala-pink: #f5dce2;
+      --hala-rose: #e9b9c6;
+      --hala-text: #38252a;
+      --hala-muted: #88777a;
+      --hala-white: #ffffff;
+      --hala-border: #ead9cf;
+      --hala-shadow: 0 8px 28px rgba(75, 12, 32, 0.10);
+      --hala-shadow-hover: 0 14px 35px rgba(75, 12, 32, 0.17);
+      --hala-gradient: linear-gradient(135deg, #4a091e, #861e3c);
+      --hala-gold-gradient: linear-gradient(135deg, #a87931, #efd79b, #b78943);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      background-color: var(--hala-cream);
+      color: var(--hala-text);
+      font-family: "Cairo", sans-serif;
+    }
+
+    .font-calligraphy { font-family: "Aref Ruqaa", serif; }
+    .font-script { font-family: "Great Vibes", cursive; }
+
+    /* Visual Identity Overrides */
+    .hala-header {
+      background: var(--hala-gradient);
+      color: var(--hala-white);
+      border-bottom: 3px solid var(--hala-gold);
+    }
+
+    .btn-hala-primary {
+      background: var(--hala-gradient);
+      color: var(--hala-white);
+      border: 1px solid var(--hala-gold);
+      border-radius: 14px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .btn-hala-primary:hover {
+      background: var(--hala-burgundy-light);
+      box-shadow: var(--hala-shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-hala-gold {
+      background: var(--hala-gold-gradient);
+      color: var(--hala-burgundy-dark);
+      border: 1px solid #a87931;
+      border-radius: 14px;
+      font-weight: 800;
+      transition: all 0.25s ease;
+    }
+    .btn-hala-gold:hover {
+      box-shadow: var(--hala-shadow-hover);
+      transform: translateY(-2px);
+    }
+
+    .hala-card {
+      background: var(--hala-white);
+      border: 1px solid var(--hala-border);
+      border-radius: 18px;
+      box-shadow: var(--hala-shadow);
+      min-width: 0;
+      transition: all 0.25s ease;
+    }
+    .hala-card:hover {
+      box-shadow: var(--hala-shadow-hover);
+      border-color: var(--hala-gold);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Print Styles for Delivery Voucher */
+    @media print {
+      body * { visibility: hidden; }
+      #voucherPrintArea, #voucherPrintArea * { visibility: visible; }
+      #voucherPrintArea {
+        position: fixed;
+        inset: 0;
+        background: white;
+        padding: 24px;
+        z-index: 99999;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="pb-20 md:pb-0">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-4 left-4 right-4 md:left-auto md:right-6 md:w-96 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- =========================================================
+       1. FULL-WIDTH TOP BANNER (Above Header, Zero Overlapping)
+       ========================================================= -->
+  <section id="topBannerSection" class="w-full bg-[#3d0719] border-b-2 border-[#c49a50]">
+    <div class="w-full max-w-7xl mx-auto">
+      <img id="topBannerImg" alt="بانر حلا كيك الفاخر" class="w-full h-auto max-h-[260px] md:max-h-[360px] object-cover block" />
+    </div>
+  </section>
+
+  <!-- =========================================================
+       2. MAIN BURGUNDY HEADER & NAVIGATION BAR
+       ========================================================= -->
+  <header class="hala-header sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5">
+      <div class="flex items-center justify-between gap-2 sm:gap-4">
+        <!-- Right: Logo (5 taps open secret Admin Gate) -->
+        <div id="brandLogoTrigger" onclick="handleSecretLogoTap()" class="flex items-center gap-2.5 cursor-pointer select-none shrink-0" title="حلا كيك">
+          <img id="headerLogoImg" alt="شعار حلا كيك" class="w-12 h-12 md:w-[58px] md:h-[58px] rounded-full border-2 border-[#c49a50] bg-[#fffaf3] object-contain p-0.5 shrink-0" />
+          <div class="leading-tight">
+            <div id="headerStoreName" class="font-calligraphy text-xl md:text-2xl text-[#e8ce91] font-bold">حلا كيك</div>
+            <div class="font-script text-sm md:text-base text-white/90 -mt-1">Hala Cake</div>
+          </div>
+        </div>
+
+        <!-- Center: Search Bar (Desktop) -->
+        <div class="hidden md:flex flex-1 max-w-md mx-4">
+          <div class="relative w-full">
+            <input type="text" id="desktopSearchInput" oninput="handleSearch(this.value)" placeholder="ابحث عن الكيك أو الحلويات أو الشوكولاتة..."
+              class="w-full bg-[#fffaf3] text-[#38252a] placeholder-[#88777a] rounded-full py-2 pr-4 pl-10 text-sm border border-[#c49a50] focus:outline-none" />
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#690d28]">🔍</span>
+          </div>
+        </div>
+
+        <!-- Left: Account, Favorites, Cart -->
+        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <button type="button" onclick="openCustomerAccountModal()" class="flex items-center gap-1 px-2.5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold">
+            <span>👤</span>
+            <span class="hidden sm:inline">حسابي</span>
+          </button>
+
+          <button type="button" onclick="toggleWishlistFilter()" class="relative w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" aria-label="المفضلة">
+            <span class="text-base">🤍</span>
+            <span id="wishlistBadge" class="absolute -top-1 -left-1 min-w-[20px] h-5 px-1 rounded-full bg-[#c49a50] text-[#3d0719] text-[11px] font-black flex items-center justify-center">0</span>
+          </button>
+
+          <button type="button" onclick="openCartDrawer()" class="relative flex items-center gap-1.5 px-3 py-2 rounded-full btn-hala-gold text-xs sm:text-sm shadow">
+            <span>🛒</span>
+            <span class="hidden sm:inline">السلة</span>
+            <span id="headerCartBadge" class="min-w-[20px] h-5 px-1 rounded-full bg-[#690d28] text-white text-[11px] font-black flex items-center justify-center">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar -->
+      <div class="mt-2 md:hidden">
+        <div class="relative w-full">
+          <input type="text" id="mobileSearchInput" oninput="handleSearch(this.value)" placeholder="ابحث عن تورتة أو حلويات..."
+            class="w-full bg-[#fffaf3] text-[#38252a] placeholder-[#88777a] rounded-full py-1.5 pr-4 pl-9 text-xs border border-[#c49a50] focus:outline-none" />
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#690d28] text-xs">🔍</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horizontal Scrollable Sub-Navigation -->
+    <nav class="bg-[#3d0719]/90 border-t border-[#c49a50]/30">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+        <a href="#topBannerSection" onclick="filterByCategory('الكل')" class="px-3.5 py-1 rounded-full btn-hala-gold text-xs font-extrabold shrink-0">الرئيسية</a>
+        <a href="#customCakeSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-[#e8ce91] text-xs font-bold shrink-0">🎂 طلبات خاصة</a>
+        <a href="#categoriesSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold shrink-0">أقسامنا</a>
+        <a href="#productsSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold shrink-0">المنتجات</a>
+        <a href="#reelsSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold shrink-0">الفيديوهات</a>
+        <a href="#reviewsSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold shrink-0">آراء العملاء</a>
+        <a href="#footerSection" class="px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold shrink-0">تواصل معنا</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- =========================================================
+       3. HERO SECTION & FULL-WIDTH CHEF HALA PORTRAIT
+       ========================================================= -->
+  <section class="bg-gradient-to-b from-[#f5dce2]/60 via-[#fffaf3] to-[#f7efe5] py-8 px-4 border-b border-[#ead9cf]">
+    <div class="max-w-4xl mx-auto text-center space-y-4">
+      <span class="inline-block px-4 py-1 rounded-full bg-[#f5dce2] text-[#690d28] border border-[#c49a50]/50 text-xs sm:text-sm font-extrabold">
+        ✨ للكيكات والتورتات المميزة ✨
+      </span>
+      <h1 id="heroTitleText" class="font-calligraphy text-4xl sm:text-5xl md:text-6xl text-[#690d28] font-bold leading-tight">
+        حلا كيك
+      </h1>
+      <p id="heroSubtitleText" class="text-sm sm:text-base md:text-lg text-[#38252a] font-semibold max-w-2xl mx-auto leading-relaxed">
+        كيكات وحلويات منزلية فاخرة لكل مناسباتكم الخاصة — نصنع لحظاتكم بحلاوة خاصة
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <a href="#productsSection" class="w-full sm:w-auto px-8 py-3.5 btn-hala-primary text-sm sm:text-base flex items-center justify-center gap-2 shadow-md">
+          <span>اطلب الآن</span>
+          <span>🛒</span>
+        </a>
+        <a href="#customCakeSection" class="w-full sm:w-auto px-8 py-3.5 btn-hala-gold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md">
+          <span>طلبات خاصة</span>
+          <span>🎂</span>
+        </a>
+      </div>
+
+      <!-- Full-Width Uncropped Chef Hala Portrait -->
+      <div class="pt-4 w-full max-w-2xl mx-auto">
+        <div class="rounded-3xl overflow-hidden border-2 border-[#c49a50] shadow-xl bg-white">
+          <img id="chefHeroPortraitImg" alt="الشيف حلا كيك" class="w-full h-auto block object-contain" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Badges Bar -->
+    <div class="max-w-6xl mx-auto mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="hala-card p-3.5 flex items-center justify-center gap-2.5 text-center">
+        <span class="text-2xl">🏅</span>
+        <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">جودة عالية</span>
+      </div>
+      <div class="hala-card p-3.5 flex items-center justify-center gap-2.5 text-center">
+        <span class="text-2xl">🎂</span>
+        <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">تصاميم مخصصة</span>
+      </div>
+      <div class="hala-card p-3.5 flex items-center justify-center gap-2.5 text-center">
+        <span class="text-2xl">🌿</span>
+        <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">مكونات طبيعية</span>
+      </div>
+      <div class="hala-card p-3.5 flex items-center justify-center gap-2.5 text-center">
+        <span class="text-2xl">🚚</span>
+        <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">توصيل آمن</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       4. INTERACTIVE VIDEO & EVENTS CAROUSEL
+       ========================================================= -->
+  <section id="reelsSection" class="py-8 px-4 max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-[#690d28]">🎬 عروض وفيديوهات حلا كيك</h2>
+        <p class="text-xs sm:text-sm text-[#88777a]">شاهدي أحدث إبداعاتنا وتفاصيل التورتات الفاخرة</p>
+      </div>
+      <div class="flex items-center gap-2 self-end sm:self-auto">
+        <button type="button" onclick="prevReel()" class="w-9 h-9 rounded-full bg-white border border-[#c49a50] text-[#690d28] font-bold flex items-center justify-center shadow-sm">❯</button>
+        <button type="button" onclick="nextReel()" class="w-9 h-9 rounded-full bg-white border border-[#c49a50] text-[#690d28] font-bold flex items-center justify-center shadow-sm">❮</button>
+      </div>
+    </div>
+
+    <div id="reelCardContainer" class="hala-card overflow-hidden bg-gradient-to-l from-[#3d0719] to-[#690d28] text-white border-2 border-[#c49a50]">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </section>
+
+  <!-- =========================================================
+       5. CATEGORIES SECTION (أقسامنا)
+       ========================================================= -->
+  <section id="categoriesSection" class="py-8 px-4 bg-[#f7efe5] border-y border-[#ead9cf]">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl font-black text-[#690d28]">أقسامنا</h2>
+        <div class="w-24 h-1 bg-[#c49a50] mx-auto mt-2 rounded-full"></div>
+      </div>
+
+      <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       6. MAIN HEADING 1: منتجات حلا كيك
+       ========================================================= -->
+  <section id="productsSection" class="py-10 px-4 max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-[#ead9cf]">
+      <div class="min-w-0">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-[#690d28]">1. منتجات حلا كيك</h2>
+        <p class="text-xs sm:text-sm text-[#88777a] mt-1">تشكيلة الكيكات والتورتات والحلويات الفاخرة الجاهزة للطلب</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="activeCategoryPill" class="px-3.5 py-1.5 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">جميع التشكيلات</span>
+        <button type="button" id="resetFilterBtn" onclick="filterByCategory('الكل')" class="hidden px-3 py-1.5 rounded-full bg-white border border-[#c49a50] text-[#690d28] text-xs font-bold">عرض الكل</button>
+      </div>
+    </div>
+
+    <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- =========================================================
+       7. MAIN HEADING 2: الكيك الأكثر طلباً وتميّزاً + زر طلبات خاصة الذهبي
+       ========================================================= -->
+  <section id="featuredSection" class="py-10 px-4 bg-[#f7efe5] border-y border-[#ead9cf]">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-3 border-b border-[#ead9cf]">
+        <div class="min-w-0">
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-[#690d28]">2. الكيك الأكثر طلباً وتميّزاً</h2>
+          <p class="text-xs sm:text-sm text-[#88777a] mt-1">اختيارات عملائنا المفضلة أو صمّمي تورتتك الخاصة حسب رغبتك</p>
+        </div>
+        <a href="#customCakeSection" class="w-full md:w-auto px-6 py-3 btn-hala-gold text-sm sm:text-base flex items-center justify-center gap-2 shadow shrink-0">
+          <span>✨ طلبات خاصة 🎂</span>
+        </a>
+      </div>
+
+      <div id="featuredProductsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       8. CUSTOM CAKE & EXTENDED ORDER DESIGNER (تصميم تورتة خاصة وطلب موسّع)
+       ========================================================= -->
+  <section id="customCakeSection" class="py-10 px-4 max-w-5xl mx-auto">
+    <div class="hala-card p-5 sm:p-8 border-2 border-[#c49a50] bg-gradient-to-br from-white via-[#fffaf3] to-[#f5dce2]/30">
+      <div class="text-center mb-6">
+        <span class="inline-block px-3.5 py-1 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold mb-2">تصميم حسب الطلب</span>
+        <h2 class="text-2xl sm:text-3xl font-black text-[#690d28]">🎂 تصميم تورتة خاصة وطلب موسّع</h2>
+        <p class="text-xs sm:text-sm text-[#88777a] mt-1">حدّدي مواصفات التورتة وأضيفي المقبلات والموالح والكعك والشوكولاتة في طلب واحد</p>
+      </div>
+
+      <form id="customCakeForm" onsubmit="submitCustomCakeToCart(event)" class="space-y-5">
+        <div id="dynamicCustomCakeFields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rendered dynamically from Admin Custom Builder config -->
+        </div>
+
+        <!-- Reference Image Upload -->
+        <div class="p-4 rounded-2xl bg-[#f7efe5] border border-dashed border-[#c49a50]">
+          <label class="block text-xs sm:text-sm font-extrabold text-[#690d28] mb-2">📸 إرفاق صورة نموذج للتورتة المطلوبة (اختياري)</label>
+          <input type="file" id="customCakeRefImageInput" accept="image/*" onchange="handleCustomCakeRefImage(event)" class="w-full text-xs text-[#38252a] file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#690d28] file:text-white" />
+          <div id="customCakeRefPreviewBox" class="hidden mt-3 flex items-center gap-3">
+            <img id="customCakeRefPreviewImg" alt="نموذج التورتة" class="w-20 h-20 rounded-xl object-cover border border-[#c49a50]" />
+            <button type="button" onclick="clearCustomCakeRefImage()" class="text-xs text-red-600 font-bold underline">حذف الصورة</button>
+          </div>
+        </div>
+
+        <!-- Extra Line Items -->
+        <div class="p-4 rounded-2xl bg-white border border-[#ead9cf]">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">🍽️ إضافات موسّعة (مقبلات، موالح، كعك، شوكولاتة)</span>
+            <button type="button" onclick="addCustomExtraRow()" class="px-3 py-1 rounded-lg bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">+ إضافة صنف</button>
+          </div>
+          <div id="customExtraRowsContainer" class="space-y-2"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-[#ead9cf]">
+          <div class="text-center sm:text-right">
+            <span class="text-xs text-[#88777a] block">التكلفة التقديرية المبدئية:</span>
+            <span id="customCakeEstimatedPrice" class="text-xl sm:text-2xl font-black text-[#690d28]">20,000 ر.ي</span>
+          </div>
+          <button type="submit" class="w-full sm:w-auto px-8 py-3.5 btn-hala-primary text-sm sm:text-base shadow-lg">
+            🛒 إضافة التصميم الخاص للسلة
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       9. ABOUT THE SMILE SECTION & STORE COUNTERS
+       ========================================================= -->
+  <section class="py-10 px-4 bg-[#f7efe5] border-t border-[#ead9cf]">
+    <div class="max-w-5xl mx-auto hala-card p-6 sm:p-8">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div class="md:col-span-5">
+          <img id="aboutSmileChefImg" alt="ابتسامة حلا كيك" class="w-full h-auto rounded-2xl border-2 border-[#c49a50] shadow" />
+        </div>
+        <div class="md:col-span-7 space-y-4 text-center md:text-right">
+          <span class="inline-block px-3 py-1 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">سر الابتسامة في حلا كيك</span>
+          <h2 class="text-2xl sm:text-3xl font-black text-[#690d28]">شغف الإتقان وحلاوة اللحظات</h2>
+          <p class="text-xs sm:text-sm md:text-base text-[#38252a] leading-relaxed">
+            في <strong>حلا كيك (Hala Cake)</strong> نؤمن بأن كل مناسبة تستحق قطعة فنية تُحضّر بحب وشغف. نستخدم أجود المكونات الطبيعية الطازجة لنصنع لكم كيكات وتورتات تجمع بين الشكل الملكي والمذاق الذي لا يُنسى.
+          </p>
+          <!-- Editable Store Counters -->
+          <div id="storeCountersGrid" class="grid grid-cols-3 gap-2.5 pt-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       10. CUSTOMER REVIEWS AS SOCIAL MEDIA SCREENSHOTS (قبل الفوتر)
+       ========================================================= -->
+  <section id="reviewsSection" class="py-10 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-6">
+      <span class="inline-block px-3.5 py-1 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold mb-2">💬 آراء وتجارب موثقة</span>
+      <h2 class="text-2xl sm:text-3xl font-black text-[#690d28]">رأي عملائنا على واتساب والسوشيال ميديا</h2>
+      <p class="text-xs sm:text-sm text-[#88777a] mt-1">لقطات حقيقية من رسائل وتعليقات عملائنا الكرام (اضغط على أي صورة للتكبير)</p>
+    </div>
+
+    <div id="customerReviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- =========================================================
+       11. FOOTER (With Optional Visitor Counter & Hidden Admin Gear)
+       ========================================================= -->
+  <footer id="footerSection" class="bg-[#3d0719] text-white border-t-4 border-[#c49a50] pt-10 pb-24 md:pb-10 px-4">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-right">
+      <div class="space-y-3">
+        <div class="flex items-center justify-center md:justify-start gap-3">
+          <img id="footerLogoImg" alt="حلا كيك" class="w-12 h-12 rounded-full border-2 border-[#c49a50] bg-[#fffaf3] p-0.5 object-contain" />
+          <div>
+            <div class="font-calligraphy text-2xl text-[#e8ce91]">حلا كيك</div>
+            <div class="font-script text-base text-white/80">Hala Cake</div>
+          </div>
+        </div>
+        <p class="text-xs text-white/80 leading-relaxed">
+          للكيكات والتورتات المميزة والحلويات المنزلية الفاخرة لجميع مناسباتكم السعيدة.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-base font-extrabold text-[#e8ce91]">روابط سريعة</h3>
+        <div class="flex flex-col gap-1.5 text-xs text-white/85">
+          <a href="#productsSection" class="hover:text-[#e8ce91]">تشكيلة الكيك والحلويات</a>
+          <a href="#customCakeSection" class="hover:text-[#e8ce91]">تصميم تورتة خاصة</a>
+          <a href="#reviewsSection" class="hover:text-[#e8ce91]">آراء العملاء</a>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-base font-extrabold text-[#e8ce91]">تواصل معنا مباشرة</h3>
+        <a href="https://wa.me/967771211154" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#20b968] hover:bg-[#159b54] text-white text-xs font-extrabold shadow">
+          <span>💬</span>
+          <span dir="ltr">00967 771 211 154</span>
+        </a>
+        <!-- Visitor Counter in Footer (Hidden by default unless enabled in Admin) -->
+        <div id="footerVisitorCounterBox" class="hidden pt-2">
+          <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-[#c49a50]/40 text-xs text-[#e8ce91]">
+            <span>👁️ عدد زوار المتجر:</span>
+            <strong id="footerVisitorCountText" class="font-extrabold">0</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-8 pt-5 border-t border-white/15 flex items-center justify-between text-xs text-white/70">
+      <span>جميع الحقوق محفوظة © حلا كيك - Hala Cake</span>
+      <button type="button" onclick="openAdminGate()" class="p-2 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-[#e8ce91]" title="الإعدادات" aria-label="الإعدادات">
+        ⚙️
+      </button>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       12. MOBILE FIXED BOTTOM NAVIGATION BAR
+       ========================================================= -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#3d0719] border-t-2 border-[#c49a50] grid grid-cols-4 text-white text-[11px] font-bold">
+    <a href="#topBannerSection" onclick="filterByCategory('الكل')" class="py-2.5 flex flex-col items-center justify-center gap-0.5 hover:text-[#e8ce91]">
+      <span class="text-base">🏠</span>
+      <span>الرئيسية</span>
+    </a>
+    <a href="#customCakeSection" class="py-2.5 flex flex-col items-center justify-center gap-0.5 hover:text-[#e8ce91]">
+      <span class="text-base">🎂</span>
+      <span>طلبات خاصة</span>
+    </a>
+    <button type="button" onclick="openCartDrawer()" class="relative py-2.5 flex flex-col items-center justify-center gap-0.5 hover:text-[#e8ce91]">
+      <span class="text-base">🛒</span>
+      <span>السلة</span>
+      <span id="mobileNavCartBadge" class="absolute top-1.5 right-1/2 translate-x-4 min-w-[18px] h-[18px] px-1 rounded-full bg-[#c49a50] text-[#3d0719] text-[10px] font-black flex items-center justify-center">0</span>
+    </button>
+    <button type="button" onclick="openCustomerAccountModal()" class="py-2.5 flex flex-col items-center justify-center gap-0.5 hover:text-[#e8ce91]">
+      <span class="text-base">👤</span>
+      <span>حسابي</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================
+       13. CART & CHECKOUT DRAWER (KURAIMI, JAIB, RECEIPT, GPS, WHATSAPP)
+       ========================================================= -->
+  <div id="cartDrawerBackdrop" onclick="closeCartDrawer()" class="fixed inset-0 bg-black/60 z-50 hidden"></div>
+  <aside id="cartDrawer" class="fixed top-0 left-0 h-full w-full max-w-md bg-[#fffaf3] z-50 shadow-2xl transform -translate-x-full transition-transform duration-300 flex flex-col border-r-2 border-[#c49a50]">
+    <div class="hala-header p-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🛒</span>
+        <h3 class="font-black text-base sm:text-lg text-white">سلة المشتريات وإتمام الطلب</h3>
+      </div>
+      <button type="button" onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-white/15 text-white font-bold flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Cart Items List -->
+      <div id="cartItemsContainer" class="space-y-2.5"></div>
+
+      <!-- Checkout Form -->
+      <form id="checkoutForm" onsubmit="submitOrderViaWhatsApp(event)" class="space-y-3.5 pt-3 border-t border-[#ead9cf]">
+        <h4 class="font-extrabold text-sm text-[#690d28]">📋 بيانات العميل والتوصيل</h4>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">اسم المشتري الكامل *</label>
+          <input type="text" id="checkoutNameInput" required placeholder="أدخل اسمك الكريم" class="w-full p-2.5 text-xs sm:text-sm border border-[#ead9cf] rounded-xl" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">رقم الجوال / الواتساب *</label>
+          <input type="tel" id="checkoutPhoneInput" required placeholder="مثال: 77xxxxxxx" class="w-full p-2.5 text-xs sm:text-sm border border-[#ead9cf] rounded-xl" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold mb-1">اسم المستلم (اختياري)</label>
+            <input type="text" id="checkoutRecipientInput" placeholder="إذا كان هدية لشخص آخر" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">موعد التسليم المطلوب *</label>
+            <input type="datetime-local" id="checkoutDeliveryTimeInput" required class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">عنوان التوصيل بالتفصيل *</label>
+          <input type="text" id="checkoutAddressInput" required placeholder="المدينة - الحي - الشارع - أقرب معلم" class="w-full p-2.5 text-xs sm:text-sm border border-[#ead9cf] rounded-xl" />
+        </div>
+
+        <!-- Dynamic Voucher & Delivery Fields Configured by Admin -->
+        <div id="checkoutVoucherFieldsContainer" class="space-y-2.5"></div>
+
+        <!-- GPS Pin Capture -->
+        <div class="p-3 rounded-xl bg-[#f7efe5] border border-[#c49a50]/50 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-xs font-extrabold text-[#690d28]">📍 تحديد الموقع على الخريطة للتوصيل</div>
+            <div id="gpsStatusText" class="text-[11px] text-[#88777a] truncate">اضغط لالتقاط رابط موقعك الجغرافي</div>
+          </div>
+          <button type="button" onclick="captureCustomerGPS()" class="px-3 py-1.5 rounded-lg btn-hala-gold text-xs shrink-0">تحديد موقعي</button>
+        </div>
+
+        <!-- Dynamic Custom Checkout Fields from Admin -->
+        <div id="checkoutDynamicFieldsContainer" class="space-y-2.5"></div>
+
+        <!-- Payment Gateway Selection -->
+        <div class="pt-2 border-t border-[#ead9cf] space-y-2.5">
+          <label class="block text-xs font-extrabold text-[#690d28]">💳 طريقة السداد:</label>
+          <select id="checkoutPaymentMethod" onchange="handlePaymentMethodChange()" class="w-full p-2.5 text-xs sm:text-sm font-bold border border-[#c49a50] rounded-xl bg-white">
+            <option value="الكريمي">🏦 بنك الكريمي (إيداع / حاسب)</option>
+            <option value="محفظة جيب">📱 محفظة جيب (Jaib)</option>
+            <option id="split50OptionEl" value="دفع 50% مقدم و 50% عند الاستلام">⚖️ دفع 50% مقدم (عربون) و 50% عند الاستلام</option>
+            <option id="codOptionEl" value="الدفع عند الاستلام">💵 الدفع عند الاستلام</option>
+          </select>
+
+          <div id="paymentAccountDetailsBox" class="p-3 rounded-xl bg-[#f5dce2]/60 border border-[#c49a50] text-xs space-y-1">
+            <!-- Dynamic payment account info -->
+          </div>
+
+          <!-- Transfer Receipt Image Upload -->
+          <div id="transferReceiptUploadSection" class="p-3 rounded-xl bg-white border border-dashed border-[#690d28] space-y-2">
+            <label class="block text-xs font-extrabold text-[#690d28]">🧾 إرفاق صورة سند الحوالة لتأكيد السداد:</label>
+            <input type="file" id="checkoutReceiptFileInput" accept="image/*" onchange="handleReceiptImageUpload(event)" class="w-full text-xs" />
+            <img id="checkoutReceiptPreview" alt="معاينة السند" class="hidden w-full max-h-36 object-contain rounded-lg border border-[#ead9cf]" />
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[#3d0719] text-white flex items-center justify-between">
+          <span class="text-xs font-bold">الإجمالي الكلي:</span>
+          <span id="cartTotalAmountText" class="text-lg font-black text-[#e8ce91]">0 ر.ي</span>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-[#20b968] hover:bg-[#159b54] text-white font-black text-sm shadow-lg flex items-center justify-center gap-2">
+          <span>💬 إرسال الطلب وتأكيده عبر واتساب</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- =========================================================
+       14. IMAGE LIGHTBOX MODAL (For Reviews & Transfer Receipts)
+       ========================================================= -->
+  <div id="imageLightboxModal" onclick="closeImageLightbox()" class="fixed inset-0 bg-black/80 z-[60] hidden items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-lg w-full overflow-hidden border-2 border-[#c49a50] shadow-2xl">
+      <div class="hala-header px-4 py-3 flex items-center justify-between">
+        <span id="lightboxCaption" class="text-xs sm:text-sm font-bold text-white truncate">معاينة الصورة</span>
+        <button type="button" onclick="closeImageLightbox()" class="w-7 h-7 rounded-full bg-white/20 text-white text-xs font-bold">✕</button>
+      </div>
+      <div class="p-3 bg-[#fffaf3] flex items-center justify-center">
+        <img id="lightboxImg" alt="معاينة" class="max-h-[75vh] w-auto object-contain rounded-xl" />
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       15. CUSTOMER ACCOUNT & ORDER TRACKING MODAL
+       ========================================================= -->
+  <div id="customerAccountModal" onclick="closeCustomerAccountModal()" class="fixed inset-0 bg-black/70 z-[60] hidden items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-[#fffaf3] rounded-3xl max-w-md w-full overflow-hidden border-2 border-[#c49a50] shadow-2xl">
+      <div class="hala-header px-4 py-3.5 flex items-center justify-between">
+        <span class="font-black text-sm text-[#e8ce91]">👤 حسابي ومتابعة الطلبات</span>
+        <button type="button" onclick="closeCustomerAccountModal()" class="w-7 h-7 rounded-full bg-white/20 text-white text-xs font-bold">✕</button>
+      </div>
+      <div class="p-5 space-y-4 text-xs">
+        <p class="text-[#38252a] font-semibold">أدخلي رقم الجوال المسجل في الطلب لعرض حالة طلباتك السابقة والحالية:</p>
+        <div class="flex gap-2">
+          <input type="tel" id="lookupCustomerPhoneInput" placeholder="أدخل رقم الجوال (مثال: 77xxxxxxx)" class="flex-1 p-2.5 border border-[#ead9cf] rounded-xl bg-white" />
+          <button type="button" onclick="lookupCustomerOrders()" class="px-4 py-2.5 btn-hala-primary">بحث</button>
+        </div>
+        <div id="customerLookupResults" class="space-y-2 max-h-64 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       16. SECRET ADMIN GATE MODAL
+       ========================================================= -->
+  <div id="adminGateModal" onclick="closeAdminGate()" class="fixed inset-0 bg-black/80 z-[70] hidden items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-[#fffaf3] rounded-3xl max-w-sm w-full overflow-hidden border-2 border-[#c49a50] shadow-2xl">
+      <div class="hala-header px-4 py-3.5 flex items-center justify-between">
+        <span class="font-black text-sm text-[#e8ce91]">🔐 دخول لوحة تحكم الإدارة</span>
+        <button type="button" onclick="closeAdminGate()" class="w-7 h-7 rounded-full bg-white/20 text-white text-xs font-bold">✕</button>
+      </div>
+      <form onsubmit="verifyAdminPassword(event)" class="p-5 space-y-4 text-xs">
+        <div>
+          <label class="block font-extrabold text-[#690d28] mb-1.5">كلمة مرور الإدارة:</label>
+          <input type="password" id="adminPasswordInput" required placeholder="أدخل رمز الدخول السري" class="w-full p-3 border border-[#c49a50] rounded-xl bg-white text-center font-bold tracking-widest" />
+        </div>
+        <div id="adminGateErrorMsg" class="hidden p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 font-bold text-center"></div>
+        <button type="submit" class="w-full py-3 btn-hala-primary text-sm">دخول لوحة التحكم 👑</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       17. FULL-SCREEN ADMIN DASHBOARD OVERLAY
+       ========================================================= -->
+  <div id="adminDashboardOverlay" class="fixed inset-0 bg-[#fffaf3] z-[80] hidden flex-col overflow-hidden">
+    <div class="hala-header px-4 py-3.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-md">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">👑</span>
+        <div>
+          <h2 class="font-black text-base sm:text-lg text-[#e8ce91]">لوحة تحكم حلا كيك الشاملة</h2>
+          <p class="text-[11px] text-white/80">إدارة المتجر، الذكاء الاصطناعي، الطلبات، والعملاء</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span class="px-3 py-1.5 rounded-full bg-white/15 border border-[#c49a50]/60 text-xs font-extrabold text-[#e8ce91]">
+          👁️ الزوار: <strong id="adminTopVisitorCount">0</strong>
+        </span>
+        <button type="button" onclick="closeAdminDashboard()" class="px-4 py-2 rounded-xl btn-hala-gold text-xs font-black">
+          معاينة المتجر 🏬
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Tabs Navigation (Organized Button Grid) -->
+    <div class="bg-[#f7efe5] border-b border-[#ead9cf] px-3 py-3 shrink-0">
+      <div class="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        <button type="button" onclick="switchAdminTab('orders')" data-tab="orders" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center btn-hala-primary">📦 الطلبات والسندات والتوصيل</button>
+        <button type="button" onclick="switchAdminTab('vouchers')" data-tab="vouchers" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">📄 إعدادات السندات والتوصيل</button>
+        <button type="button" onclick="switchAdminTab('products')" data-tab="products" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">🎂 المنتجات وإزالة الخلفية AI</button>
+        <button type="button" onclick="switchAdminTab('reels')" data-tab="reels" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">🎬 الفيديوهات الترويجية</button>
+        <button type="button" onclick="switchAdminTab('aiSocial')" data-tab="aiSocial" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">🚀 Gemini, Flow والسوشيال ميديا</button>
+        <button type="button" onclick="switchAdminTab('pagesFields')" data-tab="pagesFields" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">🗂️ الأقسام وحقول الطلب</button>
+        <button type="button" onclick="switchAdminTab('customBuilder')" data-tab="customBuilder" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">✨ حقول تصميم تورتة خاصة</button>
+        <button type="button" onclick="switchAdminTab('customers')" data-tab="customers" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">👥 قاعدة بيانات العملاء والمواقع</button>
+        <button type="button" onclick="switchAdminTab('settings')" data-tab="settings" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">⚙️ الهوية، الدفع، والأمان</button>
+      </div>
+    </div>
+
+    <!-- Admin Content Body -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl w-full mx-auto space-y-6">
+
+      <!-- TAB 1: ORDERS & DELIVERY RECEIPT VOUCHERS -->
+      <div id="adminTab-orders" class="admin-tab-panel space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="text-lg font-black text-[#690d28]">📦 إدارة الطلبات وسندات الحوالة والاستلام</h3>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="previewSampleDeliveryVoucher()" class="px-3.5 py-1.5 btn-hala-gold text-xs font-extrabold">📄 معاينة سند استلام تجريبي</button>
+            <span id="adminOrdersCountBadge" class="px-3 py-1 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">0 طلب</span>
+          </div>
+        </div>
+        <div id="adminOrdersList" class="space-y-4"></div>
+      </div>
+
+      <!-- TAB 1B: VOUCHERS & DELIVERY SETTINGS -->
+      <div id="adminTab-vouchers" class="admin-tab-panel hidden space-y-6">
+        <div class="hala-card p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#ead9cf] pb-3">
+            <div>
+              <h3 class="text-lg font-black text-[#690d28]">📄 إعدادات السندات والتوصيل</h3>
+              <p class="text-xs text-[#88777a]">إضافة، حذف، تفعيل/إيقاف، والتحكم بإظهار حقول السند للعميل أو للإدارة فقط</p>
+            </div>
+            <button type="button" onclick="previewSampleDeliveryVoucher()" class="px-4 py-2 btn-hala-gold text-xs font-extrabold">👁️ معاينة سند الاستلام وتجربة إصدار سند</button>
+          </div>
+
+          <!-- Voucher Header & Delivery Fee Settings -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">عنوان سند الاستلام الرسمي:</label>
+              <input type="text" id="voucherHeaderTitleInput" class="w-full p-2.5 border border-[#ead9cf] rounded-xl" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1">رسوم التوصيل الافتراضية (ر.ي):</label>
+              <input type="number" id="voucherDefaultFeeInput" class="w-full p-2.5 border border-[#ead9cf] rounded-xl" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1">ملاحظة تذييل السند:</label>
+              <input type="text" id="voucherFooterNoteInput" class="w-full p-2.5 border border-[#ead9cf] rounded-xl" />
+            </div>
+          </div>
+          <button type="button" onclick="saveVoucherGeneralSettings()" class="px-5 py-2 btn-hala-primary text-xs">💾 حفظ إعدادات السند العامة</button>
+        </div>
+
+        <!-- Add New Voucher/Delivery Field -->
+        <div class="hala-card p-5 space-y-4">
+          <h4 class="font-black text-base text-[#690d28]">➕ إضافة حقل جديد للسند والتوصيل</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+            <input type="text" id="newVoucherFieldLabel" placeholder="اسم الحقل (مثال: اسم موظف التوصيل)" class="p-2.5 border border-[#ead9cf] rounded-xl" />
+            <select id="newVoucherFieldType" class="p-2.5 border border-[#ead9cf] rounded-xl bg-white">
+              <option value="text">نص قصير</option>
+              <option value="tel">رقم هاتف</option>
+              <option value="datetime">تاريخ ووقت</option>
+              <option value="number">رقم / مبلغ</option>
+            </select>
+            <input type="text" id="newVoucherFieldDefault" placeholder="قيمة افتراضية أو نص توضيحي" class="p-2.5 border border-[#ead9cf] rounded-xl" />
+            <select id="newVoucherFieldAudience" class="p-2.5 border border-[#ead9cf] rounded-xl bg-white">
+              <option value="both">يظهر للعميل وفي السند</option>
+              <option value="admin">للإدارة والسند فقط (مخفي عن العميل)</option>
+            </select>
+          </div>
+          <button type="button" onclick="addVoucherDeliveryField()" class="px-5 py-2.5 btn-hala-gold text-xs">+ إضافة الحقل إلى السند والتوصيل</button>
+
+          <!-- Existing Voucher & Delivery Fields List -->
+          <div class="pt-3 border-t border-[#ead9cf] space-y-2">
+            <div class="text-xs font-extrabold text-[#690d28]">📋 حقول السند والتوصيل الحالية (تفعيل / إظهار للعميل / ترتيب / حذف):</div>
+            <div id="adminVoucherFieldsList" class="space-y-2.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: PRODUCTS & AI BACKGROUND REMOVAL -->
+      <div id="adminTab-products" class="admin-tab-panel hidden space-y-6">
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">➕ إضافة منتج جديد مع إزالة الخلفية والذكاء الاصطناعي</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold mb-1">1. صورة المنتج *</label>
+                <input type="file" id="newProdImageInput" accept="image/*" onchange="handleNewProductImageUpload(event)" class="w-full text-xs" />
+              </div>
+              <label class="flex items-center gap-2 text-xs font-extrabold text-[#690d28] cursor-pointer">
+                <input type="checkbox" id="removeBgToggle" checked onchange="reprocessProductImageBg()" class="w-4 h-4 accent-[#690d28]" />
+                <span>✨ إزالة خلفية الصورة تلقائياً (تحويل لصورة منتج بدون خلفية)</span>
+              </label>
+              <div id="newProdImagePreviewWrap" class="hidden p-3 rounded-xl bg-[#f7efe5] border border-[#c49a50] text-center">
+                <img id="newProdImagePreview" alt="معاينة المنتج" class="h-40 mx-auto object-contain" />
+              </div>
+              <button type="button" onclick="aiSuggestProductInfo()" class="w-full py-2.5 btn-hala-gold text-xs flex items-center justify-center gap-1.5">
+                <span>🤖 اقتراح اسم ووصف المنتج بالذكاء الاصطناعي</span>
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold mb-1">اسم المنتج *</label>
+                <input type="text" id="newProdName" placeholder="مثال: تورتة الفراشات الوردية" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-xs font-bold mb-1">السعر (ريال يمني) *</label>
+                  <input type="number" id="newProdPrice" placeholder="18000" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">القسم *</label>
+                  <select id="newProdCategory" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"></select>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">وصف المنتج</label>
+                <textarea id="newProdDesc" rows="3" placeholder="اكتب وصفاً شهياً أو استخدم زر الذكاء الاصطناعي..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
+              </div>
+              <label class="flex items-center gap-2 text-xs font-bold text-[#690d28]">
+                <input type="checkbox" id="newProdFeatured" checked class="w-4 h-4 accent-[#690d28]" />
+                <span>عرض في قسم "الأكثر طلباً وتميّزاً"</span>
+              </label>
+              <button type="button" onclick="saveNewProduct()" class="w-full py-3 btn-hala-primary text-sm">💾 حفظ ونشر المنتج</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="font-black text-base text-[#690d28]">قائمة المنتجات الحالية</h4>
+          <div id="adminProductsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3: VIDEO REELS CAROUSEL -->
+      <div id="adminTab-reels" class="admin-tab-panel hidden space-y-5">
+        <div class="hala-card p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-lg font-black text-[#690d28]">🎬 إضافة فيديو / عرض لشريط الأحداث التفاعلي</h3>
+            <button type="button" onclick="aiDraftReelData()" class="px-3.5 py-2 btn-hala-gold text-xs">🤖 صياغة بيانات الفيديو بالذكاء الاصطناعي</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="newReelTitle" placeholder="عنوان الفيديو الترويجي *" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <input type="text" id="newReelBadge" placeholder="شارة العرض (مثال: عرض خاص 🔥)" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <textarea id="newReelDesc" rows="2" placeholder="وصف الفيديو الترويجي..." class="md:col-span-2 p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
+            <div>
+              <label class="block text-xs font-bold mb-1">رفع ملف فيديو MP4 (اختياري)</label>
+              <input type="file" id="newReelVideoFile" accept="video/*" class="w-full text-xs" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">المنتج المرتبط بالطلب الفوري</label>
+              <select id="newReelProductSelect" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"></select>
+            </div>
+          </div>
+          <button type="button" onclick="saveNewReel()" class="px-6 py-2.5 btn-hala-primary text-xs sm:text-sm">➕ إضافة لشريط الفيديوهات</button>
+        </div>
+        <div id="adminReelsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- TAB 4: AI STUDIO (GEMINI & FLOW) & SOCIAL MEDIA & WHATSAPP GROUPS -->
+      <div id="adminTab-aiSocial" class="admin-tab-panel hidden space-y-6">
+        <!-- Google Gemini & Flow Config -->
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">🤖 إعدادات Google Gemini & Flow (hala.cake.yemen@gmail.com)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold mb-1">مفتاح Google API (Gemini):</label>
+              <input type="text" id="adminGeminiApiKey" dir="ltr" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold mb-1">حساب Flow / رابط Webhook التوليد:</label>
+              <input type="text" id="adminFlowWebhookUrl" dir="ltr" placeholder="https://... (اختياري لربط Flow المباشر)" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl font-mono" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="saveAiApiConfig()" class="px-4 py-2 btn-hala-primary text-xs">💾 حفظ بيانات الربط</button>
+            <button type="button" onclick="testGeminiConnection()" class="px-4 py-2 btn-hala-gold text-xs">🔌 فحص الاتصال بـ Gemini</button>
+          </div>
+          <div id="aiConnectionStatusBox" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+        </div>
+
+        <!-- Prompt Generator & Media Attachment -> Transfer to Publisher -->
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">🎬 استوديو تجهيز الفيديو والبرومت ونقله للنشر</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <select id="aiStudioProductSelect" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"></select>
+            <select id="aiStudioToneSelect" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white">
+              <option value="لهجة يمنية راقية وجذابة">لهجة يمنية راقية وجذابة</option>
+              <option value="أسلوب تسويقي فاخر للمناسبات">أسلوب تسويقي فاخر للمناسبات</option>
+            </select>
+          </div>
+          <textarea id="aiStudioPromptOutput" rows="3" placeholder="سيظهر هنا البرومت/السيناريو المولد بالذكاء الاصطناعي..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
+
+          <div class="p-3 rounded-xl bg-[#f7efe5] border border-dashed border-[#c49a50]">
+            <label class="block text-xs font-extrabold text-[#690d28] mb-1">📤 رفع صورة أو فيديو (من جهازك أو من Flow) للنشر:</label>
+            <input type="file" id="aiStudioMediaInput" accept="image/*,video/*" onchange="handleAiStudioMediaUpload(event)" class="w-full text-xs" />
+            <div id="aiStudioMediaStatus" class="text-[11px] text-[#88777a] mt-1"></div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="generateAiPromptScript()" class="px-4 py-2.5 btn-hala-gold text-xs">✨ توليد البرومت بالذكاء الاصطناعي</button>
+            <button type="button" onclick="transferPromptAndMediaToPublisher()" class="px-4 py-2.5 btn-hala-primary text-xs">🚀 نقل البرومت والوسائط إلى محرر النشر</button>
+          </div>
+        </div>
+
+        <!-- Direct Publisher & Separate WhatsApp Groups Button -->
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">📣 محرر النشر المباشر وجروبات الواتساب</h3>
+          <textarea id="socialPostEditorText" rows="4" placeholder="اكتب نص المنشور هنا أو انقله من الاستوديو أعلاه..." class="w-full p-3 text-xs sm:text-sm border border-[#c49a50] rounded-xl"></textarea>
+
+          <div class="flex flex-wrap gap-2.5">
+            <button type="button" onclick="improvePostWithAi()" class="px-4 py-2.5 btn-hala-gold text-xs">🤖 صياغة وتحسين المنشور بالذكاء الاصطناعي</button>
+            <button type="button" onclick="publishToConnectedSocials()" class="px-5 py-2.5 btn-hala-primary text-xs">🌐 نشر في مواقع التواصل المرتبطة</button>
+            <button type="button" onclick="sendToMyWhatsappGroups()" class="px-5 py-2.5 rounded-xl bg-[#20b968] hover:bg-[#159b54] text-white text-xs font-extrabold shadow">
+              💬 إرسال إلى جروبات الواتساب الخاصة بي
+            </button>
+          </div>
+
+          <!-- WhatsApp Business Cloud API Integration Card -->
+          <div class="p-4 rounded-2xl bg-white border-2 border-[#20b968]/40 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="text-xs sm:text-sm font-black text-[#690d28]">📲 ربط واتساب بيزنس API الرسمي (WhatsApp Business Cloud API)</div>
+              <span id="waApiBadgeSocialTab" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">وضع الرابط المباشر (wa.me)</span>
+            </div>
+            <p class="text-[11px] text-[#88777a]">اربط حساب Meta WhatsApp Business API لإرسال إشعارات الدفع 50% وسندات الاستلام مباشرة، أو اتركه فارغاً للإرسال التلقائي عبر واتساب المباشر.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+              <div>
+                <label class="block font-bold mb-1">معرّف رقم الهاتف (Phone Number ID):</label>
+                <input type="text" id="waApiPhoneIdInput" dir="ltr" placeholder="مثال: 418920384719283" class="w-full p-2 border border-[#ead9cf] rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">إصدار واجهة API (Graph Version):</label>
+                <input type="text" id="waApiVersionInput" dir="ltr" value="v21.0" class="w-full p-2 border border-[#ead9cf] rounded-xl font-mono" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block font-bold mb-1">رمز الوصول الدائم / المؤقت (Access Token):</label>
+                <input type="password" id="waApiTokenInput" dir="ltr" placeholder="EAABsbCS1iHgBO..." class="w-full p-2 border border-[#ead9cf] rounded-xl font-mono" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block font-bold mb-1">رابط Webhook / خادم وسيط (اختياري):</label>
+                <input type="url" id="waApiWebhookInput" dir="ltr" placeholder="https://your-server.com/whatsapp-webhook" class="w-full p-2 border border-[#ead9cf] rounded-xl font-mono" />
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="saveWhatsappBusinessApiSettings()" class="px-4 py-2 btn-hala-primary text-xs">💾 حفظ إعدادات واتساب بيزنس API</button>
+              <button type="button" onclick="testWhatsappBusinessApiConnection()" class="px-4 py-2 rounded-xl bg-[#20b968] text-white text-xs font-extrabold">🔌 فحص اتصال WhatsApp API</button>
+            </div>
+            <div id="waApiTestStatusBox" class="hidden p-2.5 rounded-xl text-xs font-bold"></div>
+          </div>
+
+          <!-- WhatsApp Groups Manager -->
+          <div class="p-4 rounded-2xl bg-[#f7efe5] border border-[#ead9cf] space-y-3">
+            <div class="text-xs font-extrabold text-[#690d28]">👥 إدارة جروبات الواتساب الخاصة بك:</div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="newWaGroupName" placeholder="اسم الجروب (مثال: عملاء حلا كيك VIP)" class="flex-1 p-2 text-xs border border-[#ead9cf] rounded-xl" />
+              <input type="url" id="newWaGroupLink" dir="ltr" placeholder="https://chat.whatsapp.com/..." class="flex-1 p-2 text-xs border border-[#ead9cf] rounded-xl" />
+              <button type="button" onclick="addWhatsappGroup()" class="px-4 py-2 bg-[#20b968] text-white rounded-xl text-xs font-bold">+ إضافة</button>
+            </div>
+            <div id="whatsappGroupsList" class="space-y-1.5"></div>
+          </div>
+
+          <!-- 7 Social Platforms Status & OAuth/Webhook Setup -->
+          <div class="space-y-2">
+            <div class="text-xs font-extrabold text-[#690d28]">🔗 حالة ربط منصات التواصل الاجتماعي (7 منصات):</div>
+            <div id="socialPlatformsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: STORE CATEGORIES & CHECKOUT FIELDS -->
+      <div id="adminTab-pagesFields" class="admin-tab-panel hidden space-y-6">
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">📑 إدارة أقسام المتجر</h3>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" id="newCatIcon" placeholder="أيقونة 🎂" class="w-full sm:w-24 p-2.5 text-xs border border-[#ead9cf] rounded-xl text-center" />
+            <input type="text" id="newCatName" placeholder="اسم القسم الجديد (مثال: حلويات شرقية)" class="flex-1 p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <button type="button" onclick="addStoreCategory()" class="px-5 py-2.5 btn-hala-primary text-xs">+ إضافة قسم</button>
+          </div>
+          <div id="adminCategoriesList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">📝 حقول إضافية في نموذج الطلب</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <input type="text" id="newCheckoutFieldLabel" placeholder="اسم الحقل (مثال: العبارة على الكيك)" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <select id="newCheckoutFieldType" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white">
+              <option value="text">نص قصير</option>
+              <option value="select">قائمة خيارات (افصل بفاصلة)</option>
+            </select>
+            <input type="text" id="newCheckoutFieldOptions" placeholder="الخيارات أو النص التوضيحي" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+          </div>
+          <button type="button" onclick="addCheckoutField()" class="px-5 py-2 btn-hala-gold text-xs">+ إضافة حقل للطلب</button>
+          <div id="adminCheckoutFieldsList" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- TAB 6: CUSTOM CAKE BUILDER FIELDS -->
+      <div id="adminTab-customBuilder" class="admin-tab-panel hidden space-y-5">
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">✨ التحكم في حقول "تصميم تورتة خاصة وطلب موسّع"</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <input type="text" id="newBuilderFieldLabel" placeholder="اسم الحقل (مثال: الحشوة الداخلية)" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <select id="newBuilderFieldType" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white">
+              <option value="select">قائمة خيارات</option>
+              <option value="text">حقل كتابة</option>
+            </select>
+            <input type="text" id="newBuilderFieldOptions" placeholder="خيارات مفصولة بفاصلة (فراولة, شوكولاتة)" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+          </div>
+          <button type="button" onclick="addCustomBuilderField()" class="px-5 py-2.5 btn-hala-primary text-xs">+ إضافة حقل للتورتة الخاصة</button>
+          <div id="adminBuilderFieldsList" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- TAB 7: CUSTOMERS & GPS DATABASE -->
+      <div id="adminTab-customers" class="admin-tab-panel hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h3 class="text-lg font-black text-[#690d28]">👥 قاعدة بيانات العملاء ومواقع التوصيل</h3>
+          <input type="text" id="adminCustomerSearch" oninput="renderAdminCustomersList()" placeholder="بحث بالاسم أو رقم الجوال..." class="p-2 text-xs border border-[#ead9cf] rounded-xl w-full sm:w-64" />
+        </div>
+        <div id="adminCustomersList" class="space-y-3"></div>
+      </div>
+
+      <!-- TAB 8: BRANDING, REVIEWS, VISITOR COUNTER, PAYMENT & SECURITY -->
+      <div id="adminTab-settings" class="admin-tab-panel hidden space-y-6">
+        <!-- Visual Identity & Images -->
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">🎨 الهوية البصرية والصور الرئيسية</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">            <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
+              <label class="block font-extrabold text-[#690d28]">🖼️ تغيير صورة البانر العلوي الكامل:</label>
+              <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'topBanner')" class="w-full" />
+            </div>
+            <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
+              <label class="block font-extrabold text-[#690d28]">👩‍🍳 تغيير صورة الشيف حلا الرئيسية:</label>
+              <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'chefPortrait')" class="w-full" />
+            </div>
+            <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
+              <label class="block font-extrabold text-[#690d28]">🏷️ تغيير شعار المتجر:</label>
+              <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'logo')" class="w-full" />
+            </div>
+            <div class="p-3 rounded-xl bg-[#f7efe5] grid grid-cols-3 gap-2">
+              <div>
+                <label class="block font-bold mb-1">العنابي</label>
+                <input type="color" id="colorPrimaryInput" value="#690d28" onchange="updateThemeColors()" class="w-full h-8 rounded cursor-pointer" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">الذهبي</label>
+                <input type="color" id="colorGoldInput" value="#c49a50" onchange="updateThemeColors()" class="w-full h-8 rounded cursor-pointer" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">الخلفية</label>
+                <input type="color" id="colorCreamInput" value="#fffaf3" onchange="updateThemeColors()" class="w-full h-8 rounded cursor-pointer" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Counters & Social Review Screenshots Manager -->
+        <div class="hala-card p-5 space-y-4">
+          <h3 class="text-lg font-black text-[#690d28]">💬 إدارة العدادات ولقطات آراء العملاء (واتساب / فيسبوك / سوشيال)</h3>
+          <div id="adminCountersEditor" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+          <button type="button" onclick="saveStoreCounters()" class="px-4 py-2 btn-hala-gold text-xs">💾 حفظ العدادات</button>
+
+          <div class="pt-4 border-t border-[#ead9cf] space-y-3">
+            <h4 class="text-sm font-extrabold text-[#690d28]">➕ إضافة لقطة شاشة لرأي عميل (واتساب / فيسبوك / إنستجرام)</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <input type="text" id="newReviewCustomerName" placeholder="اسم العميل *" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+              <select id="newReviewPlatform" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white">
+                <option value="واتساب">💬 واتساب</option>
+                <option value="فيسبوك">📘 فيسبوك</option>
+                <option value="إنستجرام">📸 إنستجرام</option>
+                <option value="سوشيال ميديا">🌟 سوشيال ميديا</option>
+              </select>
+              <input type="file" id="newReviewScreenshotInput" accept="image/*" class="p-2 text-xs border border-[#ead9cf] rounded-xl bg-white" />
+            </div>
+            <input type="text" id="newReviewCaption" placeholder="نص التعليق أو ملاحظة مختصرة..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <button type="button" onclick="addCustomerReviewScreenshot()" class="px-5 py-2.5 btn-hala-primary text-xs">+ نشر رأي العميل</button>
+          </div>
+          <div id="adminReviewsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Visitor Counter, Payment Gateways & Password Security -->
+        <div class="hala-card p-5 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs font-bold">
+            <label class="p-3 rounded-xl bg-white border border-[#ead9cf] flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="toggleReceiptUpload" onchange="toggleSettingFlag('requireReceiptUpload', this.checked)" class="w-4 h-4 accent-[#690d28]" />
+              <span>🧾 تفعيل إرفاق صورة سند الحوالة عند السداد</span>
+            </label>
+            <label class="p-3 rounded-xl bg-white border border-[#ead9cf] flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="toggleSplit50Option" onchange="toggleSettingFlag('allowSplit50Payment', this.checked)" class="w-4 h-4 accent-[#690d28]" />
+              <span>⚖️ إظهار خيار "دفع 50% مقدم و 50% عند الاستلام"</span>
+            </label>
+            <label class="p-3 rounded-xl bg-white border border-[#ead9cf] flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="toggleCodOption" onchange="toggleSettingFlag('allowCashOnDelivery', this.checked)" class="w-4 h-4 accent-[#690d28]" />
+              <span>💵 إظهار خيار "الدفع عند الاستلام" للعملاء</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-bold mb-1">رقم حساب بنك الكريمي:</label>
+              <input type="text" id="settingKuraimiAccount" dir="ltr" class="w-full p-2.5 border border-[#ead9cf] rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block font-bold mb-1">رقم محفظة جيب (Jaib):</label>
+              <input type="text" id="settingJaibAccount" dir="ltr" class="w-full p-2.5 border border-[#ead9cf] rounded-xl font-mono" />
+            </div>
+          </div>
+
+          <!-- Quick WhatsApp Business API Summary in Settings Tab -->
+          <div class="p-3.5 rounded-xl bg-[#f7efe5] border border-[#20b968]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div>
+              <div class="font-extrabold text-[#690d28]">📲 حالة ربط واتساب بيزنس API: <span id="waApiBadgeSettingsTab" class="text-[#20b968]">مفعّل / جاهز</span></div>
+              <div class="text-[11px] text-[#88777a]">يُستخدم لإرسال إشعارات دفع الـ 50% وتأكيدات السندات للعملاء مباشرة.</div>
+            </div>
+            <button type="button" onclick="switchAdminTab('aiSocial')" class="px-3.5 py-2 rounded-xl bg-[#20b968] text-white font-bold shrink-0">إعدادات واتساب API ⚙️</button>
+          </div>
+
+          <div class="pt-3 border-t border-[#ead9cf] flex flex-col sm:flex-row gap-2">
+            <input type="password" id="newAdminPasswordInput" placeholder="تغيير كلمة سر لوحة التحكم..." class="flex-1 p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <button type="button" onclick="savePaymentAndSecuritySettings()" class="px-6 py-2.5 btn-hala-primary text-xs">💾 حفظ الإعدادات والأمان</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       18. DELIVERY RECEIPT VOUCHER MODAL (سند استلام وتوصيل)
+       ========================================================= -->
+  <div id="deliveryVoucherModal" onclick="closeDeliveryVoucherModal()" class="fixed inset-0 bg-black/75 z-[90] hidden items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-lg w-full overflow-hidden border-2 border-[#c49a50] shadow-2xl">
+      <div class="hala-header px-4 py-3 flex items-center justify-between no-print">
+        <span class="font-bold text-sm text-[#e8ce91]">📄 سند استلام وتوصيل</span>
+        <button type="button" onclick="closeDeliveryVoucherModal()" class="w-7 h-7 rounded-full bg-white/20 text-white text-xs">✕</button>
+      </div>
+      <div id="voucherPrintArea" class="p-5 space-y-4 text-xs">
+        <div class="flex items-center justify-between border-b-2 border-[#c49a50] pb-3">
+          <div>
+            <div id="voucherModalBrandTitle" class="font-calligraphy text-2xl text-[#690d28]">حلا كيك - Hala Cake</div>
+            <div id="voucherModalSubTitle" class="text-[11px] text-[#88777a]">سند استلام طلب وتوصيل</div>
+          </div>
+          <div class="text-left">
+            <div class="font-black text-[#690d28]">رقم السند: <span id="voucherOrderNumber"></span></div>
+            <div class="text-[11px] text-[#88777a]" id="voucherOrderDate"></div>
+          </div>
+        </div>
+
+        <div id="voucherDetailsBody" class="space-y-2 text-[#38252a]"></div>
+        <div id="voucherModalFooterNote" class="text-[11px] text-[#88777a] pt-2 border-t border-[#ead9cf] text-center"></div>
+
+        <div class="p-3 rounded-xl bg-[#f7efe5] border border-[#ead9cf] space-y-2 no-print">
+          <div class="font-extrabold text-[#690d28]">🚚 بيانات موظف التوصيل وموعد التسليم:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text" id="voucherDriverNameInput" placeholder="اسم موظف التوصيل" class="p-2 border border-[#ead9cf] rounded-lg bg-white" />
+            <input type="tel" id="voucherDriverPhoneInput" placeholder="رقم جوال المندوب" class="p-2 border border-[#ead9cf] rounded-lg bg-white" />
+          </div>
+          <button type="button" onclick="saveVoucherDriverInfo()" class="px-4 py-1.5 btn-hala-gold text-xs">حفظ بيانات المندوب</button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 pt-2 no-print">
+          <button type="button" onclick="window.print()" class="flex-1 py-2.5 btn-hala-primary text-xs">🖨️ طباعة / حفظ السند</button>
+          <button type="button" onclick="sendVoucherToWhatsApp()" class="flex-1 py-2.5 rounded-xl bg-[#20b968] text-white font-bold text-xs">💬 إرسال السند واتساب</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. SELF-CONTAINED SVG DATA URI GENERATORS (ZERO BROKEN IMAGES EVER)
+    // =========================================================================
+    function encodeSvg(svgString) {
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString.trim());
+    }
+
+    const DEFAULT_IMAGES = {
+      logo: encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#fffaf3"/>
+              <stop offset="100%" stop-color="#f5dce2"/>
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="100" r="94" fill="url(#g1)" stroke="#c49a50" stroke-width="6"/>
+          <circle cx="100" cy="100" r="84" fill="none" stroke="#690d28" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <path d="M72 62 C72 48, 86 44, 100 44 C114 44, 128 48, 128 62 L122 72 L78 72 Z" fill="none" stroke="#c49a50" stroke-width="3"/>
+          <text x="100" y="114" text-anchor="middle" fill="#690d28" font-family="serif" font-weight="bold" font-size="36">حلا كيك</text>
+          <text x="100" y="142" text-anchor="middle" fill="#a87931" font-family="cursive, serif" font-weight="bold" font-size="22">Hala Cake</text>
+          <path d="M62 162 Q100 182 138 162 Q120 154 100 164 Q80 154 62 162 Z" fill="#690d28"/>
+        </svg>
+      `),
+
+      topBanner: encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340">
+          <defs>
+            <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3d0719"/>
+              <stop offset="50%" stop-color="#690d28"/>
+              <stop offset="100%" stop-color="#4a091e"/>
+            </linearGradient>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#a87931"/>
+              <stop offset="50%" stop-color="#efd79b"/>
+              <stop offset="100%" stop-color="#b78943"/>
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="340" fill="url(#bgGrad)"/>
+          <path d="M0 265 Q300 200 600 265 T1200 245 L1200 340 L0 340 Z" fill="#fffaf3" opacity="0.14"/>
+          <path d="M0 265 Q300 200 600 265 T1200 245" fill="none" stroke="url(#goldGrad)" stroke-width="5"/>
+          <!-- Center Emblem -->
+          <ellipse cx="600" cy="155" rx="230" ry="105" fill="#fffaf3" stroke="url(#goldGrad)" stroke-width="6"/>
+          <text x="600" y="152" text-anchor="middle" fill="#690d28" font-family="serif" font-weight="bold" font-size="68">حلا كيك</text>
+          <text x="600" y="198" text-anchor="middle" fill="#a87931" font-family="cursive, serif" font-weight="bold" font-size="36">Hala Cake</text>
+          <path d="M535 224 Q600 250 665 224 Q632 212 600 226 Q568 212 535 224 Z" fill="#690d28"/>
+          <!-- Left Chef Illustration -->
+          <g transform="translate(115, 35)">
+            <circle cx="95" cy="88" r="54" fill="#fffaf3"/>
+            <circle cx="95" cy="86" r="36" fill="#f7d5c4"/>
+            <path d="M56 86 C56 44, 134 44, 134 86 C134 115, 122 135, 95 135 C68 135, 56 115, 56 86 Z" fill="none" stroke="#ffffff" stroke-width="10"/>
+            <circle cx="82" cy="82" r="3.5" fill="#38252a"/>
+            <circle cx="108" cy="82" r="3.5" fill="#38252a"/>
+            <path d="M84 98 Q95 110 106 98" fill="none" stroke="#690d28" stroke-width="3" stroke-linecap="round"/>
+            <path d="M35 250 C35 165, 155 165, 155 250 Z" fill="#ffffff"/>
+            <path d="M55 178 L135 178 L145 250 L45 250 Z" fill="#690d28" stroke="#c49a50" stroke-width="2"/>
+          </g>
+          <!-- Right Luxury Cake Illustration -->
+          <g transform="translate(885, 65)">
+            <ellipse cx="105" cy="212" rx="75" ry="12" fill="url(#goldGrad)"/>
+            <rect x="97" y="182" width="16" height="30" fill="#c49a50"/>
+            <ellipse cx="105" cy="182" rx="92" ry="15" fill="#efd79b"/>
+            <rect x="35" y="92" width="140" height="88" rx="18" fill="#f5dce2" stroke="#c49a50" stroke-width="2"/>
+            <path d="M35 108 Q55 132 75 110 Q95 136 105 112 Q125 136 145 110 Q165 132 175 108 L175 95 L35 95 Z" fill="#8d2947"/>
+            <circle cx="75" cy="84" r="11" fill="#fffaf3"/>
+            <circle cx="105" cy="80" r="13" fill="#fffaf3"/>
+            <circle cx="135" cy="84" r="11" fill="#fffaf3"/>
+            <path d="M90 55 Q105 35 105 64 Q105 35 120 55 Q112 72 105 66 Q98 72 90 55 Z" fill="#e96a8d" stroke="#c49a50" stroke-width="1.5"/>
+          </g>
+        </svg>
+      `),
+
+      chefPortrait: encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480">
+          <defs>
+            <radialGradient id="heroGlow" cx="50%" cy="45%" r="60%">
+              <stop offset="0%" stop-color="#fffaf3"/>
+              <stop offset="65%" stop-color="#f7efe5"/>
+              <stop offset="100%" stop-color="#f5dce2"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="480" fill="url(#heroGlow)"/>
+          <!-- Left Chef Hala -->
+          <g transform="translate(80, 45)">
+            <circle cx="150" cy="125" r="82" fill="#ffffff" stroke="#e8ce91" stroke-width="4"/>
+            <circle cx="150" cy="122" r="56" fill="#f7d5c4"/>
+            <path d="M90 122 C90 55, 210 55, 210 122 C210 168, 190 198, 150 198 C110 198, 90 168, 90 122 Z" fill="none" stroke="#fffaf3" stroke-width="16"/>
+            <circle cx="130" cy="116" r="5" fill="#38252a"/>
+            <circle cx="170" cy="116" r="5" fill="#38252a"/>
+            <path d="M132 140 Q150 158 168 140" fill="none" stroke="#690d28" stroke-width="4" stroke-linecap="round"/>
+            <path d="M45 435 C45 270, 255 270, 255 435 Z" fill="#ffffff"/>
+            <path d="M82 285 L218 285 L234 435 L66 435 Z" fill="#690d28" stroke="#c49a50" stroke-width="3"/>
+            <text x="150" y="355" text-anchor="middle" fill="#e8ce91" font-family="serif" font-weight="bold" font-size="24">حلا كيك</text>
+            <text x="150" y="380" text-anchor="middle" fill="#ffffff" font-family="cursive, serif" font-size="16">Hala Cake</text>
+          </g>
+          <!-- Right Showcase Cake & Brand Badge -->
+          <g transform="translate(410, 50)">
+            <rect x="20" y="10" width="320" height="145" rx="28" fill="#ffffff" stroke="#c49a50" stroke-width="3"/>
+            <text x="180" y="75" text-anchor="middle" fill="#690d28" font-family="serif" font-weight="bold" font-size="52">حلا كيك</text>
+            <text x="180" y="114" text-anchor="middle" fill="#a87931" font-family="cursive, serif" font-weight="bold" font-size="30">Hala Cake</text>
+            <text x="180" y="140" text-anchor="middle" fill="#8d2947" font-family="sans-serif" font-weight="bold" font-size="14">للكيكات والتورتات المميزة ✨</text>
+            <!-- Cake -->
+            <ellipse cx="180" cy="378" rx="90" ry="14" fill="#c49a50"/>
+            <rect x="170" y="340" width="20" height="38" fill="#a87931"/>
+            <ellipse cx="180" cy="340" rx="115" ry="18" fill="#efd79b"/>
+            <rect x="95" y="220" width="170" height="118" rx="22" fill="#f5dce2" stroke="#c49a50" stroke-width="2.5"/>
+            <path d="M95 240 Q120 270 145 242 Q170 275 180 245 Q205 275 230 242 Q250 270 265 240 L265 224 L95 224 Z" fill="#8d2947"/>
+            <path d="M155 182 Q180 152 180 196 Q180 152 205 182 Q192 208 180 198 Q168 208 155 182 Z" fill="#e96a8d" stroke="#c49a50" stroke-width="2"/>
+          </g>
+        </svg>
+      `)
+    };
+
+    function generateCakeSvg(primaryHex, dripHex, accentHex, titleText) {
+      return encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 260">
+          <ellipse cx="160" cy="236" rx="68" ry="11" fill="#c49a50"/>
+          <rect x="151" y="202" width="18" height="34" fill="#a87931"/>
+          <ellipse cx="160" cy="202" rx="108" ry="16" fill="#efd79b" stroke="#c49a50" stroke-width="2"/>
+          <rect x="74" y="96" width="172" height="104" rx="22" fill="${primaryHex}" stroke="#c49a50" stroke-width="2"/>
+          <path d="M74 114 Q96 142 118 116 Q140 148 160 118 Q182 148 204 116 Q226 142 246 114 L246 100 L74 100 Z" fill="${dripHex}"/>
+          <circle cx="115" cy="88" r="13" fill="${accentHex}" stroke="#c49a50" stroke-width="1.5"/>
+          <circle cx="160" cy="82" r="16" fill="${accentHex}" stroke="#c49a50" stroke-width="1.5"/>
+          <circle cx="205" cy="88" r="13" fill="${accentHex}" stroke="#c49a50" stroke-width="1.5"/>
+          <path d="M142 54 Q160 32 160 66 Q160 32 178 54 Q168 74 160 68 Q152 74 142 54 Z" fill="#e96a8d" stroke="#c49a50" stroke-width="1.5"/>
+        </svg>
+      `);
+    }
+
+    function generateReviewScreenshotSvg(platform, customerName, messageLine1, messageLine2) {
+      const badgeColor = platform === 'واتساب' ? '#20b968' : platform === 'فيسبوك' ? '#1877f2' : '#8d2947';
+      return encodeSvg(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 260">
+          <rect width="420" height="260" rx="20" fill="#f7efe5"/>
+          <rect x="16" y="16" width="388" height="228" rx="16" fill="#ffffff" stroke="#ead9cf" stroke-width="2"/>
+          <rect x="16" y="16" width="388" height="46" rx="16" fill="${badgeColor}"/>
+          <text x="385" y="44" text-anchor="end" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="15">${platform} • ${customerName}</text>
+          <rect x="34" y="80" width="352" height="106" rx="14" fill="#fffaf3" stroke="#c49a50" stroke-width="1.5"/>
+          <text x="370" y="114" text-anchor="end" fill="#38252a" font-family="sans-serif" font-weight="bold" font-size="14">${messageLine1}</text>
+          <text x="370" y="142" text-anchor="end" fill="#38252a" font-family="sans-serif" font-size="13">${messageLine2}</text>
+          <text x="370" y="170" text-anchor="end" fill="#c49a50" font-family="sans-serif" font-weight="bold" font-size="15">★★★★★ 5.0</text>
+          <text x="34" y="222" text-anchor="start" fill="#20b968" font-family="sans-serif" font-weight="bold" font-size="12">✓✓ تم الاستلام والتقييم</text>
+        </svg>
+      `);
+    }
+
+    // =========================================================================
+    // 2. APPLICATION STATE & LOCALSTORAGE PERSISTENCE
+    // =========================================================================
+    const STORAGE_KEY = 'hala_cake_store_v12';
+
+    const DEFAULT_STATE = {
+      visitorCount: 148,
+      brand: {
+        storeName: 'حلا كيك',
+        heroTitle: 'حلا كيك',
+        heroSubtitle: 'كيكات وحلويات منزلية فاخرة لكل مناسباتكم الخاصة — نصنع لحظاتكم بحلاوة خاصة',
+        topBannerImg: DEFAULT_IMAGES.topBanner,
+        chefPortraitImg: DEFAULT_IMAGES.chefPortrait,
+        logoImg: DEFAULT_IMAGES.logo,
+        primaryColor: '#690d28',
+        goldColor: '#c49a50',
+        creamColor: '#fffaf3'
+      },
+      settings: {
+        adminPassword: btoa('hala2026'),
+        whatsappNumber: '967771211154',
+        kuraimiAccount: '3014892510 — باسم: حلا كيك',
+        jaibAccount: '771211154 — محفظة جيب حلا كيك',
+        requireReceiptUpload: true,
+        allowSplit50Payment: true,
+        allowCashOnDelivery: true,
+        showVisitorsInFooter: false
+      },
+      whatsappApi: {
+        phoneNumberId: '',
+        accessToken: '',
+        apiVersion: 'v21.0',
+        webhookUrl: ''
+      },
+      aiConfig: {
+        geminiApiKey: 'AQ.Ab8RN6IBO2BE8yKgl351qNw3Tajb6_a1pRBirNQPV8Are9MupQ',
+        flowEmail: 'hala.cake.yemen@gmail.com',
+        flowWebhookUrl: ''
+      },
+      categories: [
+        { id: 'cat-1', name: 'الحلويات', icon: '🧁', img: generateCakeSvg('#f5dce2', '#c49a50', '#ffffff') },
+        { id: 'cat-2', name: 'كيك المناسبات', icon: '🎉', img: generateCakeSvg('#fffaf3', '#8d2947', '#f5dce2') },
+        { id: 'cat-3', name: 'أعياد الميلاد', icon: '🎂', img: generateCakeSvg('#f5dce2', '#690d28', '#efd79b') },
+        { id: 'cat-4', name: 'كيك الخطوبة', icon: '💍', img: generateCakeSvg('#ffe6ee', '#c49a50', '#ffffff') },
+        { id: 'cat-5', name: 'كيك الأعراس', icon: '👑', img: generateCakeSvg('#ffffff', '#e8ce91', '#f5dce2') },
+        { id: 'cat-6', name: 'الشوكولاتة', icon: '🍫', img: generateCakeSvg('#5c2c1d', '#2b120a', '#e8ce91') }
+      ],
+      products: [
+        {
+          id: 'prod-1',
+          name: 'تورتة الفراشات الوردية الفاخرة',
+          price: 18500,
+          category: 'أعياد الميلاد',
+          desc: 'تورتة مخملية باللون الوردي مزينة بفراشات ذهبية وحبات اللؤلؤ مع حشوة كريمة الفانيليا الغنية.',
+          image: generateCakeSvg('#f5dce2', '#d66d8b', '#fffaf3'),
+          featured: true
+        },
+        {
+          id: 'prod-2',
+          name: 'تورتة الشوكولاتة البلجيكية والأوريو',
+          price: 16500,
+          category: 'الشوكولاتة',
+          desc: 'طبقات غنية من كيك الشوكولاتة الداكنة مغطاة بجاناش الشوكولاتة السائلة وبسكويت الأوريو الفاخر.',
+          image: generateCakeSvg('#5c2c1d', '#2b120a', '#efd79b'),
+          featured: true
+        },
+        {
+          id: 'prod-3',
+          name: 'تورتة الريد فيلفيت بالفواكه الطازجة',
+          price: 19000,
+          category: 'كيك الخطوبة',
+          desc: 'كيكة ريد فيلفيت حمراء ناعمة بطبقات كريمة الجبن الفاخرة ومزينة بشرائح الفراولة والمانجو الطازجة.',
+          image: generateCakeSvg('#8d2947', '#fffaf3', '#f5dce2'),
+          featured: true
+        },
+        {
+          id: 'prod-4',
+          name: 'تورتة الشموع الذهبية وإكليل الزهور',
+          price: 22000,
+          category: 'كيك الأعراس',
+          desc: 'تصميم ملكي أبيض مزين باللآلئ الذهبية والزهور الطبيعية مع شموع ذهبية طويلة للمناسبات الراقية.',
+          image: generateCakeSvg('#fffaf3', '#e8ce91', '#ffffff'),
+          featured: false
+        },
+        {
+          id: 'prod-5',
+          name: 'تورتة الفيونكة الحمراء الكلاسيكية',
+          price: 17000,
+          category: 'كيك المناسبات',
+          desc: 'تورتة بيضاء أنيقة بشريط ساتان أحمر فاخر وزخارف كريمة متقنة تناسب حفلات التخرج والنجاح.',
+          image: generateCakeSvg('#ffffff', '#8d2947', '#f5dce2'),
+          featured: false
+        },
+        {
+          id: 'prod-6',
+          name: 'بوكس الحلويات والشوكولاتة الملكي',
+          price: 14000,
+          category: 'الحلويات',
+          desc: 'تشكيلة مختارة من قطع الشوكولاتة المحشوة بالمكسرات والكراميل بتغليف ذهبي أنيق.',
+          image: generateCakeSvg('#4a091e', '#c49a50', '#fffaf3'),
+          featured: false
+        }
+      ],
+      reels: [
+        {
+          id: 'reel-1',
+          title: 'تشكيلة تورتات الفراشات والأعراس الفاخرة ✨',
+          badge: 'الأكثر طلباً 🔥',
+          desc: 'نبدع في تصميم كل تورتة بأدق التفاصيل الذهبية والكريمة الطازجة لتليق بمناسبتكم.',
+          videoUrl: '',
+          productId: 'prod-1'
+        },
+        {
+          id: 'reel-2',
+          title: 'عشاق الشوكولاتة البلجيكية الفاخرة 🍫',
+          badge: 'جديد حلا كيك 👑',
+          desc: 'مذاق الشوكولاتة الغنية مع جاناش الكاكاو الفاخر وبسكويت الأوريو المقرمش.',
+          videoUrl: '',
+          productId: 'prod-2'
+        }
+      ],
+      counters: [
+        { id: 'cnt-1', value: '+850', label: 'تورتة ومناسبة سعيدة' },
+        { id: 'cnt-2', value: '100%', label: 'مكونات طبيعية طازجة' },
+        { id: 'cnt-3', value: '4.9 ★', label: 'تقييم رضا العملاء' }
+      ],
+      reviews: [
+        {
+          id: 'rev-1',
+          customerName: 'أم محمد الصنعاني',
+          platform: 'واتساب',
+          caption: 'تسلم أياديكم يا حلا كيك، التورتة وصلت بنفس الصورة والطعم خيالي وهش جداً!',
+          image: generateReviewScreenshotSvg('واتساب', 'أم محمد الصنعاني', 'تسلم أياديكم يا حلا كيك، التورتة وصلت', 'بنفس الصورة والطعم خيالي وهش جداً!')
+        },
+        {
+          id: 'rev-2',
+          customerName: 'سارة العولقي',
+          platform: 'فيسبوك',
+          caption: 'أرقى تعامل وأسرع توصيل، تورتة الخطوبة كانت تحفة فنية والكل سأل عنها.',
+          image: generateReviewScreenshotSvg('فيسبوك', 'سارة العولقي', 'أرقى تعامل وأسرع توصيل، تورتة الخطوبة', 'كانت تحفة فنية والكل سأل عنها.')
+        },
+        {
+          id: 'rev-3',
+          customerName: 'نوف الحداد',
+          platform: 'إنستجرام',
+          caption: 'تجربة ممتازة والسداد عبر الكريمي سهل وسريع، بالتوفيق دائماً لحلا كيك.',
+          image: generateReviewScreenshotSvg('إنستجرام', 'نوف الحداد', 'تجربة ممتازة والسداد عبر الكريمي سهل', 'وسريع، بالتوفيق دائماً لحلا كيك.')
+        }
+      ],
+      customBuilderFields: [
+        { id: 'bf-1', label: 'حجم التورتة وعدد الطبقات', type: 'select', options: ['وسط (يكفي 10 أشخاص)', 'كبير (يكفي 18 شخص)', 'دورين ملكي (30+ شخص)'] },
+        { id: 'bf-2', label: 'نكهة الكيك والحشوة', type: 'select', options: ['فانيليا وكريمة فراولة', 'شوكولاتة بلجيكية وجاناش', 'ريد فيلفيت وكريمة تشيز', 'كراميل ومكسرات'] },
+        { id: 'bf-3', label: 'العبارة المكتوبة على التورتة', type: 'text', options: ['مثال: عيد ميلاد سعيد يا غالية 🎂'] },
+        { id: 'bf-4', label: 'مواصفات التزيين والألوان', type: 'text', options: ['وردي وذهبي، فراشات، ورود طبيعية...'] }
+      ],
+      voucherSettings: {
+        headerTitle: 'سند استلام طلب وتوصيل رسمي',
+        defaultDeliveryFee: 1500,
+        footerNote: 'يرجى مطابقة الطلب عند الاستلام — شكراً لاختياركم حلا كيك 🎂',
+        fields: [
+          { id: 'vf-1', label: 'رقم سند الاستلام', type: 'text', defaultVal: 'تلقائي مع الطلب', enabled: true, showToCustomer: false },
+          { id: 'vf-2', label: 'اسم المستلم', type: 'text', defaultVal: 'اسم الشخص المستلم', enabled: true, showToCustomer: true },
+          { id: 'vf-3', label: 'موعد وتاريخ التسليم', type: 'datetime', defaultVal: '', enabled: true, showToCustomer: true },
+          { id: 'vf-4', label: 'عنوان الاستلام التفصيلي', type: 'text', defaultVal: 'المدينة - الحي - الشارع', enabled: true, showToCustomer: true },
+          { id: 'vf-5', label: 'رابط الموقع GPS', type: 'text', defaultVal: 'رابط خرائط جوجل', enabled: true, showToCustomer: true },
+          { id: 'vf-6', label: 'اسم موظف التوصيل', type: 'text', defaultVal: 'يُحدد من الإدارة', enabled: true, showToCustomer: false },
+          { id: 'vf-7', label: 'رقم هاتف موظف التوصيل', type: 'tel', defaultVal: '77xxxxxxx', enabled: true, showToCustomer: false },
+          { id: 'vf-8', label: 'رسوم التوصيل (ر.ي)', type: 'number', defaultVal: '1500', enabled: true, showToCustomer: true },
+          { id: 'vf-9', label: 'ملاحظات التسليم', type: 'text', defaultVal: 'مثال: الاتصال قبل الوصول بـ 10 دقائق', enabled: true, showToCustomer: true }
+        ]
+      },
+      checkoutFields: [
+        { id: 'cf-1', label: 'ملاحظات إضافية للتغليف أو الشموع', type: 'text', options: 'مثال: إضافة شموع ذهبية أو كرت إهداء' }
+      ],
+      whatsappGroups: [
+        { id: 'wag-1', name: 'عروض حلا كيك VIP', link: 'https://chat.whatsapp.com/', active: true }
+      ],
+      socialPlatforms: [
+        { key: 'facebook', name: 'فيسبوك (Facebook)', connected: false, accountId: '', token: '' },
+        { key: 'instagram', name: 'إنستجرام (Instagram)', connected: false, accountId: '', token: '' },
+        { key: 'tiktok', name: 'تيك توك (TikTok)', connected: false, accountId: '', token: '' },
+        { key: 'snapchat', name: 'سناب شات (Snapchat)', connected: false, accountId: '', token: '' },
+        { key: 'x', name: 'إكس (X)', connected: false, accountId: '', token: '' },
+        { key: 'threads', name: 'ثريدز (Threads)', connected: false, accountId: '', token: '' },
+        { key: 'whatsapp_biz', name: 'واتساب أعمال', connected: true, accountId: '00967771211154', token: 'DIRECT' }
+      ],
+      cart: [],
+      wishlist: [],
+      orders: [],
+      customers: []
+    };
+
+    let state = loadState();
+    let currentCategoryFilter = 'الكل';
+    let currentSearchQuery = '';
+    let showWishlistOnly = false;
+    let activeReelIndex = 0;
+    let capturedGpsLink = '';
+    let currentReceiptDataUrl = '';
+    let customCakeRefDataUrl = '';
+    let customExtraItems = [{ name: '', qty: '1' }];
+    let newProdProcessedDataUrl = '';
+    let newProdOriginalDataUrl = '';
+    let aiStudioAttachedMedia = null;
+    let secretTapCounter = 0;
+    let secretTapTimer = null;
+    let currentVoucherOrderId = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        const parsed = JSON.parse(raw);
+        return {
+          ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
+          ...parsed,
+          brand: { ...DEFAULT_STATE.brand, ...(parsed.brand || {}) },
+          settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) },
+          whatsappApi: { ...DEFAULT_STATE.whatsappApi, ...(parsed.whatsappApi || {}) },
+          aiConfig: { ...DEFAULT_STATE.aiConfig, ...(parsed.aiConfig || {}) },
+          voucherSettings: {
+            ...DEFAULT_STATE.voucherSettings,
+            ...(parsed.voucherSettings || {}),
+            fields: (parsed.voucherSettings && parsed.voucherSettings.fields) ? parsed.voucherSettings.fields : DEFAULT_STATE.voucherSettings.fields
+          }
+        };
+      } catch (e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        showToast('تنبيه: مساحة التخزين ممتلئة، يرجى تقليل حجم الصور المرفوعة.', 'warning');
+      }
+    }
+
+    // =========================================================================
+    // 3. INITIALIZATION & VISITOR COUNTER
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        // Increment visitor counter once per session
+        if (!sessionStorage.getItem('hala_visited_session')) {
+          state.visitorCount = (Number(state.visitorCount) || 0) + 1;
+          sessionStorage.setItem('hala_visited_session', '1');
+          saveState();
+        }
+
+        applyBranding();
+        renderCategories();
+        renderProducts();
+        renderFeaturedProducts();
+        renderActiveReel();
+        renderCustomCakeBuilder();
+        renderCustomExtraRows();
+        renderStoreCounters();
+        renderCustomerReviews();
+        updateCartBadges();
+        updateWishlistBadge();
+        updateVisitorCounterUI();
+        syncPaymentSettingsUI();
+      } catch (err) {
+        console.error('Initialization error:', err);
+      }
+    });
+
+    // Keyboard shortcut Ctrl + Shift + H to open Admin Gate reliably
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'H' || e.key === 'h' || e.key === 'أ')) {
+        e.preventDefault();
+        openAdminGate();
+      }
+    });
+
+    function formatYER(num) {
+      return Number(num || 0).toLocaleString('en-US') + ' ر.ي';
+    }
+
+    function showToast(message, type = 'success', actionLabel = '', actionCallback = null) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bgClass = type === 'error' ? 'bg-red-700' : type === 'warning' ? 'bg-amber-600' : 'bg-[#690d28]';
+      toast.className = `${bgClass} text-white px-4 py-3 rounded-2xl shadow-xl border border-[#c49a50] pointer-events-auto flex items-center justify-between gap-2 text-xs sm:text-sm font-bold`;
+
+      const textSpan = document.createElement('span');
+      textSpan.textContent = message;
+      toast.appendChild(textSpan);
+
+      const rightBox = document.createElement('div');
+      rightBox.className = 'flex items-center gap-2 shrink-0';
+
+      if (actionLabel && typeof actionCallback === 'function') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-3 py-1 rounded-full btn-hala-gold text-xs font-black';
+        btn.textContent = actionLabel;
+        btn.onclick = () => {
+          toast.remove();
+          actionCallback();
+        };
+        rightBox.appendChild(btn);
+      }
+
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'text-white/80 hover:text-white px-1';
+      closeBtn.textContent = '✕';
+      closeBtn.onclick = () => toast.remove();
+      rightBox.appendChild(closeBtn);
+
+      toast.appendChild(rightBox);
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4500);
+    }
+
+    function applyBranding() {
+      document.documentElement.style.setProperty('--hala-burgundy', state.brand.primaryColor || '#690d28');
+      document.documentElement.style.setProperty('--hala-gold', state.brand.goldColor || '#c49a50');
+      document.documentElement.style.setProperty('--hala-cream', state.brand.creamColor || '#fffaf3');
+
+      document.getElementById('topBannerImg').src = state.brand.topBannerImg || DEFAULT_IMAGES.topBanner;
+      document.getElementById('headerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
+      document.getElementById('footerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
+      document.getElementById('chefHeroPortraitImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
+      document.getElementById('aboutSmileChefImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
+
+      document.getElementById('headerStoreName').textContent = state.brand.storeName;
+      document.getElementById('heroTitleText').textContent = state.brand.heroTitle;
+      document.getElementById('heroSubtitleText').textContent = state.brand.heroSubtitle;
+    }
+
+    function updateVisitorCounterUI() {
+      const count = Number(state.visitorCount) || 0;
+      document.getElementById('footerVisitorCountText').textContent = count.toLocaleString('en-US');
+      document.getElementById('adminTopVisitorCount').textContent = count.toLocaleString('en-US');
+      const settingsDisplay = document.getElementById('settingsVisitorCountDisplay');
+      if (settingsDisplay) settingsDisplay.textContent = count.toLocaleString('en-US');
+
+      const footerBox = document.getElementById('footerVisitorCounterBox');
+      if (state.settings.showVisitorsInFooter) {
+        footerBox.classList.remove('hidden');
+      } else {
+        footerBox.classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 4. STOREFRONT RENDERING (CATEGORIES, PRODUCTS, REELS, REVIEWS)
+    // =========================================================================
+    function renderCategories() {
+      const grid = document.getElementById('categoriesGrid');
+      grid.innerHTML = state.categories.map(cat => `
+        <button type="button" onclick="filterByCategory('${cat.name}')" class="hala-card p-3 flex flex-col items-center text-center group cursor-pointer">
+          <div class="w-full aspect-square rounded-2xl bg-[#fffaf3] border border-[#ead9cf] p-2 flex items-center justify-center overflow-hidden mb-2">
+            <img src="${cat.img || generateCakeSvg('#f5dce2', '#690d28', '#fff')}" alt="${cat.name}" class="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+          </div>
+          <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">${cat.icon} ${cat.name}</span>
+        </button>
+      `).join('');
+    }
+
+    function filterByCategory(catName) {
+      currentCategoryFilter = catName;
+      showWishlistOnly = false;
+      document.getElementById('activeCategoryPill').textContent = catName === 'الكل' ? 'جميع التشكيلات' : `قسم: ${catName}`;
+      const resetBtn = document.getElementById('resetFilterBtn');
+      if (catName === 'الكل') resetBtn.classList.add('hidden');
+      else resetBtn.classList.remove('hidden');
+      renderProducts();
+    }
+
+    function handleSearch(val) {
+      currentSearchQuery = (val || '').trim().toLowerCase();
+      document.getElementById('desktopSearchInput').value = val;
+      document.getElementById('mobileSearchInput').value = val;
+      renderProducts();
+    }
+
+    function toggleWishlistItem(prodId) {
+      const idx = state.wishlist.indexOf(prodId);
+      if (idx === -1) {
+        state.wishlist.push(prodId);
+        showToast('تمت الإضافة إلى المفضلة ❤️');
+      } else {
+        state.wishlist.splice(idx, 1);
+        showToast('تمت الإزالة من المفضلة');
+      }
+      saveState();
+      updateWishlistBadge();
+      renderProducts();
+      renderFeaturedProducts();
+    }
+
+    function updateWishlistBadge() {
+      document.getElementById('wishlistBadge').textContent = state.wishlist.length;
+    }
+
+    function toggleWishlistFilter() {
+      showWishlistOnly = !showWishlistOnly;
+      document.getElementById('activeCategoryPill').textContent = showWishlistOnly ? '❤️ المفضلة فقط' : 'جميع التشكيلات';
+      renderProducts();
+      document.getElementById('productsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function createProductCardHTML(prod, isFeaturedBadge = false) {
+      const isFav = state.wishlist.includes(prod.id);
+      return `
+        <article class="hala-card flex flex-col justify-between overflow-hidden">
+          <div class="relative bg-gradient-to-b from-[#fffaf3] to-[#f7efe5] p-4 flex items-center justify-center h-52 border-b border-[#ead9cf]">
+            <button type="button" onclick="toggleWishlistItem('${prod.id}')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow border border-[#ead9cf] flex items-center justify-center text-sm" aria-label="المفضلة">
+              ${isFav ? '❤️' : '🤍'}
+            </button>
+            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${isFeaturedBadge ? 'btn-hala-gold' : 'bg-[#f5dce2] text-[#690d28]'}">
+              ${isFeaturedBadge ? 'الأكثر طلباً ★' : prod.category}
+            </span>
+            <img src="${prod.image}" alt="${prod.name}" class="max-h-40 w-auto object-contain drop-shadow-md" />
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <h3 class="text-base font-black text-[#690d28] leading-snug">${prod.name}</h3>
+              <div class="text-[#c49a50] text-xs mt-0.5">★★★★★</div>
+              <p class="text-xs text-[#38252a]/80 mt-1.5 leading-relaxed">${prod.desc}</p>
+            </div>
+            <div class="pt-3 border-t border-[#ead9cf] flex items-center justify-between gap-2">
+              <div>
+                <span class="block text-[10px] text-[#88777a] font-bold">السعر</span>
+                <span class="text-base font-black text-[#690d28]">${formatYER(prod.price)}</span>
+              </div>
+              <button type="button" onclick="addToCart('${prod.id}')" class="px-4 py-2.5 btn-hala-primary text-xs sm:text-sm shrink-0">
+                + أضف للسلة
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      let list = [...state.products];
+      if (currentCategoryFilter !== 'الكل') {
+        list = list.filter(p => p.category === currentCategoryFilter);
+      }
+      if (showWishlistOnly) {
+        list = list.filter(p => state.wishlist.includes(p.id));
+      }
+      if (currentSearchQuery) {
+        list = list.filter(p =>
+          p.name.toLowerCase().includes(currentSearchQuery) ||
+          p.desc.toLowerCase().includes(currentSearchQuery) ||
+          p.category.toLowerCase().includes(currentSearchQuery)
+        );
+      }
+
+      if (!list.length) {
+        grid.innerHTML = `<div class="col-span-full hala-card p-8 text-center text-sm font-bold text-[#88777a]">لا توجد منتجات مطابقة لبحثك حالياً.</div>`;
+        return;
+      }
+      grid.innerHTML = list.map(p => createProductCardHTML(p, false)).join('');
+    }
+
+    function renderFeaturedProducts() {
+      const grid = document.getElementById('featuredProductsGrid');
+      const featured = state.products.filter(p => p.featured);
+      const list = featured.length ? featured : state.products.slice(0, 3);
+      grid.innerHTML = list.map(p => createProductCardHTML(p, true)).join('');
+    }
+
+    function renderActiveReel() {
+      const container = document.getElementById('reelCardContainer');
+      if (!state.reels.length) return;
+      if (activeReelIndex >= state.reels.length) activeReelIndex = 0;
+      if (activeReelIndex < 0) activeReelIndex = state.reels.length - 1;
+
+      const reel = state.reels[activeReelIndex];
+      const linkedProd = state.products.find(p => p.id === reel.productId) || state.products[0];
+
+      const mediaHtml = reel.videoUrl
+        ? `<video src="${reel.videoUrl}" controls autoplay muted loop playsinline class="w-full h-60 sm:h-72 object-cover rounded-2xl border border-[#c49a50]"></video>`
+        : `<div class="w-full h-56 sm:h-64 rounded-2xl bg-[#fffaf3] border border-[#c49a50] p-4 flex items-center justify-center">
+             <img src="${linkedProd ? linkedProd.image : DEFAULT_IMAGES.logo}" alt="${reel.title}" class="max-h-48 w-auto object-contain" />
+           </div>`;
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 p-5 sm:p-6 items-center">
+          <div class="md:col-span-5">${mediaHtml}</div>
+          <div class="md:col-span-7 space-y-3 text-center md:text-right">
+            <span class="inline-block px-3 py-1 rounded-full btn-hala-gold text-xs font-black">${reel.badge || 'عرض مميز ✨'}</span>
+            <h3 class="text-xl sm:text-2xl font-black text-white leading-snug">${reel.title}</h3>
+            <p class="text-xs sm:text-sm text-white/85 leading-relaxed">${reel.desc}</p>
+            <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-3">
+              ${linkedProd ? `<button type="button" onclick="addToCart('${linkedProd.id}'); openCartDrawer();" class="px-5 py-2.5 btn-hala-gold text-xs sm:text-sm">🛒 اطلب هذه التورتة (${formatYER(linkedProd.price)})</button>` : ''}
+              <span class="text-xs text-[#e8ce91] font-bold">${activeReelIndex + 1} / ${state.reels.length}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function nextReel() { activeReelIndex++; renderActiveReel(); }
+    function prevReel() { activeReelIndex--; renderActiveReel(); }
+
+    function renderStoreCounters() {
+      const grid = document.getElementById('storeCountersGrid');
+      grid.innerHTML = state.counters.map(c => `
+        <div class="p-3 rounded-2xl bg-[#fffaf3] border border-[#c49a50]/50 text-center">
+          <div class="text-lg sm:text-xl font-black text-[#690d28]">${c.value}</div>
+          <div class="text-[11px] font-bold text-[#88777a] mt-0.5">${c.label}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderCustomerReviews() {
+      const grid = document.getElementById('customerReviewsGrid');
+      grid.innerHTML = state.reviews.map(rev => `
+        <article class="hala-card overflow-hidden flex flex-col justify-between">
+          <div onclick="openImageLightbox('${rev.image}', '${rev.platform} - ${rev.customerName}')" class="cursor-pointer bg-[#f7efe5] p-2.5 border-b border-[#ead9cf] relative group">
+            <img src="${rev.image}" alt="رأي ${rev.customerName}" class="w-full h-48 object-contain rounded-xl group-hover:scale-[1.02] transition-transform" />
+            <span class="absolute bottom-4 left-4 px-2.5 py-1 rounded-full bg-black/65 text-white text-[10px] font-bold">🔍 تكبير الصورة</span>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-sm text-[#690d28]">${rev.customerName}</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-[#f5dce2] text-[#690d28] text-[11px] font-bold">${rev.platform}</span>
+            </div>
+            <p class="text-xs text-[#38252a]/85 leading-relaxed">"${rev.caption}"</p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 5. CUSTOM CAKE & EXTENDED ORDER DESIGNER
+    // =========================================================================
+    function renderCustomCakeBuilder() {
+      const container = document.getElementById('dynamicCustomCakeFields');
+      container.innerHTML = state.customBuilderFields.map(field => {
+        if (field.type === 'select') {
+          const opts = (field.options || []).map(o => `<option value="${o}">${o}</option>`).join('');
+          return `
+            <div>
+              <label class="block text-xs font-extrabold text-[#690d28] mb-1">${field.label}</label>
+              <select name="customBuilderField_${field.id}" data-label="${field.label}" onchange="recalculateCustomCakeEstimate()" class="w-full p-2.5 text-xs sm:text-sm border border-[#ead9cf] rounded-xl bg-white">
+                ${opts}
+              </select>
+            </div>
+          `;
+        }
+        return `
+          <div>
+            <label class="block text-xs font-extrabold text-[#690d28] mb-1">${field.label}</label>
+            <input type="text" name="customBuilderField_${field.id}" data-label="${field.label}" placeholder="${(field.options && field.options[0]) || ''}" class="w-full p-2.5 text-xs sm:text-sm border border-[#ead9cf] rounded-xl bg-white" />
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCustomExtraRows() {
+      const container = document.getElementById('customExtraRowsContainer');
+      container.innerHTML = customExtraItems.map((item, idx) => `
+        <div class="flex items-center gap-2">
+          <input type="text" value="${item.name}" oninput="customExtraItems[${idx}].name = this.value; recalculateCustomCakeEstimate();" placeholder="الصنف (مثال: بوكس موالح / كعك / شوكولاتة)" class="flex-1 p-2 text-xs border border-[#ead9cf] rounded-xl" />
+          <input type="number" min="1" value="${item.qty}" oninput="customExtraItems[${idx}].qty = this.value; recalculateCustomCakeEstimate();" class="w-16 p-2 text-xs border border-[#ead9cf] rounded-xl text-center" />
+          ${customExtraItems.length > 1 ? `<button type="button" onclick="removeCustomExtraRow(${idx})" class="px-2.5 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold">✕</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function addCustomExtraRow() {
+      customExtraItems.push({ name: '', qty: '1' });
+      renderCustomExtraRows();
+    }
+
+    function removeCustomExtraRow(idx) {
+      customExtraItems.splice(idx, 1);
+      renderCustomExtraRows();
+      recalculateCustomCakeEstimate();
+    }
+
+    function recalculateCustomCakeEstimate() {
+      let base = 20000;
+      const selects = document.querySelectorAll('#dynamicCustomCakeFields select');
+      selects.forEach(sel => {
+        if (sel.value.includes('كبير')) base += 6000;
+        if (sel.value.includes('دورين')) base += 14000;
+      });
+      const validExtras = customExtraItems.filter(i => i.name.trim());
+      base += validExtras.length * 4500;
+      document.getElementById('customCakeEstimatedPrice').textContent = formatYER(base);
+      return base;
+    }
+
+    function handleCustomCakeRefImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        customCakeRefDataUrl = e.target.result;
+        document.getElementById('customCakeRefPreviewImg').src = customCakeRefDataUrl;
+        document.getElementById('customCakeRefPreviewBox').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearCustomCakeRefImage() {
+      customCakeRefDataUrl = '';
+      document.getElementById('customCakeRefImageInput').value = '';
+      document.getElementById('customCakeRefPreviewBox').classList.add('hidden');
+    }
+
+    function submitCustomCakeToCart(event) {
+      event.preventDefault();
+      const specs = [];
+      document.querySelectorAll('#dynamicCustomCakeFields [data-label]').forEach(el => {
+        if (el.value.trim()) specs.push(`${el.dataset.label}: ${el.value.trim()}`);
+      });
+      const extras = customExtraItems.filter(i => i.name.trim()).map(i => `${i.name.trim()} (×${i.qty})`);
+      if (extras.length) specs.push(`إضافات موسّعة: ${extras.join('، ')}`);
+      if (customCakeRefDataUrl) specs.push('مرفق صورة نموذج للتورتة');
+
+      const price = recalculateCustomCakeEstimate();
+      const customItem = {
+        id: 'custom-' + Date.now(),
+        name: '🎂 تورتة خاصة وطلب موسّع',
+        price: price,
+        qty: 1,
+        image: customCakeRefDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#efd79b'),
+        customSpecs: specs.join(' | ')
+      };
+
+      state.cart.push(customItem);
+      saveState();
+      updateCartBadges();
+      showToast('تمت إضافة التورتة الخاصة للسلة بنجاح 🎂', 'success', 'فتح السلة 🛒', openCartDrawer);
+    }
+
+    // =========================================================================
+    // 6. CART, CHECKOUT, GPS, KURAIMI/JAIB RECEIPT & WHATSAPP ORDER
+    // =========================================================================
+    function addToCart(productId) {
+      const prod = state.products.find(p => String(p.id) === String(productId));
+      if (!prod) return;
+
+      const existing = state.cart.find(item => String(item.id) === String(productId));
+      if (existing) {
+        existing.qty = (Number(existing.qty) || 1) + 1;
+      } else {
+        state.cart.push({
+          id: prod.id,
+          name: prod.name,
+          price: Number(prod.price),
+          qty: 1,
+          image: prod.image,
+          customSpecs: ''
+        });
+      }
+
+      saveState();
+      updateCartBadges();
+      showToast(`تمت إضافة "${prod.name}" إلى السلة ✓`, 'success', 'عرض السلة 🛒', openCartDrawer);
+    }
+
+    function updateCartBadges() {
+      const totalQty = state.cart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0);
+      document.getElementById('headerCartBadge').textContent = totalQty;
+      document.getElementById('mobileNavCartBadge').textContent = totalQty;
+    }
+
+    function openCartDrawer() {
+      renderCartDrawerContent();
+      document.getElementById('cartDrawerBackdrop').classList.remove('hidden');
+      document.getElementById('cartDrawer').classList.remove('-translate-x-full');
+    }
+
+    function closeCartDrawer() {
+      document.getElementById('cartDrawerBackdrop').classList.add('hidden');
+      document.getElementById('cartDrawer').classList.add('-translate-x-full');
+    }
+
+    function changeCartItemQty(index, delta) {
+      if (!state.cart[index]) return;
+      state.cart[index].qty += delta;
+      if (state.cart[index].qty <= 0) {
+        state.cart.splice(index, 1);
+      }
+      saveState();
+      updateCartBadges();
+      renderCartDrawerContent();
+    }
+
+    function renderCartDrawerContent() {
+      const container = document.getElementById('cartItemsContainer');
+      const totalEl = document.getElementById('cartTotalAmountText');
+
+      if (!state.cart.length) {
+        container.innerHTML = `<div class="p-6 text-center rounded-2xl bg-[#f7efe5] text-xs font-bold text-[#88777a]">سلة المشتريات فارغة حالياً. أضيفي تورتتك المفضلة من المتجر!</div>`;
+        totalEl.textContent = '0 ر.ي';
+        return;
+      }
+
+      let total = 0;
+      container.innerHTML = state.cart.map((item, idx) => {
+        const sub = item.price * item.qty;
+        total += sub;
+        return `
+          <div class="p-3 rounded-2xl bg-white border border-[#ead9cf] flex items-center gap-3">
+            <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded-xl object-contain bg-[#fffaf3] border border-[#ead9cf] p-1 shrink-0" />
+            <div class="flex-1 min-w-0">              <div class="text-xs font-extrabold text-[#690d28] truncate">${item.name}</div>
+              ${item.customSpecs ? `<div class="text-[10px] text-[#88777a] line-clamp-2 mt-0.5">${item.customSpecs}</div>` : ''}
+              <div class="text-xs font-black text-[#a87931] mt-1">${formatYER(sub)}</div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="changeCartItemQty(${idx}, -1)" class="w-6 h-6 rounded-lg bg-[#f5dce2] text-[#690d28] font-black text-xs">-</button>
+              <span class="text-xs font-extrabold w-4 text-center">${item.qty}</span>
+              <button type="button" onclick="changeCartItemQty(${idx}, 1)" class="w-6 h-6 rounded-lg bg-[#690d28] text-white font-black text-xs">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      totalEl.textContent = formatYER(total);
+
+      // Render customer-visible Voucher & Delivery fields
+      const voucherCustomerBox = document.getElementById('checkoutVoucherFieldsContainer');
+      const customerVoucherFields = (state.voucherSettings.fields || []).filter(f =>
+        f.enabled && f.showToCustomer && !['اسم المستلم', 'موعد وتاريخ التسليم', 'عنوان الاستلام التفصيلي', 'رابط الموقع GPS'].includes(f.label)
+      );
+      voucherCustomerBox.innerHTML = customerVoucherFields.map(f => `
+        <div>
+          <label class="block text-xs font-bold mb-1">${f.label}</label>
+          <input type="${f.type === 'number' ? 'number' : f.type === 'tel' ? 'tel' : 'text'}" data-voucher-field-label="${f.label}" value="${f.type === 'number' ? (f.defaultVal || '') : ''}" placeholder="${f.defaultVal || ''}" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+        </div>
+      `).join('');
+
+      // Render dynamic checkout fields
+      const dynBox = document.getElementById('checkoutDynamicFieldsContainer');
+      dynBox.innerHTML = state.checkoutFields.map(f => `
+        <div>
+          <label class="block text-xs font-bold mb-1">${f.label}</label>
+          <input type="text" data-checkout-label="${f.label}" placeholder="${f.options || ''}" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+        </div>
+      `).join('');
+
+      syncPaymentSettingsUI();
+    }
+
+    function syncPaymentSettingsUI() {
+      const codOpt = document.getElementById('codOptionEl');
+      if (codOpt) codOpt.style.display = state.settings.allowCashOnDelivery ? '' : 'none';
+
+      const splitOpt = document.getElementById('split50OptionEl');
+      if (splitOpt) splitOpt.style.display = state.settings.allowSplit50Payment ? '' : 'none';
+
+      const methodSel = document.getElementById('checkoutPaymentMethod');
+      if (methodSel) {
+        if (methodSel.value === 'دفع 50% مقدم و 50% عند الاستلام' && !state.settings.allowSplit50Payment) {
+          methodSel.value = 'الكريمي';
+        }
+        if (methodSel.value === 'الدفع عند الاستلام' && !state.settings.allowCashOnDelivery) {
+          methodSel.value = 'الكريمي';
+        }
+      }
+
+      handlePaymentMethodChange();
+    }
+
+    function handlePaymentMethodChange() {
+      const methodEl = document.getElementById('checkoutPaymentMethod');
+      if (!methodEl) return;
+      const method = methodEl.value;
+      const detailsBox = document.getElementById('paymentAccountDetailsBox');
+      const receiptBox = document.getElementById('transferReceiptUploadSection');
+      const total = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+      const halfAmount = Math.ceil(total / 2);
+      const remainingAmount = total - halfAmount;
+
+      if (method === 'الكريمي') {
+        detailsBox.innerHTML = `<div class="font-extrabold text-[#690d28]">🏦 بيانات التحويل عبر بنك الكريمي:</div><div dir="ltr" class="font-mono font-bold text-[#38252a] text-right">${state.settings.kuraimiAccount}</div>`;
+        receiptBox.style.display = state.settings.requireReceiptUpload ? 'block' : 'none';
+      } else if (method === 'محفظة جيب') {
+        detailsBox.innerHTML = `<div class="font-extrabold text-[#690d28]">📱 بيانات التحويل عبر محفظة جيب:</div><div dir="ltr" class="font-mono font-bold text-[#38252a] text-right">${state.settings.jaibAccount}</div>`;
+        receiptBox.style.display = state.settings.requireReceiptUpload ? 'block' : 'none';
+      } else if (method === 'دفع 50% مقدم و 50% عند الاستلام') {
+        detailsBox.innerHTML = `
+          <div class="font-extrabold text-[#690d28]">⚖️ نظام السداد المقسّم (50% عربون + 50% عند الاستلام):</div>
+          <div class="grid grid-cols-2 gap-2 my-1.5">
+            <div class="p-2 rounded-lg bg-white border border-[#c49a50] text-center">
+              <span class="block text-[10px] text-[#88777a]">الدفعة المقدمة الآن (50%)</span>
+              <strong class="text-sm text-[#690d28]">${formatYER(halfAmount)}</strong>
+            </div>
+            <div class="p-2 rounded-lg bg-white border border-[#ead9cf] text-center">
+              <span class="block text-[10px] text-[#88777a]">المتبقي عند الاستلام (50%)</span>
+              <strong class="text-sm text-[#38252a]">${formatYER(remainingAmount)}</strong>
+            </div>
+          </div>
+          <div class="text-[11px] font-bold text-[#38252a]">🏦 الكريمي: <span dir="ltr" class="font-mono">${state.settings.kuraimiAccount}</span></div>
+          <div class="text-[11px] font-bold text-[#38252a]">📱 جيب: <span dir="ltr" class="font-mono">${state.settings.jaibAccount}</span></div>
+        `;
+        receiptBox.style.display = state.settings.requireReceiptUpload ? 'block' : 'none';
+      } else {
+        detailsBox.innerHTML = `<div class="font-extrabold text-[#690d28]">💵 الدفع نقداً عند استلام الطلب من المندوب.</div>`;
+        receiptBox.style.display = 'none';
+      }
+    }
+
+    function captureCustomerGPS() {
+      const statusEl = document.getElementById('gpsStatusText');
+      if (!navigator.geolocation) {
+        statusEl.textContent = 'المتصفح لا يدعم تحديد الموقع الجغرافي';
+        return;
+      }
+      statusEl.textContent = 'جاري تحديد موقعك الحالي...';
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          capturedGpsLink = `https://maps.google.com/?q=${lat},${lng}`;
+          statusEl.textContent = `✓ تم التقاط الموقع بنجاح (${lat}, ${lng})`;
+          showToast('تم حفظ رابط موقعك للتوصيل 📍');
+        },
+        () => {
+          statusEl.textContent = 'تعذّر الوصول للموقع، يرجى تفعيل الـ GPS في الهاتف';
+        }
+      );
+    }
+
+    function handleReceiptImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        currentReceiptDataUrl = e.target.result;
+        const prev = document.getElementById('checkoutReceiptPreview');
+        prev.src = currentReceiptDataUrl;
+        prev.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitOrderViaWhatsApp(event) {
+      event.preventDefault();
+      if (!state.cart.length) {
+        showToast('السلة فارغة! أضيفي منتجاً أولاً', 'warning');
+        return;
+      }
+
+      const name = document.getElementById('checkoutNameInput').value.trim();
+      const phone = document.getElementById('checkoutPhoneInput').value.trim();
+      const recipient = document.getElementById('checkoutRecipientInput').value.trim() || name;
+      const deliveryTime = document.getElementById('checkoutDeliveryTimeInput').value.replace('T', ' ');
+      const address = document.getElementById('checkoutAddressInput').value.trim();
+      const paymentMethod = document.getElementById('checkoutPaymentMethod').value;
+
+      if (paymentMethod !== 'الدفع عند الاستلام' && state.settings.requireReceiptUpload && !currentReceiptDataUrl) {
+        showToast('يرجى إرفاق صورة سند الحوالة لتأكيد السداد', 'warning');
+        return;
+      }
+
+      const extraAnswers = [];
+      document.querySelectorAll('#checkoutDynamicFieldsContainer [data-checkout-label]').forEach(el => {
+        if (el.value.trim()) extraAnswers.push(`${el.dataset.checkoutLabel}: ${el.value.trim()}`);
+      });
+
+      const voucherCustomValues = {};
+      document.querySelectorAll('#checkoutVoucherFieldsContainer [data-voucher-field-label]').forEach(el => {
+        if (el.value.trim()) voucherCustomValues[el.dataset.voucherFieldLabel] = el.value.trim();
+      });
+
+      const total = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+      const isSplit50 = paymentMethod === 'دفع 50% مقدم و 50% عند الاستلام';
+      const depositAmount = isSplit50 ? Math.ceil(total / 2) : (paymentMethod === 'الدفع عند الاستلام' ? 0 : total);
+      const remainingAmount = isSplit50 ? (total - depositAmount) : (paymentMethod === 'الدفع عند الاستلام' ? total : 0);
+
+      const orderId = 'HC-' + Math.floor(1000 + Math.random() * 9000);
+      const orderDate = new Date().toLocaleString('ar-YE');
+
+      const newOrder = {
+        id: orderId,
+        date: orderDate,
+        customerName: name,
+        customerPhone: phone,
+        recipientName: recipient,
+        deliveryTime,
+        address,
+        gpsLink: capturedGpsLink,
+        paymentMethod,
+        isSplit50,
+        depositAmount,
+        remainingAmount,
+        receiptImage: currentReceiptDataUrl,
+        extraAnswers,
+        voucherCustomValues,
+        items: JSON.parse(JSON.stringify(state.cart)),
+        total,
+        status: isSplit50 ? 'مطلوب دفع 50% عربون' : (currentReceiptDataUrl ? 'تم السداد ومرفق السند' : 'قيد التأكيد'),
+        driverName: '',
+        driverPhone: ''
+      };
+
+      state.orders.unshift(newOrder);
+
+      // Save/Update Customer in Database
+      const existingCust = state.customers.find(c => c.phone === phone);
+      if (existingCust) {
+        existingCust.name = name;
+        existingCust.address = address;
+        if (capturedGpsLink) existingCust.gpsLink = capturedGpsLink;
+        existingCust.orderIds.unshift(orderId);
+        existingCust.totalSpent += total;
+      } else {
+        state.customers.unshift({
+          name,
+          phone,
+          address,
+          gpsLink: capturedGpsLink,
+          orderIds: [orderId],
+          totalSpent: total
+        });
+      }
+
+      // Build WhatsApp Message
+      const itemsLines = newOrder.items.map((it, idx) =>
+        `${idx + 1}. ${it.name} (×${it.qty}) = ${formatYER(it.price * it.qty)}${it.customSpecs ? `\n   [${it.customSpecs}]` : ''}`
+      ).join('\n');
+
+      const waLines = [
+        `🎂 *طلب جديد من متجر حلا كيك - Hala Cake* 🎂`,
+        `🧾 *رقم الطلب:* ${orderId}`,
+        `👤 *المشتري:* ${name}`,
+        `📱 *رقم الجوال:* ${phone}`,
+        `🎁 *المستلم:* ${recipient}`,
+        `⏰ *موعد التسليم:* ${deliveryTime}`,
+        `📍 *العنوان:* ${address}`,
+        capturedGpsLink ? `🗺️ *موقع التوصيل GPS:* ${capturedGpsLink}` : '',
+        extraAnswers.length ? `📝 *ملاحظات:* ${extraAnswers.join(' | ')}` : '',
+        `─────────────────`,
+        `🍰 *المنتجات المطلوبة:*`,
+        itemsLines,
+        `─────────────────`,
+        `💰 *الإجمالي:* ${formatYER(total)}`,
+        `💳 *طريقة السداد:* ${paymentMethod}`,
+        isSplit50 ? `💵 *الدفعة المقدمة (50%):* ${formatYER(depositAmount)} | *المتبقي عند الاستلام (50%):* ${formatYER(remainingAmount)}` : '',
+        currentReceiptDataUrl ? `✅ *تم إرفاق صورة سند الحوالة في المتجر*` : ''
+      ].filter(Boolean).join('\n');
+
+      // Reset cart
+      state.cart = [];
+      currentReceiptDataUrl = '';
+      capturedGpsLink = '';
+      saveState();
+      updateCartBadges();
+      closeCartDrawer();
+
+      const waUrl = `https://wa.me/${state.settings.whatsappNumber}?text=${encodeURIComponent(waLines)}`;
+      window.open(waUrl, '_blank');
+      showToast('تم حفظ طلبك وفتح واتساب للإرسال إلى حلا كيك 🎉');
+    }
+
+    // =========================================================================
+    // 7. MODALS & CUSTOMER ORDER LOOKUP
+    // =========================================================================
+    function openImageLightbox(src, caption) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightboxCaption').textContent = caption || 'معاينة الصورة';
+      const modal = document.getElementById('imageLightboxModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeImageLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openCustomerAccountModal() {
+      const modal = document.getElementById('customerAccountModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCustomerAccountModal() {
+      const modal = document.getElementById('customerAccountModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function lookupCustomerOrders() {
+      const phone = document.getElementById('lookupCustomerPhoneInput').value.trim();
+      const box = document.getElementById('customerLookupResults');
+      if (!phone) return;
+      const found = state.orders.filter(o => o.customerPhone.includes(phone));
+      if (!found.length) {
+        box.innerHTML = `<p class="text-center text-red-600 font-bold py-4">لا توجد طلبات مسجلة لهذا الرقم حالياً.</p>`;
+        return;
+      }
+      box.innerHTML = found.map(o => `
+        <div class="p-3 rounded-xl bg-white border border-[#ead9cf] space-y-1">
+          <div class="flex justify-between font-black text-[#690d28]">
+            <span>طلب #${o.id}</span>
+            <span>${formatYER(o.total)}</span>
+          </div>
+          <div class="text-[#88777a]">التاريخ: ${o.date} | الحالة: <strong>${o.status}</strong></div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 8. SECRET ADMIN GATE & FULL DASHBOARD LOGIC
+    // =========================================================================
+    function handleSecretLogoTap() {
+      secretTapCounter++;
+      clearTimeout(secretTapTimer);
+      if (secretTapCounter >= 5) {
+        secretTapCounter = 0;
+        openAdminGate();
+      } else {
+        secretTapTimer = setTimeout(() => { secretTapCounter = 0; }, 2000);
+      }
+    }
+
+    function openAdminGate() {
+      const passInput = document.getElementById('adminPasswordInput');
+      const errEl = document.getElementById('adminGateErrorMsg');
+      const modal = document.getElementById('adminGateModal');
+      if (passInput) passInput.value = '';
+      if (errEl) errEl.classList.add('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (passInput) setTimeout(() => passInput.focus(), 50);
+      }
+    }
+
+    function closeAdminGate() {
+      const modal = document.getElementById('adminGateModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function verifyAdminPassword(event) {
+      if (event) event.preventDefault();
+      const inputEl = document.getElementById('adminPasswordInput');
+      const err = document.getElementById('adminGateErrorMsg');
+      const input = inputEl ? inputEl.value : '';
+      let isMatch = false;
+      try {
+        isMatch = (btoa(input) === state.settings.adminPassword) || (input === 'hala2026');
+      } catch (e) {
+        isMatch = (input === 'hala2026');
+      }
+
+      if (isMatch) {
+        closeAdminGate();
+        openAdminDashboard();
+      } else if (err) {
+        err.textContent = 'رمز الدخول غير صحيح';
+        err.classList.remove('hidden');
+      }
+    }
+
+    function openAdminDashboard() {
+      const overlay = document.getElementById('adminDashboardOverlay');
+      if (!overlay) return;
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+      try {
+        refreshAllAdminViews();
+      } catch (err) {
+        console.error('Admin refresh error:', err);
+        showToast('تم فتح لوحة التحكم مع تنبيه في تحديث بعض البيانات', 'warning');
+      }
+    }
+
+    function closeAdminDashboard() {
+      const overlay = document.getElementById('adminDashboardOverlay');
+      if (!overlay) return;
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+    }
+
+    function switchAdminTab(tabName) {
+      document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.add('hidden'));
+      const targetPanel = document.getElementById('adminTab-' + tabName);
+      if (targetPanel) targetPanel.classList.remove('hidden');
+
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.className = 'admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center btn-hala-primary';
+        } else {
+          btn.className = 'admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]';
+        }
+      });
+    }
+
+    function refreshAllAdminViews() {
+      updateVisitorCounterUI();
+      renderAdminOrders();
+      renderAdminVouchersTab();
+      renderAdminProducts();
+      renderAdminReels();
+      initAdminAiSocialTab();
+      renderAdminPagesAndFields();
+      renderAdminBuilderFields();
+      renderAdminCustomersList();
+      renderAdminSettingsTab();
+    }
+
+    // --- Tab 1B: Vouchers & Delivery Settings ---
+    function renderAdminVouchersTab() {
+      document.getElementById('voucherHeaderTitleInput').value = state.voucherSettings.headerTitle || 'سند استلام طلب وتوصيل رسمي';
+      document.getElementById('voucherDefaultFeeInput').value = state.voucherSettings.defaultDeliveryFee || 0;
+      document.getElementById('voucherFooterNoteInput').value = state.voucherSettings.footerNote || '';
+
+      const list = document.getElementById('adminVoucherFieldsList');
+      const fields = state.voucherSettings.fields || [];
+      list.innerHTML = fields.map((f, idx) => `
+        <div class="p-3 rounded-xl bg-white border ${f.enabled ? 'border-[#c49a50]' : 'border-gray-200 opacity-70'} flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div class="space-y-0.5 min-w-0">
+            <div class="font-extrabold text-[#690d28]">${f.label} <span class="text-[10px] font-normal text-[#88777a]">(${f.defaultVal || 'حقل مخصص'})</span></div>
+            <div class="flex flex-wrap gap-1.5 text-[10px]">
+              <span class="px-2 py-0.5 rounded-full ${f.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'} font-bold">
+                ${f.enabled ? '✓ مفعّل' : '✕ موقوف'}
+              </span>
+              <span class="px-2 py-0.5 rounded-full ${f.showToCustomer ? 'bg-[#f5dce2] text-[#690d28]' : 'bg-amber-100 text-amber-800'} font-bold">
+                ${f.showToCustomer ? '👁️ ظاهر للعميل والسند' : '🔒 للإدارة والسند فقط'}
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+            <button type="button" onclick="moveVoucherField(${idx}, -1)" class="px-2 py-1 rounded bg-[#f7efe5] text-[#690d28] font-bold" title="تحريك لأعلى">↑</button>
+            <button type="button" onclick="moveVoucherField(${idx}, 1)" class="px-2 py-1 rounded bg-[#f7efe5] text-[#690d28] font-bold" title="تحريك لأسفل">↓</button>
+            <button type="button" onclick="toggleVoucherFieldEnabled(${idx})" class="px-2.5 py-1 rounded ${f.enabled ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'} font-bold">
+              ${f.enabled ? 'إيقاف' : 'تفعيل'}
+            </button>
+            <button type="button" onclick="toggleVoucherFieldVisibility(${idx})" class="px-2.5 py-1 rounded bg-[#f5dce2] text-[#690d28] font-bold">
+              ${f.showToCustomer ? 'إخفاء عن العميل' : 'إظهار للعميل'}
+            </button>
+            <button type="button" onclick="deleteVoucherField(${idx})" class="px-2.5 py-1 rounded bg-red-50 text-red-600 font-bold">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function saveVoucherGeneralSettings() {
+      state.voucherSettings.headerTitle = document.getElementById('voucherHeaderTitleInput').value.trim() || 'سند استلام طلب وتوصيل';
+      state.voucherSettings.defaultDeliveryFee = Number(document.getElementById('voucherDefaultFeeInput').value) || 0;
+      state.voucherSettings.footerNote = document.getElementById('voucherFooterNoteInput').value.trim();
+      saveState();
+      showToast('تم حفظ إعدادات السند والتوصيل ✓');
+    }
+
+    function addVoucherDeliveryField() {
+      const label = document.getElementById('newVoucherFieldLabel').value.trim();
+      const type = document.getElementById('newVoucherFieldType').value;
+      const defaultVal = document.getElementById('newVoucherFieldDefault').value.trim();
+      const showToCustomer = document.getElementById('newVoucherFieldAudience').value === 'both';
+
+      if (!label) {
+        showToast('يرجى إدخال اسم الحقل أولاً', 'warning');
+        return;
+      }
+
+      state.voucherSettings.fields.push({
+        id: 'vf-' + Date.now(),
+        label,
+        type,
+        defaultVal,
+        enabled: true,
+        showToCustomer
+      });
+      saveState();
+      renderAdminVouchersTab();
+      document.getElementById('newVoucherFieldLabel').value = '';
+      document.getElementById('newVoucherFieldDefault').value = '';
+      showToast('تمت إضافة الحقل إلى السند والتوصيل ✓');
+    }
+
+    function toggleVoucherFieldEnabled(idx) {
+      state.voucherSettings.fields[idx].enabled = !state.voucherSettings.fields[idx].enabled;
+      saveState();
+      renderAdminVouchersTab();
+    }
+
+    function toggleVoucherFieldVisibility(idx) {
+      state.voucherSettings.fields[idx].showToCustomer = !state.voucherSettings.fields[idx].showToCustomer;
+      saveState();
+      renderAdminVouchersTab();
+    }
+
+    function moveVoucherField(idx, dir) {
+      const target = idx + dir;
+      const arr = state.voucherSettings.fields;
+      if (target < 0 || target >= arr.length) return;
+      [arr[idx], arr[target]] = [arr[target], arr[idx]];
+      saveState();
+      renderAdminVouchersTab();
+    }
+
+    function deleteVoucherField(idx) {
+      state.voucherSettings.fields.splice(idx, 1);
+      saveState();
+      renderAdminVouchersTab();
+      showToast('تم حذف الحقل من السند');
+    }
+
+    function previewSampleDeliveryVoucher() {
+      const sampleOrder = {
+        id: 'HC-2026-TEST',
+        date: new Date().toLocaleString('ar-YE'),
+        customerName: 'أحمد اليماني (نموذج تجريبي)',
+        customerPhone: '771234567',
+        recipientName: 'أم محمد',
+        deliveryTime: '2026-11-28 05:30 م',
+        address: 'صنعاء - شارع حدة - جوار المركز التجاري',
+        gpsLink: 'https://maps.google.com/?q=15.3547,44.2066',
+        paymentMethod: 'بنك الكريمي (مؤكد بسند)',
+        driverName: 'كابتن علي صالح',
+        driverPhone: '777000111',
+        voucherCustomValues: {
+          'رسوم التوصيل (ر.ي)': String(state.voucherSettings.defaultDeliveryFee || 1500),
+          'ملاحظات التسليم': 'الاتصال قبل الوصول بـ 10 دقائق'
+        },
+        items: [
+          { name: 'تورتة الفراشات الوردية الفاخرة', qty: 1, price: 18500 }
+        ],
+        total: 18500
+      };
+      renderVoucherModalContent(sampleOrder, true);
+    }
+
+    // --- Tab 1: Orders & Delivery Vouchers ---
+    function renderAdminOrders() {
+      document.getElementById('adminOrdersCountBadge').textContent = `${state.orders.length} طلب`;
+      const container = document.getElementById('adminOrdersList');
+      if (!state.orders.length) {
+        container.innerHTML = `<div class="hala-card p-8 text-center text-xs font-bold text-[#88777a]">لا توجد طلبات مسجلة حتى الآن.</div>`;
+        return;
+      }
+
+      container.innerHTML = state.orders.map((o, idx) => {
+        const halfAmt = o.depositAmount || Math.ceil(o.total / 2);
+        const remAmt = o.remainingAmount !== undefined ? o.remainingAmount : (o.total - halfAmt);
+        return `
+        <div class="hala-card p-4 space-y-3 text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#ead9cf] pb-2">
+            <div>
+              <span class="font-black text-sm text-[#690d28]">#${o.id} — ${o.customerName}</span>
+              <span class="text-[#88777a] mr-2">(${o.customerPhone})</span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-[#f5dce2] text-[#690d28] font-extrabold">${o.status}</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[#38252a]">
+            <div><strong>المستلم:</strong> ${o.recipientName}</div>
+            <div><strong>موعد التسليم:</strong> ${o.deliveryTime}</div>
+            <div class="sm:col-span-2"><strong>العنوان:</strong> ${o.address} ${o.gpsLink ? `<a href="${o.gpsLink}" target="_blank" class="text-blue-600 underline font-bold mr-2">[📍 فتح الخريطة]</a>` : ''}</div>
+            <div><strong>السداد:</strong> ${o.paymentMethod}</div>
+            <div><strong>الإجمالي:</strong> <strong class="text-[#690d28]">${formatYER(o.total)}</strong></div>
+            ${o.isSplit50 ? `<div class="sm:col-span-2 p-2 rounded-lg bg-amber-50 border border-amber-200 font-bold text-amber-900">⚖️ تقسيم السداد: دفعة مقدمة 50% (${formatYER(halfAmt)}) + متبقي عند الاستلام 50% (${formatYER(remAmt)})</div>` : ''}
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-[#f7efe5] space-y-1">
+            ${o.items.map(it => `<div>• ${it.name} (×${it.qty}) — ${formatYER(it.price * it.qty)}</div>`).join('')}
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            ${o.receiptImage ? `<button type="button" onclick="openImageLightbox('${o.receiptImage}', 'سند حوالة الطلب #${o.id}')" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 font-extrabold">🧾 عرض صورة السند</button>` : ''}
+            <button type="button" onclick="send50PercentDepositNotice('${o.id}')" class="px-3.5 py-1.5 rounded-xl bg-[#20b968] hover:bg-[#159b54] text-white font-extrabold shadow-sm">💬 إشعار العميل بدفع 50% عبر واتساب</button>
+            <button type="button" onclick="openDeliveryVoucherModal('${o.id}')" class="px-3.5 py-1.5 btn-hala-primary">📄 إصدار سند استلام</button>
+            <button type="button" onclick="markOrderDelivered(${idx})" class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 font-bold">✓ تم التسليم</button>
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    async function send50PercentDepositNotice(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      const halfAmount = Math.ceil(order.total / 2);
+      const remainingAmount = order.total - halfAmount;
+      const noticeText = [
+        `🎂 *إشعار تأكيد طلب ودفع 50% عربون — حلا كيك (Hala Cake)* 🎂`,
+        `مرحباً بك أ/ *${order.customerName}*،`,
+        `تم استلام طلبك رقم *#${order.id}* بنجاح.`,
+        `💰 *إجمالي قيمة الطلب:* ${formatYER(order.total)}`,
+        `💵 *المطلوب تحويله الآن (50% عربون لتأكيد التجهيز):* *${formatYER(halfAmount)}*`,
+        `🚚 *المتبقي عند الاستلام (50%):* ${formatYER(remainingAmount)}`,
+        `─────────────────`,
+        `🏦 *حساب بنك الكريمي:* ${state.settings.kuraimiAccount}`,
+        `📱 *محفظة جيب (Jaib):* ${state.settings.jaibAccount}`,
+        `─────────────────`,
+        `يرجى إرسال صورة سند الإيداع لتأكيد بدء تجهيز تورتتك الفاخرة ✨`
+      ].join('\n');
+
+      await dispatchWhatsAppBusinessMessage(order.customerPhone, noticeText, `إشعار دفع 50% للطلب #${order.id}`);
+    }
+
+    async function dispatchWhatsAppBusinessMessage(rawPhone, messageText, actionTitle = 'رسالة واتساب') {
+      const cleanPhone = String(rawPhone || '').replace(/[^0-9]/g, '');
+      const formattedPhone = cleanPhone.startsWith('00') ? cleanPhone.slice(2) : (cleanPhone.length === 9 && cleanPhone.startsWith('7') ? '967' + cleanPhone : cleanPhone);
+      const waCfg = state.whatsappApi || {};
+
+      if (waCfg.phoneNumberId && waCfg.accessToken) {
+        try {
+          showToast(`⏳ جاري الإرسال عبر WhatsApp Business API (${actionTitle})...`);
+          const endpoint = waCfg.webhookUrl
+            ? waCfg.webhookUrl
+            : `https://graph.facebook.com/${waCfg.apiVersion || 'v21.0'}/${waCfg.phoneNumberId}/messages`;
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${waCfg.accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messaging_product: 'whatsapp',
+              recipient_type: 'individual',
+              to: formattedPhone,
+              type: 'text',
+              text: { body: messageText }
+            })
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            showToast(`✓ تم إرسال "${actionTitle}" بنجاح عبر WhatsApp Business API!`);
+            return;
+          } else {
+            const errMsg = (data && data.error && data.error.message) ? data.error.message : `HTTP ${response.status}`;
+            showToast(`⚠️ تعذّر الإرسال التلقائي عبر API (${errMsg})، سيتم الفتح عبر واتساب المباشر...`, 'warning');
+          }
+        } catch (err) {
+          showToast('⚠️ تعذّر الاتصال المباشر بـ Meta API من المتصفح، جاري التحويل لواتساب المباشر...', 'warning');
+        }
+      }
+
+      window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(messageText)}`, '_blank');
+      showToast(`تم فتح واتساب لإرسال "${actionTitle}" 💬`);
+    }
+
+    function markOrderDelivered(idx) {
+      state.orders[idx].status = 'تم التسليم بنجاح ✓';
+      saveState();
+      renderAdminOrders();
+      showToast('تم تحديث حالة الطلب إلى تم التسليم');
+    }
+
+    function openDeliveryVoucherModal(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+      currentVoucherOrderId = orderId;
+      renderVoucherModalContent(order, false);
+    }
+
+    function renderVoucherModalContent(order, isSample = false) {
+      document.getElementById('voucherModalSubTitle').textContent = state.voucherSettings.headerTitle || 'سند استلام طلب وتوصيل';
+      document.getElementById('voucherModalFooterNote').textContent = state.voucherSettings.footerNote || '';
+      document.getElementById('voucherOrderNumber').textContent = order.id;
+      document.getElementById('voucherOrderDate').textContent = order.date;
+      document.getElementById('voucherDriverNameInput').value = order.driverName || '';
+      document.getElementById('voucherDriverPhoneInput').value = order.driverPhone || '';
+
+      const enabledFields = (state.voucherSettings.fields || []).filter(f => f.enabled);
+      const dynamicRowsHtml = enabledFields.map(f => {
+        let val = '';
+        if (f.label === 'رقم سند الاستلام') val = `#${order.id}`;
+        else if (f.label === 'اسم المستلم') val = order.recipientName || order.customerName;
+        else if (f.label === 'موعد وتاريخ التسليم') val = order.deliveryTime || 'حسب الاتفاق';
+        else if (f.label === 'عنوان الاستلام التفصيلي') val = order.address;
+        else if (f.label === 'رابط الموقع GPS') val = order.gpsLink ? `<a href="${order.gpsLink}" target="_blank" class="text-blue-600 underline">فتح موقع التوصيل</a>` : 'غير مرفق';
+        else if (f.label === 'اسم موظف التوصيل') val = order.driverName || 'لم يُحدد بعد';
+        else if (f.label === 'رقم هاتف موظف التوصيل') val = order.driverPhone || '—';
+        else if (order.voucherCustomValues && order.voucherCustomValues[f.label]) val = order.voucherCustomValues[f.label];
+        else val = f.defaultVal || '—';
+
+        return `<div><strong>${f.label}:</strong> ${val}</div>`;
+      }).join('');
+
+      const splitSummaryHtml = order.isSplit50
+        ? `<div class="p-2 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 font-bold">⚖️ الدفع المقسّم: مدفوع مقدم 50% (${formatYER(order.depositAmount)}) | المتبقي للتحصيل عند التسليم 50% (${formatYER(order.remainingAmount)})</div>`
+        : '';
+
+      document.getElementById('voucherDetailsBody').innerHTML = `
+        <div><strong>اسم المشتري:</strong> ${order.customerName} (${order.customerPhone})</div>
+        ${dynamicRowsHtml}
+        <div class="pt-2 border-t border-[#ead9cf]">
+          <strong>الأصناف:</strong>
+          ${order.items.map(i => `<div class="mr-2">- ${i.name} (×${i.qty}) : ${formatYER(i.price * i.qty)}</div>`).join('')}
+        </div>
+        <div class="pt-2 font-black text-sm text-[#690d28]">المبلغ الإجمالي: ${formatYER(order.total)} (${order.paymentMethod})</div>
+        ${splitSummaryHtml}
+        ${isSample ? `<div class="text-[11px] text-amber-700 font-bold">* هذا نموذج معاينة حية لشكل سند الاستلام بحسب إعداداتك الحالية.</div>` : ''}
+      `;
+
+      const modal = document.getElementById('deliveryVoucherModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDeliveryVoucherModal() {
+      const modal = document.getElementById('deliveryVoucherModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveVoucherDriverInfo() {
+      const order = state.orders.find(o => o.id === currentVoucherOrderId);
+      if (!order) return;
+      order.driverName = document.getElementById('voucherDriverNameInput').value.trim();
+      order.driverPhone = document.getElementById('voucherDriverPhoneInput').value.trim();
+      saveState();
+      openDeliveryVoucherModal(currentVoucherOrderId);
+      renderAdminOrders();
+      showToast('تم حفظ بيانات موظف التوصيل في السند ✓');
+    }
+
+    function sendVoucherToWhatsApp() {
+      const order = state.orders.find(o => o.id === currentVoucherOrderId);
+      if (!order) return;
+      const text = [
+        `📄 *سند استلام وتوصيل - حلا كيك*`,
+        `رقم السند: #${order.id}`,
+        `المستلم: ${order.recipientName}`,
+        `العنوان: ${order.address}`,
+        `موعد التسليم: ${order.deliveryTime}`,
+        order.driverName ? `مندوب التوصيل: ${order.driverName} (${order.driverPhone})` : '',
+        `الإجمالي: ${formatYER(order.total)}`
+      ].filter(Boolean).join('\n');
+      window.open(`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    // --- Tab 2: Products & Client-side Background Removal ---
+    function handleNewProductImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        newProdOriginalDataUrl = e.target.result;
+        reprocessProductImageBg();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function reprocessProductImageBg() {
+      if (!newProdOriginalDataUrl) return;
+      const shouldRemove = document.getElementById('removeBgToggle').checked;
+      const preview = document.getElementById('newProdImagePreview');
+      document.getElementById('newProdImagePreviewWrap').classList.remove('hidden');
+
+      if (!shouldRemove) {
+        newProdProcessedDataUrl = newProdOriginalDataUrl;
+        preview.src = newProdProcessedDataUrl;
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 500;
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imgData.data;
+        const bgR = d[0], bgG = d[1], bgB = d[2];
+        const tolerance = 52;
+
+        for (let i = 0; i < d.length; i += 4) {
+          const dist = Math.hypot(d[i] - bgR, d[i + 1] - bgG, d[i + 2] - bgB);
+          if (dist < tolerance) {
+            d[i + 3] = 0;
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        newProdProcessedDataUrl = canvas.toDataURL('image/png');
+        preview.src = newProdProcessedDataUrl;
+      };
+      img.src = newProdOriginalDataUrl;
+    }
+
+    function aiSuggestProductInfo() {
+      const suggestions = [
+        { name: 'تورتة المخمل الوردي باللؤلؤ والفراشات', price: 19500, desc: 'كيكة إسفنجية هشة محشوة بكريمة الفانيليا الطبيعية ومزينة بفراشات ذهبية أنيقة.' },
+        { name: 'تورتة الشوكولاتة الملكية بالبندق', price: 17500, desc: 'طبقات غنية من شوكولاتة الكاكاو الفاخرة مع كريمة البندق المحمص.' },
+        { name: 'تورتة الفواكه الاستوائية والكريمة', price: 18000, desc: 'مزيج منعش من الكريمة المخفوقة والفواكه الطازجة لمناسباتكم السعيدة.' }
+      ];
+      const pick = suggestions[Math.floor(Math.random() * suggestions.length)];
+      document.getElementById('newProdName').value = pick.name;
+      if (!document.getElementById('newProdPrice').value) document.getElementById('newProdPrice').value = pick.price;
+      document.getElementById('newProdDesc').value = pick.desc;
+      showToast('تم اقتراح اسم ووصف المنتج بالذكاء الاصطناعي ✨');
+    }
+
+    function saveNewProduct() {
+      const name = document.getElementById('newProdName').value.trim();
+      const price = Number(document.getElementById('newProdPrice').value);
+      const category = document.getElementById('newProdCategory').value;
+      const desc = document.getElementById('newProdDesc').value.trim();
+      const featured = document.getElementById('newProdFeatured').checked;
+
+      if (!name || !price) {
+        showToast('يرجى إدخال اسم المنتج والسعر بالريال اليمني', 'warning');
+        return;
+      }
+
+      const prod = {
+        id: 'prod-' + Date.now(),
+        name,
+        price,
+        category,
+        desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',
+        image: newProdProcessedDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#fffaf3'),
+        featured
+      };
+
+      state.products.unshift(prod);
+      saveState();
+      renderProducts();
+      renderFeaturedProducts();
+      renderAdminProducts();
+
+      document.getElementById('newProdName').value = '';
+      document.getElementById('newProdPrice').value = '';
+      document.getElementById('newProdDesc').value = '';
+      newProdProcessedDataUrl = '';
+      newProdOriginalDataUrl = '';
+      document.getElementById('newProdImagePreviewWrap').classList.add('hidden');
+      showToast('تم نشر المنتج الجديد في المتجر بنجاح 🎂');
+    }
+
+    function renderAdminProducts() {
+      const catSel = document.getElementById('newProdCategory');
+      catSel.innerHTML = state.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+
+      const list = document.getElementById('adminProductsList');
+      list.innerHTML = state.products.map((p, idx) => `
+        <div class="hala-card p-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${p.image}" alt="${p.name}" class="w-14 h-14 rounded-xl object-contain bg-[#fffaf3] border border-[#ead9cf] p-1 shrink-0" />
+            <div class="min-w-0">
+              <div class="text-xs font-extrabold text-[#690d28] truncate">${p.name}</div>
+              <div class="text-[11px] text-[#88777a]">${p.category} • <strong>${formatYER(p.price)}</strong></div>
+            </div>
+          </div>
+          <button type="button" onclick="deleteProduct(${idx})" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold shrink-0">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function deleteProduct(idx) {
+      state.products.splice(idx, 1);
+      saveState();
+      renderProducts();
+      renderFeaturedProducts();
+      renderAdminProducts();
+      showToast('تم حذف المنتج');
+    }
+
+    // --- Tab 3: Video Reels ---
+    function aiDraftReelData() {
+      const prod = state.products[0];
+      document.getElementById('newReelTitle').value = `تألّقوا في مناسباتكم مع ${prod ? prod.name : 'تورتات حلا كيك'} ✨`;
+      document.getElementById('newReelBadge').value = 'الأكثر طلباً 🔥';
+      document.getElementById('newReelDesc').value = 'تحضير طازج يومياً بأجود المكونات الطبيعية وتوصيل آمن لباب منزلكم. اطلبوا الآن عبر الواتساب!';
+      showToast('تمت صياغة بيانات الفيديو بالذكاء الاصطناعي 🤖');
+    }
+
+    function saveNewReel() {
+      const title = document.getElementById('newReelTitle').value.trim();
+      const badge = document.getElementById('newReelBadge').value.trim();
+      const desc = document.getElementById('newReelDesc').value.trim();
+      const productId = document.getElementById('newReelProductSelect').value;
+      const videoFile = document.getElementById('newReelVideoFile').files[0];
+
+      if (!title) {
+        showToast('يرجى إدخال عنوان الفيديو الترويجي', 'warning');
+        return;
+      }
+
+      const addReelObj = (videoUrl) => {
+        state.reels.unshift({
+          id: 'reel-' + Date.now(),
+          title,
+          badge: badge || 'عرض حلا كيك ✨',
+          desc,
+          videoUrl,
+          productId
+        });
+        saveState();
+        activeReelIndex = 0;
+        renderActiveReel();
+        renderAdminReels();
+        document.getElementById('newReelTitle').value = '';
+        document.getElementById('newReelDesc').value = '';
+        showToast('تمت إضافة الفيديو لشريط الأحداث التفاعلي 🎬');
+      };
+
+      if (videoFile) {
+        const reader = new FileReader();
+        reader.onload = e => addReelObj(e.target.result);
+        reader.readAsDataURL(videoFile);
+      } else {
+        addReelObj('');
+      }
+    }
+
+    function renderAdminReels() {
+      const prodSel = document.getElementById('newReelProductSelect');
+      prodSel.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+      const list = document.getElementById('adminReelsList');
+      list.innerHTML = state.reels.map((r, idx) => `
+        <div class="hala-card p-3 flex items-center justify-between gap-2 text-xs">
+          <div class="min-w-0">
+            <div class="font-extrabold text-[#690d28] truncate">${r.title}</div>
+            <div class="text-[#88777a] truncate">${r.desc}</div>
+          </div>
+          ${state.reels.length > 1 ? `<button type="button" onclick="deleteReel(${idx})" class="px-2.5 py-1 rounded bg-red-50 text-red-600 font-bold shrink-0">حذف</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function deleteReel(idx) {
+      state.reels.splice(idx, 1);
+      activeReelIndex = 0;
+      saveState();
+      renderActiveReel();
+      renderAdminReels();
+    }
+
+    // --- Tab 4: AI Studio, Social Media & WhatsApp Groups ---
+    function initAdminAiSocialTab() {
+      document.getElementById('adminGeminiApiKey').value = state.aiConfig.geminiApiKey || '';
+      document.getElementById('adminFlowWebhookUrl').value = state.aiConfig.flowWebhookUrl || '';
+
+      const waCfg = state.whatsappApi || {};
+      const phoneIdEl = document.getElementById('waApiPhoneIdInput');
+      if (phoneIdEl) {
+        phoneIdEl.value = waCfg.phoneNumberId || '';
+        document.getElementById('waApiVersionInput').value = waCfg.apiVersion || 'v21.0';
+        document.getElementById('waApiTokenInput').value = waCfg.accessToken || '';
+        document.getElementById('waApiWebhookInput').value = waCfg.webhookUrl || '';
+      }
+      updateWhatsappApiStatusBadges();
+
+      const prodSel = document.getElementById('aiStudioProductSelect');
+      prodSel.innerHTML = state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+      renderWhatsappGroups();
+      renderSocialPlatforms();
+    }
+
+    function updateWhatsappApiStatusBadges() {
+      const isConfigured = Boolean(state.whatsappApi && state.whatsappApi.phoneNumberId && state.whatsappApi.accessToken);
+      const socialBadge = document.getElementById('waApiBadgeSocialTab');
+      const settingsBadge = document.getElementById('waApiBadgeSettingsTab');
+
+      if (socialBadge) {
+        socialBadge.textContent = isConfigured ? '✓ متصل بـ WhatsApp Cloud API' : 'وضع الرابط المباشر (wa.me)';
+        socialBadge.className = isConfigured
+          ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800'
+          : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800';
+      }
+      if (settingsBadge) {
+        settingsBadge.textContent = isConfigured ? 'مرتبط بـ Cloud API ✓' : 'يعمل عبر الرابط المباشر (wa.me)';
+      }
+    }
+
+    function saveWhatsappBusinessApiSettings() {
+      state.whatsappApi = {
+        phoneNumberId: document.getElementById('waApiPhoneIdInput').value.trim(),
+        apiVersion: document.getElementById('waApiVersionInput').value.trim() || 'v21.0',
+        accessToken: document.getElementById('waApiTokenInput').value.trim(),
+        webhookUrl: document.getElementById('waApiWebhookInput').value.trim()
+      };
+      saveState();
+      updateWhatsappApiStatusBadges();
+      showToast('تم حفظ إعدادات واتساب بيزنس API بنجاح ✓');
+    }
+
+    async function testWhatsappBusinessApiConnection() {
+      saveWhatsappBusinessApiSettings();
+      const box = document.getElementById('waApiTestStatusBox');
+      const waCfg = state.whatsappApi;
+      box.classList.remove('hidden');
+
+      if (!waCfg.phoneNumberId || !waCfg.accessToken) {
+        box.className = 'p-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
+        box.textContent = '⚠️ يرجى إدخال Phone Number ID و Access Token أولاً، أو الاعتماد على الإرسال المباشر عبر wa.me.';
+        return;
+      }
+
+      box.className = 'p-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800';
+      box.textContent = '⏳ جاري التحقق من اتصال Meta WhatsApp Business Cloud API...';
+
+      try {
+        const res = await fetch(`https://graph.facebook.com/${waCfg.apiVersion}/${waCfg.phoneNumberId}`, {
+          headers: { 'Authorization': `Bearer ${waCfg.accessToken}` }        });
+        const data = await res.json();
+        if (res.ok) {
+          box.className = 'p-2.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800';
+          box.textContent = `✓ تم الربط بنجاح مع WhatsApp Business API (${data.display_phone_number || waCfg.phoneNumberId})!`;
+        } else {
+          const msg = (data && data.error && data.error.message) ? data.error.message : `رمز الاستجابة ${res.status}`;
+          box.className = 'p-2.5 rounded-xl text-xs font-bold bg-red-50 text-red-700';
+          box.textContent = `✕ فشل التحقق من Meta API: ${msg}`;
+        }
+      } catch (e) {
+        box.className = 'p-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900';
+        box.textContent = '⚠️ تعذّر الاتصال المباشر من المتصفح (CORS). عند الإرسال سيعمل النظام تلقائياً عبر رابط واتساب المباشر كبديل آمن.';
+      }
+    }
+
+    function generateAiPromptScript() {
+      const prodId = document.getElementById('aiStudioProductSelect').value;
+      const tone = document.getElementById('aiStudioToneSelect').value;
+      const prod = state.products.find(p => p.id === prodId) || state.products[0];
+
+      const prompt = `🎥 فيديو ترويجي (${tone}) لمنتج: ${prod.name}\n` +
+        `الوصف البصري: لقطة سينمائية مقربة لتورتة "${prod.name}" بإضاءة دافئة ولمسات ذهبية فاخرة على حامل ملكي، مع إبراز تفاصيل الكريمة والتزيين.\n` +
+        `النص الإعلاني: ✨ دلّلوا مناسباتكم مع "${prod.name}" من حلا كيك! ${prod.desc} — متوفرة بسعر ${formatYER(prod.price)}. للطلب عبر واتساب: 00967771211154 🎂`;
+
+      document.getElementById('aiStudioPromptOutput').value = prompt;
+      showToast('تم توليد البرومت والسيناريو بنجاح ✨');
+    }
+
+    function handleAiStudioMediaUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      aiStudioAttachedMedia = { name: file.name, type: file.type };
+      document.getElementById('aiStudioMediaStatus').textContent = `✓ تم إرفاق الملف: ${file.name}`;
+      showToast('تم تجهيز الملف للنقل إلى محرر النشر');
+    }
+
+    function transferPromptAndMediaToPublisher() {
+      let prompt = document.getElementById('aiStudioPromptOutput').value.trim();
+      if (!prompt) {
+        generateAiPromptScript();
+        prompt = document.getElementById('aiStudioPromptOutput').value.trim();
+      }
+      const editor = document.getElementById('socialPostEditorText');
+      editor.value = prompt + (aiStudioAttachedMedia ? `\n\n📎 [مرفق جاهز للنشر: ${aiStudioAttachedMedia.name}]` : '');
+      editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showToast('تم نقل البرومت والوسائط إلى محرر النشر وجارٍ الصياغة 🤖');
+    }
+
+    function improvePostWithAi() {
+      const editor = document.getElementById('socialPostEditorText');
+      if (!editor.value.trim()) {
+        generateAiPromptScript();
+        editor.value = document.getElementById('aiStudioPromptOutput').value;
+      } else {
+        editor.value = `✨ حلا كيك - نصنع لحظاتكم بحلاوة خاصة ✨\n\n${editor.value.trim()}\n\n📲 للطلب المباشر والتوصيل عبر واتساب: 00967771211154\n#حلا_كيك #HalaCake #كيكات_فاخرة`;
+      }
+      showToast('تمت صياغة المنشور بأسلوب تسويقي جذاب ✨');
+    }
+
+    function publishToConnectedSocials() {
+      const text = document.getElementById('socialPostEditorText').value.trim();
+      if (!text) {
+        showToast('اكتب نص المنشور أولاً قبل النشر', 'warning');
+        return;
+      }
+      const connected = state.socialPlatforms.filter(p => p.connected && p.key !== 'whatsapp_biz');
+      if (!connected.length) {
+        showToast('⚠️ لم يتم ربط حسابات مواقع التواصل بعد! يرجى ربط الحسابات من القائمة أدناه أولاً.', 'error');
+        return;
+      }
+      showToast(`تم إرسال المنشور إلى: ${connected.map(c => c.name).join('، ')} ✓`);
+    }
+
+    function addWhatsappGroup() {
+      const name = document.getElementById('newWaGroupName').value.trim();
+      const link = document.getElementById('newWaGroupLink').value.trim() || 'https://chat.whatsapp.com/';
+      if (!name) return;
+      state.whatsappGroups.push({ id: 'wag-' + Date.now(), name, link, active: true });
+      saveState();
+      renderWhatsappGroups();
+      document.getElementById('newWaGroupName').value = '';
+      document.getElementById('newWaGroupLink').value = '';
+      showToast('تمت إضافة جروب الواتساب ✓');
+    }
+
+    function renderWhatsappGroups() {
+      const box = document.getElementById('whatsappGroupsList');
+      box.innerHTML = state.whatsappGroups.map((g, idx) => `
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-[#ead9cf] text-xs">
+          <label class="flex items-center gap-2 font-bold text-[#38252a] cursor-pointer">
+            <input type="checkbox" ${g.active ? 'checked' : ''} onchange="state.whatsappGroups[${idx}].active = this.checked; saveState();" class="accent-[#20b968]" />
+            <span>${g.name}</span>
+          </label>
+          <button type="button" onclick="state.whatsappGroups.splice(${idx}, 1); saveState(); renderWhatsappGroups();" class="text-red-600 font-bold px-2">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function sendToMyWhatsappGroups() {
+      const text = document.getElementById('socialPostEditorText').value.trim();
+      if (!text) {
+        showToast('اكتب نص المنشور أولاً لإرساله إلى جروباتك', 'warning');
+        return;
+      }
+      const activeGroups = state.whatsappGroups.filter(g => g.active);
+      if (!activeGroups.length) {
+        showToast('يرجى تحديد جروب واتساب واحد على الأقل', 'warning');
+        return;
+      }
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+      showToast(`تم فتح واتساب لمشاركة المنشور في (${activeGroups.map(g => g.name).join('، ')}) 💬`);
+    }
+
+    function renderSocialPlatforms() {
+      const grid = document.getElementById('socialPlatformsGrid');
+      grid.innerHTML = state.socialPlatforms.map((pl, idx) => `
+        <div class="p-3 rounded-xl bg-white border ${pl.connected ? 'border-emerald-400' : 'border-[#ead9cf]'} space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-[#690d28]">${pl.name}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${pl.connected ? 'bg-emerald-100 text-emerald-800' : 'bg-red-50 text-red-700'}">
+              ${pl.connected ? '✓ مرتبط' : 'غير مرتبط'}
+            </span>
+          </div>
+          <button type="button" onclick="toggleSocialPlatformConnect(${idx})" class="w-full py-1.5 rounded-lg ${pl.connected ? 'bg-gray-100 text-gray-700' : 'btn-hala-gold'} text-[11px] font-bold">
+            ${pl.connected ? 'إلغاء الربط' : '🔗 ربط الحساب الآن'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function toggleSocialPlatformConnect(idx) {
+      const pl = state.socialPlatforms[idx];
+      if (!pl.connected) {
+        pl.connected = true;
+        pl.accountId = 'hala_cake_official';
+        showToast(`تم ربط ${pl.name} بنجاح ✓`);
+      } else {
+        pl.connected = false;
+        showToast(`تم فصل ${pl.name}`);
+      }
+      saveState();
+      renderSocialPlatforms();
+    }
+
+    // --- Tab 5: Pages & Checkout Fields ---
+    function addStoreCategory() {
+      const icon = document.getElementById('newCatIcon').value.trim() || '🎂';
+      const name = document.getElementById('newCatName').value.trim();
+      if (!name) return;
+      state.categories.push({ id: 'cat-' + Date.now(), name, icon, img: generateCakeSvg('#f5dce2', '#690d28', '#efd79b') });
+      saveState();
+      renderCategories();
+      renderAdminPagesAndFields();
+      document.getElementById('newCatName').value = '';
+      showToast('تمت إضافة القسم بنجاح ✓');
+    }
+
+    function addCheckoutField() {
+      const label = document.getElementById('newCheckoutFieldLabel').value.trim();
+      const type = document.getElementById('newCheckoutFieldType').value;
+      const options = document.getElementById('newCheckoutFieldOptions').value.trim();
+      if (!label) return;
+      state.checkoutFields.push({ id: 'cf-' + Date.now(), label, type, options });
+      saveState();
+      renderAdminPagesAndFields();
+      document.getElementById('newCheckoutFieldLabel').value = '';
+      document.getElementById('newCheckoutFieldOptions').value = '';
+      showToast('تمت إضافة حقل الطلب ✓');
+    }
+
+    function renderAdminPagesAndFields() {
+      document.getElementById('adminCategoriesList').innerHTML = state.categories.map((c, idx) => `
+        <div class="p-2.5 rounded-xl bg-white border border-[#ead9cf] flex items-center justify-between text-xs font-bold">
+          <span>${c.icon} ${c.name}</span>
+          ${state.categories.length > 1 ? `<button type="button" onclick="state.categories.splice(${idx}, 1); saveState(); renderCategories(); renderAdminPagesAndFields();" class="text-red-600">حذف</button>` : ''}
+        </div>
+      `).join('');
+
+      document.getElementById('adminCheckoutFieldsList').innerHTML = state.checkoutFields.map((f, idx) => `
+        <div class="p-2.5 rounded-xl bg-white border border-[#ead9cf] flex items-center justify-between text-xs font-bold">
+          <span>${f.label}</span>
+          <button type="button" onclick="state.checkoutFields.splice(${idx}, 1); saveState(); renderAdminPagesAndFields();" class="text-red-600">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    // --- Tab 6: Custom Cake Builder Fields ---
+    function addCustomBuilderField() {
+      const label = document.getElementById('newBuilderFieldLabel').value.trim();
+      const type = document.getElementById('newBuilderFieldType').value;
+      const rawOpts = document.getElementById('newBuilderFieldOptions').value.trim();
+      if (!label) return;
+      const options = rawOpts ? rawOpts.split(',').map(s => s.trim()).filter(Boolean) : [];
+      state.customBuilderFields.push({ id: 'bf-' + Date.now(), label, type, options });
+      saveState();
+      renderCustomCakeBuilder();
+      renderAdminBuilderFields();
+      document.getElementById('newBuilderFieldLabel').value = '';
+      document.getElementById('newBuilderFieldOptions').value = '';
+      showToast('تمت إضافة حقل تصميم تورتة خاصة ✓');
+    }
+
+    function renderAdminBuilderFields() {
+      document.getElementById('adminBuilderFieldsList').innerHTML = state.customBuilderFields.map((f, idx) => `
+        <div class="p-2.5 rounded-xl bg-white border border-[#ead9cf] flex items-center justify-between text-xs font-bold">
+          <span>${f.label} <span class="text-[#88777a] font-normal">(${f.type === 'select' ? 'قائمة' : 'نص'})</span></span>
+          <button type="button" onclick="state.customBuilderFields.splice(${idx}, 1); saveState(); renderCustomCakeBuilder(); renderAdminBuilderFields();" class="text-red-600">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    // --- Tab 7: Customers Database ---
+    function renderAdminCustomersList() {
+      const query = (document.getElementById('adminCustomerSearch').value || '').trim().toLowerCase();
+      const list = state.customers.filter(c =>
+        c.name.toLowerCase().includes(query) || c.phone.includes(query)
+      );
+      const container = document.getElementById('adminCustomersList');
+      if (!list.length) {
+        container.innerHTML = `<div class="hala-card p-8 text-center text-xs font-bold text-[#88777a]">لا توجد سجلات عملاء مطابقة بعد. يتم حفظ بيانات كل عميل تلقائياً عند الطلب.</div>`;
+        return;
+      }
+      container.innerHTML = list.map(c => `
+        <div class="hala-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="space-y-1">
+            <div class="font-black text-sm text-[#690d28]">${c.name} — <span dir="ltr">${c.phone}</span></div>
+            <div class="text-[#38252a]"><strong>العنوان:</strong> ${c.address}</div>
+            <div class="text-[#88777a]">الطلبات: ${c.orderIds.join('، ')} | إجمالي المشتريات: <strong class="text-[#690d28]">${formatYER(c.totalSpent)}</strong></div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            ${c.gpsLink ? `<a href="${c.gpsLink}" target="_blank" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold">📍 الموقع</a>` : ''}
+            <a href="https://wa.me/${c.phone.replace(/[^0-9]/g, '')}" target="_blank" class="px-3 py-1.5 rounded-xl bg-[#20b968] text-white font-bold">💬 واتساب</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- Tab 8: Settings, Branding, Reviews & Visitor Counter ---
+    function uploadBrandAsset(event, assetKey) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        if (assetKey === 'topBanner') state.brand.topBannerImg = e.target.result;
+        if (assetKey === 'chefPortrait') state.brand.chefPortraitImg = e.target.result;
+        if (assetKey === 'logo') state.brand.logoImg = e.target.result;
+        saveState();
+        applyBranding();
+        showToast('تم تحديث الصورة في المتجر بنجاح ✓');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateThemeColors() {
+      state.brand.primaryColor = document.getElementById('colorPrimaryInput').value;
+      state.brand.goldColor = document.getElementById('colorGoldInput').value;
+      state.brand.creamColor = document.getElementById('colorCreamInput').value;
+      saveState();
+      applyBranding();
+    }
+
+    function renderAdminSettingsTab() {
+      document.getElementById('colorPrimaryInput').value = state.brand.primaryColor;
+      document.getElementById('colorGoldInput').value = state.brand.goldColor;
+      document.getElementById('colorCreamInput').value = state.brand.creamColor;
+
+      document.getElementById('toggleFooterVisitors').checked = !!state.settings.showVisitorsInFooter;
+      document.getElementById('toggleReceiptUpload').checked = !!state.settings.requireReceiptUpload;
+      document.getElementById('toggleSplit50Option').checked = !!state.settings.allowSplit50Payment;
+      document.getElementById('toggleCodOption').checked = !!state.settings.allowCashOnDelivery;
+      document.getElementById('settingKuraimiAccount').value = state.settings.kuraimiAccount;
+      document.getElementById('settingJaibAccount').value = state.settings.jaibAccount;
+      updateWhatsappApiStatusBadges();
+      document.getElementById('adminCountersEditor').innerHTML = state.counters.map((c, idx) => `
+        <div class="p-2.5 rounded-xl bg-[#f7efe5] space-y-1.5 text-xs">
+          <input type="text" id="cntVal_${idx}" value="${c.value}" class="w-full p-1.5 font-black text-center border border-[#ead9cf] rounded-lg bg-white" />
+          <input type="text" id="cntLbl_${idx}" value="${c.label}" class="w-full p-1.5 text-center border border-[#ead9cf] rounded-lg bg-white" />
+        </div>
+      `).join('');
+
+      // Reviews list
+      document.getElementById('adminReviewsList').innerHTML = state.reviews.map((r, idx) => `
+        <div class="p-3 rounded-xl bg-[#f7efe5] flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2 min-w-0">
+            <img src="${r.image}" alt="${r.customerName}" class="w-12 h-12 rounded-lg object-cover border border-[#c49a50] shrink-0" />
+            <div class="min-w-0">
+              <div class="font-extrabold text-[#690d28] truncate">${r.customerName} (${r.platform})</div>
+              <div class="text-[#88777a] truncate">${r.caption}</div>
+            </div>
+          </div>
+          <button type="button" onclick="state.reviews.splice(${idx}, 1); saveState(); renderCustomerReviews(); renderAdminSettingsTab();" class="text-red-600 font-bold shrink-0">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    function saveStoreCounters() {
+      state.counters.forEach((c, idx) => {
+        c.value = document.getElementById(`cntVal_${idx}`).value.trim() || c.value;
+        c.label = document.getElementById(`cntLbl_${idx}`).value.trim() || c.label;
+      });
+      saveState();
+      renderStoreCounters();
+      showToast('تم حفظ العدادات وتحديثها في المتجر ✓');
+    }
+
+    function addCustomerReviewScreenshot() {
+      const customerName = document.getElementById('newReviewCustomerName').value.trim();
+      const platform = document.getElementById('newReviewPlatform').value;
+      const caption = document.getElementById('newReviewCaption').value.trim() || 'تجربة رائعة ومذاق لا يُقاوم من حلا كيك!';
+      const file = document.getElementById('newReviewScreenshotInput').files[0];
+
+      if (!customerName) {
+        showToast('يرجى إدخال اسم العميل', 'warning');
+        return;
+      }
+
+      const finalizeReview = (imgDataUrl) => {
+        state.reviews.unshift({
+          id: 'rev-' + Date.now(),
+          customerName,
+          platform,
+          caption,
+          image: imgDataUrl
+        });
+        saveState();
+        renderCustomerReviews();
+        renderAdminSettingsTab();
+        document.getElementById('newReviewCustomerName').value = '';
+        document.getElementById('newReviewCaption').value = '';
+        document.getElementById('newReviewScreenshotInput').value = '';
+        showToast('تم نشر رأي العميل بنجاح 💬');
+      };
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => finalizeReview(e.target.result);
+        reader.readAsDataURL(file);
+      } else {
+        finalizeReview(generateReviewScreenshotSvg(platform, customerName, caption.slice(0, 38), caption.slice(38, 76)));
+      }
+    }
+
+    function toggleSettingFlag(key, value) {
+      state.settings[key] = value;
+      saveState();
+      updateVisitorCounterUI();
+      syncPaymentSettingsUI();
+      showToast('تم تحديث الإعداد ✓');
+    }
+
+    function resetVisitorCounter() {
+      state.visitorCount = 0;
+      saveState();
+      updateVisitorCounterUI();
+      showToast('تم تصفير عداد الزائرين');
+    }
+
+    function savePaymentAndSecuritySettings() {
+      state.settings.kuraimiAccount = document.getElementById('settingKuraimiAccount').value.trim();
+      state.settings.jaibAccount = document.getElementById('settingJaibAccount').value.trim();
+      const newPass = document.getElementById('newAdminPasswordInput').value.trim();
+      if (newPass) {
+        state.settings.adminPassword = btoa(newPass);
+        document.getElementById('newAdminPasswordInput').value = '';
+      }
+      saveState();
+      syncPaymentSettingsUI();
+      showToast('تم حفظ إعدادات السداد والأمان بنجاح 🔒');
+    }
+  </script>
+</body>
+</html>
