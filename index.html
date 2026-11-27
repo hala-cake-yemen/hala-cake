@@ -3411,6 +3411,12 @@
       const {error}=await halaSupabase.from('hala_store_private').upsert({id:'main',data:halaPrivateSnapshot(),updated_at:new Date().toISOString()});
       if(error) throw error;
     }
+    async function halaSaveAdminChanges() {
+      if(!halaCloudAdmin) throw new Error('جلسة الإدارة السحابية غير مفعّلة. لم يتم حفظ الملف سحابياً؛ سجّل دخول الإدارة أولاً.');
+      await halaPersistPublic();
+      await halaPersistPrivate();
+      halaLocalSaveState();
+    }
     async function halaPersistNewOrders() {
       const pending=(state.orders||[]).filter(o=>o?.id && !halaUploadedOrderIds.has(o.id));
       for(const order of pending) {
@@ -3509,7 +3515,7 @@
         if(assetKey==='topBanner') state.brand.topBannerImg=up.url;
         if(assetKey==='chefPortrait') state.brand.chefPortraitImg=up.url;
         if(assetKey==='logo') state.brand.logoImg=up.url;
-        saveState(); applyBranding(); showToast('تم رفع الصورة إلى التخزين السحابي وتحديث المتجر ✓','success');
+        await halaSaveAdminChanges(); applyBranding(); showToast('تم رفع الصورة وحفظ بياناتها سحابياً بنجاح ✓','success');
       } catch(e){showToast('فشل رفع الصورة: '+e.message,'warning');}
     };
     saveNewProduct = async function() {
@@ -3519,7 +3525,7 @@
       try { let image=generateCakeSvg('#f5dce2','#690d28','#fffaf3');
         if(newProdProcessedDataUrl && !newProdProcessedDataUrl.startsWith('data:image/svg+xml')) { const blob=halaDataUrlToBlob(newProdProcessedDataUrl); const up=await halaUploadFile(halaBlobFile(blob,'product.png'),'products'); image=up.url; }
         const prod={id:'prod-'+Date.now(),name,price,category,desc:desc||'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',image,featured};
-        state.products.unshift(prod); saveState(); renderProducts(); renderFeaturedProducts(); renderAdminProducts();
+        state.products.unshift(prod); await halaSaveAdminChanges(); renderProducts(); renderFeaturedProducts(); renderAdminProducts();
         document.getElementById('newProdName').value=''; document.getElementById('newProdPrice').value=''; document.getElementById('newProdDesc').value=''; newProdProcessedDataUrl=''; newProdOriginalDataUrl=''; document.getElementById('newProdImagePreviewWrap').classList.add('hidden'); showToast('تم نشر المنتج ورفع صورته سحابياً 🎂','success');
       } catch(e){showToast('تعذر رفع صورة المنتج: '+e.message,'warning');}
     };
@@ -3527,7 +3533,7 @@
       const title=document.getElementById('newReelTitle').value.trim(); const badge=document.getElementById('newReelBadge').value.trim(); const desc=document.getElementById('newReelDesc').value.trim(); const productId=document.getElementById('newReelProductSelect').value; const videoFile=document.getElementById('newReelVideoFile').files[0];
       if(!title){showToast('يرجى إدخال عنوان الفيديو الترويجي','warning');return;}
       try { let videoUrl=''; if(videoFile){const up=await halaUploadFile(videoFile,'videos','hala-media',52428800);videoUrl=up.url;}
-        state.reels.unshift({id:'reel-'+Date.now(),title,badge:badge||'عرض حلا كيك ✨',desc,videoUrl,productId}); saveState(); activeReelIndex=0; renderActiveReel(); renderAdminReels();
+        state.reels.unshift({id:'reel-'+Date.now(),title,badge:badge||'عرض حلا كيك ✨',desc,videoUrl,productId}); await halaSaveAdminChanges(); activeReelIndex=0; renderActiveReel(); renderAdminReels();
         document.getElementById('newReelTitle').value=''; document.getElementById('newReelDesc').value=''; document.getElementById('newReelVideoFile').value=''; showToast('تم رفع الفيديو وحفظه في التخزين السحابي 🎬','success');
       } catch(e){showToast('تعذر رفع الفيديو: '+e.message,'warning');}
     };
@@ -3535,7 +3541,7 @@
       const customerName=document.getElementById('newReviewCustomerName').value.trim(); const platform=document.getElementById('newReviewPlatform').value; const caption=document.getElementById('newReviewCaption').value.trim()||'تجربة رائعة ومذاق لا يُقاوم من حلا كيك!'; const file=document.getElementById('newReviewScreenshotInput').files[0];
       if(!customerName){showToast('يرجى إدخال اسم العميل','warning');return;}
       try { let image=generateReviewScreenshotSvg(platform,customerName,caption.slice(0,38),caption.slice(38,76)); if(file){const up=await halaUploadFile(file,'reviews');image=up.url;}
-        state.reviews.unshift({id:'rev-'+Date.now(),customerName,platform,caption,image}); saveState(); renderCustomerReviews(); renderAdminSettingsTab(); document.getElementById('newReviewCustomerName').value=''; document.getElementById('newReviewCaption').value=''; document.getElementById('newReviewScreenshotInput').value=''; showToast('تم نشر رأي العميل ورفع صورته سحابياً 💬','success');
+        state.reviews.unshift({id:'rev-'+Date.now(),customerName,platform,caption,image}); await halaSaveAdminChanges(); renderCustomerReviews(); renderAdminSettingsTab(); document.getElementById('newReviewCustomerName').value=''; document.getElementById('newReviewCaption').value=''; document.getElementById('newReviewScreenshotInput').value=''; showToast('تم نشر رأي العميل ورفع صورته سحابياً 💬','success');
       } catch(e){showToast('تعذر رفع صورة الرأي: '+e.message,'warning');}
     };
     handleReceiptImageUpload = async function(event) {
