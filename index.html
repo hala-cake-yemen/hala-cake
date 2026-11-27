@@ -3499,10 +3499,8 @@
       } catch(e) { console.error(e); showToast('تعذر تحميل بيانات الإدارة: '+e.message,'warning'); }
     }
     async function halaAdminLogout() { await halaSupabase.auth.signOut(); halaCloudAdmin=false; closeAdminDashboard(); showToast('تم تسجيل خروج الإدارة'); }
-    halaSupabase.auth.onAuthStateChange((event,session)=>{
-      if(session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL && (event==='SIGNED_IN'||event==='TOKEN_REFRESHED')) setTimeout(()=>halaAdminEnter(),0);
-      if(!session) halaCloudAdmin=false;
-    });
+    // Authentication state must never open the admin dashboard automatically.
+    // The dashboard is opened only after the owner explicitly submits the store password.
 
     // Media uploads are stored in Supabase Storage; HTML/localStorage only retain URLs.
     uploadBrandAsset = async function(event,assetKey) {
@@ -3556,10 +3554,12 @@
 
     // Public catalog is read-only for visitors; orders and customer details are never exposed publicly.
     window.addEventListener('DOMContentLoaded',async()=>{
-      try { const {data}=await halaSupabase.auth.getSession(); halaCloudAdmin=data?.session?.user?.email?.toLowerCase()===HALA_ADMIN_EMAIL;
-        await halaLoadPublic(); if(halaCloudAdmin) await halaLoadPrivate();
-        halaCloudReady=true; renderCategories(); renderProducts(); renderFeaturedProducts(); renderActiveReel(); renderCustomCakeBuilder(); renderStoreCounters(); renderCustomerReviews(); updateVisitorCounterUI();
-        if(halaCloudAdmin) await halaAdminEnter();
+      try {
+        // Visitors may load the public catalog only. Never load private admin data or open the dashboard on page load.
+        halaCloudAdmin=false;
+        await halaLoadPublic();
+        halaCloudReady=true;
+        renderCategories(); renderProducts(); renderFeaturedProducts(); renderActiveReel(); renderCustomCakeBuilder(); renderStoreCounters(); renderCustomerReviews(); updateVisitorCounterUI();
       } catch(e){console.error('Hala cloud initialization:',e); halaCloudReady=true; showToast('المتجر يعمل محلياً مؤقتاً؛ تعذر تحميل بعض بيانات السحابة.','warning');}
     });
 </script>
