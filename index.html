@@ -20,8 +20,10 @@
   <style id="hala-loading-screen-styles">
     #halaLoadingScreen{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#fffdf9 0%,#fff4ed 58%,#f4dfe3 100%);opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
     #halaLoadingScreen.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-    #halaLoadingScreen .loading-card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;text-align:center}
-    #halaLoadingScreen img{width:112px;height:112px;object-fit:contain;border-radius:50%;border:3px solid #c49a50;background:#fffaf3;padding:5px;box-shadow:0 10px 28px #690d2820}
+    #halaLoadingScreen .loading-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 20px;text-align:center}
+    #halaLoadingScreen .loading-brand{display:flex;align-items:center;justify-content:center;gap:12px}
+    #halaLoadingScreen .loading-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;border:2px solid #c49a50;background:#fffaf3;padding:4px;box-shadow:0 8px 22px #690d2820}
+    #halaLoadingScreen .loading-chef{width:min(68vw,250px);height:min(48vh,270px);object-fit:contain;object-position:center bottom;border-radius:28px;border:2px solid #c49a50;background:#fffaf3;box-shadow:0 12px 30px #690d2820}
     #halaLoadingScreen .loading-name{font-family:'Cairo',sans-serif;color:#690d28;font-size:clamp(26px,7vw,36px);font-weight:900}
     #halaLoadingScreen .loading-subtitle{font-family:'Cairo',sans-serif;color:#88777a;font-size:13px}
     #halaLoadingScreen .loading-spinner{width:27px;height:27px;border:3px solid #ead9cf;border-top-color:#690d28;border-radius:50%;animation:halaLoadingSpin .8s linear infinite}
@@ -200,8 +202,11 @@
 <body class="pb-20 md:pb-0">
   <div id="halaLoadingScreen" role="status" aria-live="polite" aria-label="جارٍ تحميل متجر حلا كيك">
     <div class="loading-card">
-      <img id="loadingLogoImg" alt="شعار حلا كيك" />
-      <div class="loading-name">حلا كيك</div>
+      <img id="loadingChefImg" class="loading-chef" alt="حلا" />
+      <div class="loading-brand">
+        <img id="loadingLogoImg" class="loading-logo" alt="شعار حلا كيك" />
+        <div class="loading-name">حلا كيك</div>
+      </div>
       <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
       <div class="loading-spinner" aria-hidden="true"></div>
     </div>
@@ -2336,6 +2341,8 @@
       document.getElementById('headerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       const loadingLogo = document.getElementById('loadingLogoImg');
       if (loadingLogo) loadingLogo.src = state.brand.logoImg || DEFAULT_IMAGES.logo;
+      const loadingChef = document.getElementById('loadingChefImg');
+      if (loadingChef) loadingChef.src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
       document.getElementById('footerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       document.getElementById('chefHeroPortraitImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
       document.getElementById('aboutSmileChefImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
@@ -4279,6 +4286,30 @@
       showToast('تمت إضافة القسم بنجاح ✓');
     }
 
+    async function uploadCategoryImage(event, categoryId) {
+      const input = event.target;
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        input.disabled = true;
+        showToast('جارٍ رفع صورة القسم إلى Supabase...');
+        const publicUrl = await uploadHalaImage(file, 'images/categories');
+        const category = state.categories.find(item => item.id === categoryId);
+        if (!category) throw new Error('لم يتم العثور على القسم المطلوب.');
+        category.img = publicUrl;
+        saveState();
+        renderCategories();
+        renderAdminPagesAndFields();
+        showToast('تم تحديث صورة القسم وحفظها سحابياً ✓');
+      } catch (error) {
+        console.error('Category image upload failed:', error);
+        showToast('تعذر تحديث صورة القسم: ' + (error.message || 'خطأ غير معروف'), 'error');
+      } finally {
+        input.disabled = false;
+        input.value = '';
+      }
+    }
+
     function addCheckoutField() {
       const label = document.getElementById('newCheckoutFieldLabel').value.trim();
       const type = document.getElementById('newCheckoutFieldType').value;
@@ -4294,9 +4325,18 @@
 
     function renderAdminPagesAndFields() {
       document.getElementById('adminCategoriesList').innerHTML = state.categories.map((c, idx) => `
-        <div class="p-2.5 rounded-xl bg-white border border-[#ead9cf] flex items-center justify-between text-xs font-bold">
-          <span>${c.icon} ${c.name}</span>
-          ${state.categories.length > 1 ? `<button type="button" onclick="state.categories.splice(${idx}, 1); saveState(); renderCategories(); renderAdminPagesAndFields();" class="text-red-600">حذف</button>` : ''}
+        <div class="p-3 rounded-xl bg-white border border-[#ead9cf] flex flex-col gap-2 text-xs">
+          <div class="flex items-center gap-2 min-w-0">
+            <img src="${c.img || ''}" alt="" class="w-14 h-14 rounded-xl object-contain bg-[#fffaf3] border border-[#ead9cf] shrink-0" />
+            <div class="font-extrabold text-[#690d28] min-w-0 flex-1">${c.icon || '🎂'} ${c.name}</div>
+            <label class="px-3 py-2 rounded-lg bg-[#f5dce2] text-[#690d28] font-bold cursor-pointer shrink-0">تغيير الصورة
+              <input type="file" accept="image/*" class="hidden" onchange="uploadCategoryImage(event, '${String(c.id).replace(/'/g, '')}')" />
+            </label>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] text-[#88777a]">الصورة الحالية تظهر للعملاء في أقسامنا</span>
+            ${state.categories.length > 1 ? `<button type="button" onclick="state.categories.splice(${idx}, 1); saveState(); renderCategories(); renderAdminPagesAndFields();" class="text-red-600 font-bold">حذف القسم</button>` : ''}
+          </div>
         </div>
       `).join('');
 
