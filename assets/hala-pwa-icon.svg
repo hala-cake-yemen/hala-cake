@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#690d28"/>
+  <circle cx="256" cy="256" r="204" fill="#fffaf3" stroke="#c49a50" stroke-width="18"/>
+  <path d="M130 332h252v34H130z" fill="#c49a50"/>
+  <path d="M155 238h202v92H155z" rx="18" fill="#f5dce2" stroke="#c49a50" stroke-width="10"/>
+  <path d="M155 256c28 0 28 25 56 25s28-25 56-25 28 25 56 25 28-25 34-25v-43H155z" fill="#fff"/>
+  <path d="M215 198c-12-32 22-40 41-11 19-29 53-21 41 11-10 25-41 42-41 42s-31-17-41-42z" fill="#d66d8b"/>
+  <text x="256" y="416" text-anchor="middle" font-family="Arial,sans-serif" font-size="50" font-weight="bold" fill="#fffaf3">حلا كيك</text>
+</svg>
