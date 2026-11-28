@@ -250,10 +250,10 @@
       <div class="mt-3">
         <div class="text-sm font-bold text-[#690d28] mb-2">نسبة القص</div>
         <div class="grid grid-cols-4 gap-2">
-          <button type="button" class="he-tool" data-ratio="1" aria-pressed="true">مربع</button>
-          <button type="button" class="he-tool" data-ratio="1.333333">4:3</button>
-          <button type="button" class="he-tool" data-ratio="1.777778">16:9</button>
-          <button type="button" class="he-tool" data-ratio="0">أصلية</button>
+          <button type="button" class="he-tool" data-ratio="1" aria-pressed="false">مربع</button>
+          <button type="button" class="he-tool" data-ratio="1.333333" aria-pressed="false">4:3</button>
+          <button type="button" class="he-tool" data-ratio="1.777778" aria-pressed="false">16:9</button>
+          <button type="button" class="he-tool" data-ratio="0" aria-pressed="true">أصلية ✓</button>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-2 mt-4">
@@ -4865,7 +4865,7 @@
     }
   
     // Unified image crop editor: intercept image selections before their existing upload handlers.
-    const halaImageEditorState = { input:null, files:[], results:[], index:0, image:null, ratio:1, zoom:1, minZoom:1, offsetX:0, offsetY:0, pointers:new Map(), start:null, pinch:null, cancelled:false };
+    const halaImageEditorState = { input:null, files:[], results:[], index:0, image:null, ratio:0, zoom:1, minZoom:1, offsetX:0, offsetY:0, pointers:new Map(), start:null, pinch:null, cancelled:false };
     function heCanvasBox(){ const c=document.getElementById('heCanvas'); return {canvas:c,w:c.width,h:c.height}; }
     function heSetRatio(value){
       const st=halaImageEditorState; st.ratio=value;
@@ -4903,6 +4903,9 @@
     }
     function heOpen(input,files){
       const st=halaImageEditorState;st.input=input;st.files=files;st.results=[];st.index=0;st.cancelled=false;
+      // Always open with the complete original image and its native aspect ratio.
+      st.ratio=0;
+      document.querySelectorAll('#halaImageEditor [data-ratio]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.ratio)===0)));
       document.getElementById('halaImageEditor').classList.add('is-open');document.body.style.overflow='hidden';heLoadCurrent();
     }
     function halaImageEditorCancel(){
