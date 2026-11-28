@@ -3889,17 +3889,26 @@
       const tone = document.getElementById('aiStudioToneSelect').value;
       const prod = state.products.find(p => p.id === prodId) || state.products[0];
       const output = document.getElementById('aiStudioPromptOutput');
+      const button = document.querySelector('button[onclick="generateAiPromptScript()"]');
       if (!prod) { showToast('أضف منتجاً إلى المتجر أولاً.', 'warning'); return; }
-      output.value = '🤖 جارٍ إنشاء سيناريو الفيديو بواسطة Gemini 3.8 Flash...';
+      if (button) { button.disabled = true; button.textContent = '⏳ جارٍ إنشاء سيناريو جديد...'; }
+      output.value = '🤖 جارٍ إنشاء سيناريو جديد بواسطة Gemini...';
       try {
         const requestPrompt = [
-          'اكتب سيناريو وبرومت إنتاج فيديو إعلاني قصير لمتجر حلويات اسمه حلا كيك.',
-          'اكتب باللغة العربية وبأسلوب: ' + tone,
+          'أنشئ سيناريو إعلان فيديو أصلياً لمتجر الحلويات حلا كيك.',
+          'اللغة عربية طبيعية والأسلوب: ' + tone,
           'المنتج: ' + prod.name,
-          'الوصف: ' + prod.desc,
+          'الوصف المتاح فقط: ' + (prod.desc || 'غير محدد'),
           'السعر: ' + formatYER(prod.price),
-          'المطلوب: مشاهد متتابعة، وصف بصري سينمائي، حركة كاميرا، إضاءة، نص تعليق صوتي، ونصوص قصيرة تظهر على الشاشة.',
-          'اجعل الفيديو عمودياً بنسبة 9:16، ولا تخترع مكونات أو مزايا غير موجودة.'
+          'المواصفات الإبداعية الإلزامية:',
+          '1) فيديو عمودي 9:16 مدته نحو 20 إلى 30 ثانية ومقسم إلى 4 مشاهد مختلفة.',
+          '2) اكتب لكل مشهد: الزمن، الصورة والحركة والكاميرا والإضاءة، التعليق الصوتي، والنص الظاهر على الشاشة.',
+          '3) كل مشهد يضيف معلومة أو إحساساً جديداً. لا تعِد صياغة الفكرة نفسها في مشهدين.',
+          '4) ممنوع تكرار أي جملة أو عبارة أو دعوة للطلب أو وصف بصري، وممنوع تكرار اسم المنتج والشعار بلا ضرورة.',
+          '5) اجعل التعليق الصوتي مختلفاً عن النص الظاهر على الشاشة؛ يكملانه ولا ينسخ أحدهما الآخر.',
+          '6) اختم بدعوة واحدة واضحة للطلب، ولا تكررها.',
+          '7) لا تخترع مكونات أو مزايا أو عروضاً أو معلومات غير واردة في بيانات المنتج.',
+          'اكتب سيناريو جاهزاً للتنفيذ فقط، بعناوين مشاهد واضحة ومن دون مقدمة أو خاتمة مكررة.'
         ].join('\n');
         await ensureHalaStorageSession();
         const { data, error } = await halaSupabase.functions.invoke('hala-gemini', {
@@ -3910,10 +3919,12 @@
         const generated = data.text.trim();
         if (!generated) throw new Error('لم يُرجع Gemini نصاً صالحاً.');
         output.value = generated;
-        showToast('تم إنشاء سيناريو الفيديو بالذكاء الاصطناعي ✓');
+        showToast('تم إنشاء سيناريو جديد ومراجعته لإزالة التكرار ✓');
       } catch (error) {
         output.value = '';
         showToast('تعذر توليد السيناريو: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '🤖 توليد سيناريو بالذكاء الاصطناعي'; }
       }
     }
 
@@ -4002,10 +4013,10 @@
       }
     }
 
-    function transferPromptAndMediaToPublisher() {
+    async function transferPromptAndMediaToPublisher() {
       let prompt = document.getElementById('aiStudioPromptOutput').value.trim();
-      if (!prompt) {
-        generateAiPromptScript();
+      if (!prompt || prompt.startsWith('🤖 جارٍ')) {
+        await generateAiPromptScript();
         prompt = document.getElementById('aiStudioPromptOutput').value.trim();
       }
       const editor = document.getElementById('socialPostEditorText');
