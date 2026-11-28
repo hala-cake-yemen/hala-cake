@@ -256,6 +256,19 @@
       <p class="text-[11px] text-[#88777a] mt-3 text-center">لن تُرفع الصورة أو تُستبدل النسخة الحالية إلا بعد اعتمادك</p>
     </div>
   </section>
+  <section id="categoryDedicatedPage" class="fixed inset-0 z-[10000] hidden overflow-y-auto bg-[#fffaf3]" dir="rtl" aria-label="صفحة القسم">
+    <div class="sticky top-0 z-20 bg-[#3d0719] border-b-2 border-[#c49a50] px-4 py-3 flex items-center gap-3 shadow-lg">
+      <button type="button" onclick="closeCategoryPage()" class="w-10 h-10 rounded-full bg-white/10 border border-[#c49a50]/60 text-white text-xl" aria-label="العودة">→</button>
+      <div class="min-w-0 flex-1"><div class="text-[#e8ce91] text-xs">حلا كيك</div><h2 id="categoryDedicatedTitle" class="text-white font-black text-lg truncate">القسم</h2></div>
+      <span id="categoryDedicatedCount" class="text-[#e8ce91] text-xs font-bold"></span>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="text-center mb-6"><p class="text-sm text-[#88777a]">تصفّح التشكيلة واختر ما يناسبك</p><div class="w-20 h-1 bg-[#c49a50] rounded-full mx-auto mt-3"></div></div>
+      <div id="categoryDedicatedProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <div class="text-center mt-8"><button type="button" onclick="closeCategoryPage()" class="px-7 py-3 rounded-full border border-[#c49a50] text-[#690d28] font-bold">العودة إلى أقسامنا</button></div>
+    </div>
+  </section>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed top-4 left-4 right-4 md:left-auto md:right-6 md:w-96 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
@@ -2551,13 +2564,36 @@
     function renderCategories() {
       const grid = document.getElementById('categoriesGrid');
       grid.innerHTML = state.categories.map(cat => `
-        <button type="button" onclick="filterByCategory('${cat.name}')" class="hala-card p-3 flex flex-col items-center text-center group cursor-pointer">
+        <button type="button" onclick="openCategoryPage('${String(cat.name).replace(/\\\\/g,'\\\\\\\\').replace(/'/g,"\\\\'")}')" class="hala-card p-3 flex flex-col items-center text-center group cursor-pointer" aria-label="فتح قسم ${cat.name}">
           <div class="w-full aspect-square rounded-2xl bg-[#fffaf3] border border-[#ead9cf] flex items-center justify-center overflow-hidden mb-2">
             <img src="${cat.img || generateCakeSvg('#f5dce2', '#690d28', '#fff')}" alt="${cat.name}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform" />
           </div>
           <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">${cat.icon} ${cat.name}</span>
         </button>
       `).join('');
+    }
+
+    function openCategoryPage(catName) {
+      const page=document.getElementById('categoryDedicatedPage');
+      const grid=document.getElementById('categoryDedicatedProducts');
+      const title=document.getElementById('categoryDedicatedTitle');
+      const count=document.getElementById('categoryDedicatedCount');
+      if(!page||!grid)return;
+      const products=state.products.filter(p=>p.category===catName);
+      title.textContent=catName;
+      count.textContent=products.length+' منتج';
+      grid.innerHTML=products.length
+        ? products.map(p=>createProductCardHTML(p,false)).join('')
+        : '<div class="col-span-full rounded-2xl border border-[#ead9cf] bg-white p-8 text-center"><div class="text-4xl mb-3">🧁</div><h3 class="font-black text-[#690d28] mb-2">قريباً نضيف منتجات هذا القسم</h3><p class="text-sm text-[#88777a]">يمكنك العودة للأقسام الأخرى أو تصفح جميع المنتجات</p><button type="button" onclick="closeCategoryPage();filterByCategory(\'الكل\');document.getElementById(\'productsSection\').scrollIntoView({behavior:\'smooth\'});" class="mt-4 px-5 py-2 rounded-full bg-[#690d28] text-white font-bold">عرض جميع المنتجات</button></div>';
+      page.classList.remove('hidden');
+      document.body.style.overflow='hidden';
+      page.scrollTop=0;
+    }
+
+    function closeCategoryPage() {
+      const page=document.getElementById('categoryDedicatedPage');
+      if(page)page.classList.add('hidden');
+      document.body.style.overflow='';
     }
 
     function filterByCategory(catName) {
