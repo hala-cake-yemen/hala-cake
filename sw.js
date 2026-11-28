@@ -27,8 +27,10 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  // Never cache Supabase API, authentication, storage, or dynamic user data.
-  if (/\\/(rest\\/v1|auth\\/v1|storage\\/v1)(\\/|$)/.test(url.pathname)) return;
+
+  // Keep Supabase API, authentication, storage, and all dynamic user data network-only.
+  const path = url.pathname;
+  if (path.startsWith('/rest/v1/') || path.startsWith('/auth/v1/') || path.startsWith('/storage/v1/')) return;
 
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
@@ -36,7 +38,7 @@ self.addEventListener('fetch', event => {
         const fresh = await fetch(request);
         if (fresh && fresh.ok) {
           const cache = await caches.open(CACHE_NAME);
-          cache.put('/hala-cake/index.html', fresh.clone());
+          await cache.put('/hala-cake/index.html', fresh.clone());
         }
         return fresh;
       } catch (_) {
@@ -51,14 +53,14 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (url.pathname.startsWith('/hala-cake/assets/') || url.pathname === '/hala-cake/manifest.json') {
+  if (path.startsWith('/hala-cake/assets/') || path === '/hala-cake/manifest.json') {
     event.respondWith((async () => {
       const cached = await caches.match(request);
       if (cached) return cached;
       const response = await fetch(request);
       if (response && response.ok) {
         const cache = await caches.open(CACHE_NAME);
-        cache.put(request, response.clone());
+        await cache.put(request, response.clone());
       }
       return response;
     })());
