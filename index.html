@@ -1625,7 +1625,75 @@
       } else {
         showToast('الصور الأساسية محفوظة بالفعل بروابط سحابية ✓');
       }
+      // Publish the latest image URLs and storefront content for every visitor/browser.
+      halaPublicStateLoaded = true;
+      await persistHalaPublicState();
       return replacements.size;
+    }
+
+    // Public storefront data is shared across browsers (including Facebook's in-app browser).
+    const HALA_PUBLIC_STATE_KEYS = ['brand', 'products', 'categories', 'reviews', 'counters', 'visitorCount', 'checkoutFields', 'voucherSettings', 'customBuilderFields'];
+    let halaPublicSaveTimer = null;
+    let halaPublicStateLoaded = false;
+
+    function getHalaPublicStatePayload() {
+      const payload = {};
+      HALA_PUBLIC_STATE_KEYS.forEach(key => { payload[key] = state[key]; });
+      return payload;
+    }
+
+    async function loadCloudStoreState() {
+      if (!halaSupabase) return false;
+      try {
+        const { data, error } = await halaSupabase
+          .from('hala_store_public')
+          .select('data')
+          .eq('id', 'main')
+          .maybeSingle();
+        if (error) throw error;
+        if (data?.data && typeof data.data === 'object') {
+          const cloud = data.data;
+          HALA_PUBLIC_STATE_KEYS.forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(cloud, key)) {
+              if (key === 'brand') state.brand = { ...state.brand, ...(cloud.brand || {}) };
+              else state[key] = cloud[key];
+            }
+          });
+          saveState();
+          halaPublicStateLoaded = true;
+          console.info('Hala Cake public storefront loaded from Supabase.');
+          return true;
+        }
+        halaPublicStateLoaded = true;
+        return false;
+      } catch (error) {
+        console.warn('Could not load public storefront state from Supabase:', error);
+        return false;
+      }
+    }
+
+    async function persistHalaPublicState() {
+      if (!halaSupabase || !halaPublicStateLoaded) return;
+      const { data: sessionData, error: sessionError } = await halaSupabase.auth.getSession();
+      const session = sessionData?.session;
+      if (sessionError || !session || session.user?.email !== 'hala.cake.yemen@gmail.com') return;
+      const { error } = await halaSupabase.from('hala_store_public').upsert({
+        id: 'main',
+        data: getHalaPublicStatePayload(),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      if (error) throw error;
+    }
+
+    function scheduleHalaPublicStateSave() {
+      if (!halaSupabase || !halaPublicStateLoaded) return;
+      if (halaPublicSaveTimer) clearTimeout(halaPublicSaveTimer);
+      halaPublicSaveTimer = setTimeout(() => {
+        persistHalaPublicState().catch(error => {
+          console.error('Could not sync storefront state to Supabase:', error);
+          showToast('تعذر مزامنة بيانات المتجر مع Supabase: ' + error.message, 'warning');
+        });
+      }, 900);
     }
 
     async function loadCloudReels() {
@@ -1798,6 +1866,7 @@
       } catch (e) {
         showToast('تنبيه: مساحة التخزين ممتلئة، يرجى تقليل حجم الصور المرفوعة.', 'warning');
       }
+      scheduleHalaPublicStateSave();
     }
 
     // =========================================================================
@@ -1805,6 +1874,7 @@
     // =========================================================================
     window.addEventListener('DOMContentLoaded', async () => {
       try {
+        await loadCloudStoreState();
         await loadCloudReels();
         await refreshHalaStorageAuthStatus();
         // Increment visitor counter once per session
