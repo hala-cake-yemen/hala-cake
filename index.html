@@ -2511,7 +2511,11 @@
       document.getElementById('headerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       const loadingSplash = document.getElementById('loadingSplashImg');
       const splashUrl = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
-      if (loadingSplash && loadingSplash.getAttribute('src') !== splashUrl) loadingSplash.src = splashUrl;
+      if (loadingSplash) {
+        if (loadingSplash.getAttribute('src') !== splashUrl) loadingSplash.src = splashUrl;
+        loadingSplash.loading = 'eager';
+        loadingSplash.fetchPriority = 'high';
+      }
       const splashPreview = document.getElementById('loadingSplashAdminPreview');
       if (splashPreview) splashPreview.src = splashUrl;
       const loadingLogo = document.getElementById('loadingLogoImg');
@@ -2520,14 +2524,6 @@
         loadingLogo.loading = 'eager';
         loadingLogo.fetchPriority = 'high';
       }
-      const loadingSplash = document.getElementById('loadingSplashImg');
-      if (loadingSplash) {
-        loadingSplash.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
-        loadingSplash.loading = 'eager';
-        loadingSplash.fetchPriority = 'high';
-      }
-      const splashPreview = document.getElementById('loadingSplashAdminPreview');
-      if (splashPreview) splashPreview.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
       const loadingChef = document.getElementById('loadingChefImg');
       if (loadingChef) {
         loadingChef.src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
