@@ -1801,14 +1801,13 @@
       return [...(aiStudioCharacterSheet?.url ? [aiStudioCharacterSheet.url] : []), ...aiStudioProductReferences.map(item => item.url).filter(Boolean)].slice(0, 5);
     }
     function getAiGenerationMode() {
-      return state.settings?.aiGenerationMode === 'paid' ? 'paid' : 'free';
+      return state.aiGenerationMode === 'paid' ? 'paid' : 'free';
     }
     function saveAiGenerationMode(mode) {
-      state.settings = state.settings || {};
-      state.settings.aiGenerationMode = mode === 'paid' ? 'paid' : 'free';
+      state.aiGenerationMode = mode === 'paid' ? 'paid' : 'free';
       saveState();
       updateAiGenerationModeUI();
-      showToast(state.settings.aiGenerationMode === 'paid'
+      showToast(state.aiGenerationMode === 'paid'
         ? 'تم تفعيل التوليد المدفوع عبر Gemini داخل الموقع.'
         : 'تم تفعيل الوضع المجاني: Gemini للنصوص وFlow للصور والفيديو.');
     }
@@ -1932,7 +1931,7 @@
     }
 
     // Public storefront data is shared across browsers (including Facebook's in-app browser).
-    const HALA_PUBLIC_STATE_KEYS = ['brand', 'products', 'categories', 'reviews', 'counters', 'visitorCount', 'checkoutFields', 'voucherSettings', 'customBuilderFields'];
+    const HALA_PUBLIC_STATE_KEYS = ['brand', 'products', 'categories', 'reviews', 'counters', 'visitorCount', 'checkoutFields', 'voucherSettings', 'customBuilderFields', 'aiGenerationMode'];
     let halaPublicSaveTimer = null;
     let halaPublicStateLoaded = false;
 
