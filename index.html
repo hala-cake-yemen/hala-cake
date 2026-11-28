@@ -2563,14 +2563,21 @@
     // =========================================================================
     function renderCategories() {
       const grid = document.getElementById('categoriesGrid');
-      grid.innerHTML = state.categories.map(cat => `
-        <button type="button" onclick="openCategoryPage('${String(cat.name).replace(/\\\\/g,'\\\\\\\\').replace(/'/g,"\\\\'")}')" class="hala-card p-3 flex flex-col items-center text-center group cursor-pointer" aria-label="فتح قسم ${cat.name}">
+      grid.innerHTML = state.categories.map((cat,index) => `
+        <button type="button" data-category-index="${index}" class="hala-card p-3 flex flex-col items-center text-center group cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#c49a50]" aria-label="عرض منتجات قسم ${cat.name}">
           <div class="w-full aspect-square rounded-2xl bg-[#fffaf3] border border-[#ead9cf] flex items-center justify-center overflow-hidden mb-2">
             <img src="${cat.img || generateCakeSvg('#f5dce2', '#690d28', '#fff')}" alt="${cat.name}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform" />
           </div>
           <span class="text-xs sm:text-sm font-extrabold text-[#690d28]">${cat.icon} ${cat.name}</span>
+          <span class="text-[10px] text-[#a17a3e] font-bold mt-1">تصفّح المنتجات ←</span>
         </button>
       `).join('');
+      grid.querySelectorAll('[data-category-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const category = state.categories[Number(button.dataset.categoryIndex)];
+          if (category) openCategoryPage(category.name);
+        });
+      });
     }
 
     function openCategoryPage(catName) {
@@ -2579,7 +2586,8 @@
       const title=document.getElementById('categoryDedicatedTitle');
       const count=document.getElementById('categoryDedicatedCount');
       if(!page||!grid)return;
-      const products=state.products.filter(p=>p.category===catName);
+      const normalizeCategory = value => String(value || '').trim().replace(/\\s+/g,' ').toLocaleLowerCase('ar');
+      const products=state.products.filter(p=>normalizeCategory(p.category)===normalizeCategory(catName));
       title.textContent=catName;
       count.textContent=products.length+' منتج';
       grid.innerHTML=products.length
@@ -2588,6 +2596,8 @@
       page.classList.remove('hidden');
       document.body.style.overflow='hidden';
       page.scrollTop=0;
+      const backButton=page.querySelector('button[aria-label="العودة"]');
+      if(backButton) backButton.setAttribute('aria-label','العودة إلى المتجر من قسم '+catName);
     }
 
     function closeCategoryPage() {
