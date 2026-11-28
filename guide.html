@@ -191,7 +191,7 @@ textarea.field{min-height:90px}.actions{display:flex;flex-wrap:wrap;gap:9px;marg
 <label>ما النتيجة التي ظهرت فعلاً؟</label><textarea class="field" id="uActual" placeholder="مثال: ظهرت رسالة فشل رفع ولم يظهر المنتج"></textarea>
 <label>نص رسالة الخطأ إن وجدت</label><textarea class="field" id="uError" placeholder="انسخ الرسالة كما ظهرت أو اكتب: لا توجد رسالة"></textarea>
 <label>رابط الصفحة أو اسم المنتج/رقم الطلب (إن وجد)</label><input class="field" id="uRef" placeholder="رابط الصفحة أو رقم الطلب">
-<div class="actions"><button type="button" id="makeDraft">🤖 جهّز رسالة البلاغ</button><button type="button" class="btn gold" id="copyDraft">نسخ الرسالة</button></div>
+<div class="actions"><button type="button" id="makeDraft">🤖 جهّز رسالة البلاغ</button><button type="button" class="btn gold" id="askAI">✨ تحسين البلاغ بالذكاء الاصطناعي</button><button type="button" class="btn gold" id="copyDraft">نسخ الرسالة</button></div>
 <h3>معاينة الرسالة التي ستصل للدعم</h3><div id="draft">ستظهر الرسالة هنا بعد تعبئة البيانات والضغط على «جهّز رسالة البلاغ».</div>
 <div class="actions"><a id="sendWa" class="btn hidden" target="_blank" rel="noopener">إرسال البلاغ إلى الدعم الفني عبر واتساب</a><a class="btn gold" href="tel:00201111094182">اتصال بالدعم الفني</a></div>
 <p class="muted">رقم الدعم الفني: <b dir="ltr">00201111094182</b>. لن تُرسل الرسالة تلقائياً؛ راجعها ثم اضغط إرسال داخل واتساب. أرفق صورة الشاشة بعد فتح المحادثة.</p>
@@ -211,6 +211,11 @@ draft='السلام عليكم، أحتاج مساعدة فنية في متجر 
 $('draft').textContent=draft;
 $('sendWa').href='https://wa.me/201111094182?text='+encodeURIComponent(draft);
 $('sendWa').classList.remove('hidden');
+});
+$('askAI').addEventListener('click',()=>{
+if(!draft){$('makeDraft').click();}
+const prompt='أنت مساعد دعم فني لمتجر إلكتروني. أعد صياغة البلاغ التالي ليكون واضحاً ومنظماً لفريق الدعم. لا تخترع أي معلومة ولا تحذف تفاصيل الخطوات أو رسالة الخطأ. اكتب بالعربية البسيطة، وحدد ما المعلومات الناقصة إن وجدت. لا تطلب كلمات مرور أو رموز تحقق أو مفاتيح API. البلاغ:\\n\\n'+draft;
+window.open('https://chatgpt.com/?q='+encodeURIComponent(prompt),'_blank','noopener');
 });
 $('copyDraft').addEventListener('click',async()=>{if(!draft){$('makeDraft').click();}try{await navigator.clipboard.writeText(draft);$('copyDraft').textContent='✓ تم نسخ الرسالة';}catch(e){$('draft').focus();}});
 </script>
