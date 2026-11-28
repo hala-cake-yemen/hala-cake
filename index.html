@@ -961,7 +961,15 @@
               <a href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener" class="text-xs font-bold text-[#690d28] underline">فتح Google Flow المجاني</a>
             </div>
             <div id="aiStudioReferenceStatus" class="text-[11px] text-[#88777a]" aria-live="polite"></div>
-            <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900">الاختبار المجاني: رفع المراجع وتجهيز البرومبت متاحان هنا. توليد الصور والفيديو عبر Gemini API يحتاج حصة مدفوعة؛ ويمكن اختبار التوليد داخل Google Flow برصيده اليومي، مع إرفاق المراجع يدوياً.</div>
+            <div class="p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf] space-y-2">
+              <label for="aiGenerationModeSelect" class="block text-xs font-extrabold text-[#690d28]">⚙️ وضع تشغيل الذكاء الاصطناعي</label>
+              <select id="aiGenerationModeSelect" onchange="saveAiGenerationMode(this.value)" class="w-full p-2.5 text-xs border border-[#c49a50] rounded-lg bg-white">
+                <option value="free">مجاني — Gemini للنصوص وFlow للصور والفيديو</option>
+                <option value="paid">مدفوع — Gemini للنصوص والصور والفيديو داخل الموقع</option>
+              </select>
+              <div id="aiGenerationModeHelp" class="text-[11px] text-[#88777a] leading-6"></div>
+              <div class="text-[11px] text-red-800 bg-red-50 border border-red-100 rounded-lg p-2">شرط الفيديو: ممنوع ظهور أي كلمات أو حروف أو عناوين أو ترجمة أو شعارات نصية أو علامة مائية داخل الفيديو.</div>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button type="button" onclick="openGoogleFlowFree('image')" class="w-full py-2.5 btn-hala-gold text-xs">🖼️ نسخ برومبت الصورة وفتح Flow</button>
               <button type="button" onclick="openGoogleFlowFree('video')" class="w-full py-2.5 btn-hala-primary text-xs">🎬 نسخ برومبت الفيديو وفتح Flow</button>
@@ -1792,11 +1800,35 @@
     function getAiStudioReferenceUrls() {
       return [...(aiStudioCharacterSheet?.url ? [aiStudioCharacterSheet.url] : []), ...aiStudioProductReferences.map(item => item.url).filter(Boolean)].slice(0, 5);
     }
-    const AI_STUDIO_PAID_GENERATION_ENABLED = false; // مرحلة الاختبار المجاني؛ فعّلها بعد ربط فوترة Google.
+    function getAiGenerationMode() {
+      return state.settings?.aiGenerationMode === 'paid' ? 'paid' : 'free';
+    }
+    function saveAiGenerationMode(mode) {
+      state.settings = state.settings || {};
+      state.settings.aiGenerationMode = mode === 'paid' ? 'paid' : 'free';
+      saveState();
+      updateAiGenerationModeUI();
+      showToast(state.settings.aiGenerationMode === 'paid'
+        ? 'تم تفعيل التوليد المدفوع عبر Gemini داخل الموقع.'
+        : 'تم تفعيل الوضع المجاني: Gemini للنصوص وFlow للصور والفيديو.');
+    }
+    function updateAiGenerationModeUI() {
+      const mode = getAiGenerationMode();
+      const select = document.getElementById('aiGenerationModeSelect');
+      const help = document.getElementById('aiGenerationModeHelp');
+      if (select) select.value = mode;
+      if (help) help.textContent = mode === 'paid'
+        ? 'الوضع المدفوع: النصوص والصور والفيديو عبر Gemini API داخل الموقع. يتطلب تفعيل فوترة Google API وحصة متاحة؛ الرسوم تخص حساب المؤسسة.'
+        : 'الوضع المجاني: النصوص عبر Gemini API، والصور والفيديو عبر واجهة Google Flow الرسمية. أرفق الصور المرجعية يدوياً داخل Flow.';
+      const imageButton = document.getElementById('aiGenerateImageButton');
+      const videoButton = document.getElementById('aiGenerateNativeVideoButton');
+      if (imageButton) imageButton.textContent = mode === 'paid' ? '🖼️ توليد الصورة عبر Gemini وحفظها' : '🖼️ توليد الصورة عبر Flow';
+      if (videoButton) videoButton.textContent = mode === 'paid' ? '🎥 توليد الفيديو عبر Gemini وحفظه' : '🎥 توليد الفيديو عبر Flow';
+    }
     async function openGoogleFlowFree(kind = 'image') {
       const prompt = getAiStudioProductPrompt(kind);
       try { await navigator.clipboard.writeText(prompt); } catch (_) {}
-      setAiStudioStatus('تم نسخ برومبت ' + (kind === 'video' ? 'الفيديو' : 'الصورة') + '. افتح Google Flow وأرفق Character Sheet وصور المنتجات من جهازك؛ مراجع Supabase محفوظة في المعاينات أعلاه.', 'success');
+      setAiStudioStatus('تم نسخ برومبت ' + (kind === 'video' ? 'الفيديو' : 'الصورة') + '. افتح Google Flow وأرفق Character Sheet وصور المنتجات يدوياً من جهازك؛ مراجع Supabase محفوظة في المعاينات أعلاه. برومبت الفيديو يمنع أي كتابة داخل المشهد.', 'success');
       window.open('https://labs.google/fx/tools/flow', '_blank', 'noopener');
     }
     let secretTapCounter = 0;
@@ -3752,6 +3784,7 @@
     // --- Tab 4: AI Studio, Social Media & WhatsApp Groups ---
     function initAdminAiSocialTab() {
       document.getElementById('adminFlowWebhookUrl').value = state.aiConfig.flowWebhookUrl || '';
+      updateAiGenerationModeUI();
 
       const waCfg = state.whatsappApi || {};
       const phoneIdEl = document.getElementById('waApiPhoneIdInput');
@@ -3891,12 +3924,12 @@
       const context = prod ? 'العلامة: حلا كيك. المنتج: ' + prod.name + '. وصف المنتج: ' + prod.desc + '. السعر: ' + formatYER(prod.price) + '.' : 'العلامة: حلا كيك.';
       const instructions = kind === 'image'
         ? 'أنشئ صورة إعلانية فوتوغرافية واقعية وفاخرة لمنتج حلويات. حافظ على تفاصيل المنتج الحقيقية، ولا تضف نصوصاً عربية مشوهة أو أسعاراً غير مذكورة. هوية حلا كيك: خمري وذهبي وكريمي، إضاءة استوديو راقية، تكوين تجاري نظيف.'
-        : 'أنشئ فيديو إعلانياً سينمائياً واقعياً لمنتج حلا كيك. حركة كاميرا ناعمة، تفاصيل شهية واقعية، إضاءة احترافية، دون تغيير شكل المنتج أو اختراع مكونات أو ادعاءات.';
+        : 'أنشئ فيديو إعلانياً سينمائياً واقعياً لمنتج حلا كيك. حركة كاميرا ناعمة، تفاصيل شهية واقعية، إضاءة احترافية، دون تغيير شكل المنتج أو اختراع مكونات أو ادعاءات. شرط صارم: لا تُظهر أي كتابة مطلقاً داخل الفيديو؛ لا كلمات ولا حروف ولا أرقام ولا عناوين ولا ترجمة ولا تسميات ولا نصوص على العبوات أو الخلفية ولا شعارات مكتوبة ولا علامات مائية. اجعل المشاهد بصرية فقط وخالية تماماً من النصوص (NO TEXT, NO LETTERS, NO NUMBERS, NO SUBTITLES, NO CAPTIONS, NO TYPOGRAPHY, NO WATERMARKS).';
       return [context, instructions, userPrompt].filter(Boolean).join('\n\n');
     }
 
     async function generateAiImage() {
-      if (!AI_STUDIO_PAID_GENERATION_ENABLED) { await openGoogleFlowFree('image'); return; }
+      if (getAiGenerationMode() === 'free') { await openGoogleFlowFree('image'); return; }
       const button = document.getElementById('aiGenerateImageButton');
       try {
         const prompt = getAiStudioProductPrompt('image');
@@ -3924,14 +3957,14 @@
     }
 
     async function generateAiVideoWithGemini() {
-      if (!AI_STUDIO_PAID_GENERATION_ENABLED) { await openGoogleFlowFree('video'); return; }
+      if (getAiGenerationMode() === 'free') { await openGoogleFlowFree('video'); return; }
       const button = document.getElementById('aiGenerateNativeVideoButton');
       try {
         const prompt = getAiStudioProductPrompt('video');
         const sourceImageUrl = aiStudioGeneratedImageUrl || (aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : '');
         const referenceImageUrls = getAiStudioReferenceUrls();
         if (button) { button.disabled = true; button.textContent = '⏳ جارٍ بدء مهمة الفيديو...'; }
-        setAiStudioStatus('جارٍ إرسال طلب الفيديو إلى Gemini Omni. قد يستغرق الإكمال عدة دقائق...');
+        setAiStudioStatus('جارٍ إرسال طلب الفيديو إلى Gemini Omni المدفوع. قد يستغرق الإكمال عدة دقائق... مع منع أي كتابة داخل الفيديو.');
         const data = await callHalaGemini({
           action: 'start_video', prompt, sourceImageUrl, referenceImageUrls,
           aspectRatio: document.getElementById('aiVideoAspectRatio').value,
