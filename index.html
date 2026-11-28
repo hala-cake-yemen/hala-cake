@@ -190,13 +190,11 @@
   <style id="hala-loading-screen-styles">
     #halaLoadingScreen{position:fixed!important;inset:0!important;z-index:2147483000!important;display:grid!important;place-items:center!important;background:radial-gradient(ellipse at center,#fffdf9 0%,#fff4ed 58%,#f4dfe3 100%)!important;opacity:1;visibility:visible;pointer-events:auto;transition:opacity .35s ease,visibility .35s ease}
     #halaLoadingScreen.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-    #halaLoadingScreen .loading-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 20px;text-align:center}
-    #halaLoadingScreen .loading-brand{display:flex;align-items:center;justify-content:center;gap:12px}
-    #halaLoadingScreen .loading-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;border:2px solid #c49a50;background:#fffaf3;padding:4px;box-shadow:0 8px 22px #690d2820}
-    #halaLoadingScreen .loading-chef{width:min(68vw,250px);height:min(48vh,270px);object-fit:contain;object-position:center bottom;border-radius:28px;border:2px solid #c49a50;background:#fffaf3;box-shadow:0 12px 30px #690d2820}
-    #halaLoadingScreen .loading-name{font-family:'Cairo',sans-serif;color:#690d28;font-size:clamp(26px,7vw,36px);font-weight:900}
+    #halaLoadingScreen{background:#fff6f1!important}
+    #halaLoadingScreen .loading-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0;text-align:center}
+    #halaLoadingScreen .loading-splash{display:block;width:100%;height:auto;max-height:76dvh;object-fit:contain;object-position:center;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
     #halaLoadingScreen .loading-subtitle{font-family:'Cairo',sans-serif;color:#88777a;font-size:13px}
-    #halaLoadingScreen .loading-spinner{width:27px;height:27px;border:3px solid #ead9cf;border-top-color:#690d28;border-radius:50%;animation:halaLoadingSpin .8s linear infinite}
+    #halaLoadingScreen .loading-spinner{width:25px;height:25px;border:3px solid #ead9cf;border-top-color:#690d28;border-radius:50%;animation:halaLoadingSpin .8s linear infinite}
     @keyframes halaLoadingSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){#halaLoadingScreen,#halaLoadingScreen .loading-spinner{transition:none;animation:none}}
   </style>
@@ -215,11 +213,7 @@
 <body class="pb-20 md:pb-0">
   <div id="halaLoadingScreen" role="status" aria-live="polite" aria-label="جارٍ تحميل متجر حلا كيك">
     <div class="loading-card">
-      <img id="loadingChefImg" class="loading-chef" alt="حلا" />
-      <div class="loading-brand">
-        <img id="loadingLogoImg" class="loading-logo" alt="شعار حلا كيك" />
-        <div class="loading-name">حلا كيك</div>
-      </div>
+      <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="حلا كيك" fetchpriority="high" />
       <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
       <div class="loading-spinner" aria-hidden="true"></div>
     </div>
@@ -936,6 +930,7 @@
                 <span>عرض في قسم "الأكثر طلباً وتميّزاً"</span>
               </label>
               <button type="button" onclick="saveNewProduct()" class="w-full py-3 btn-hala-primary text-sm">💾 حفظ ونشر المنتج</button>
+              <button type="button" id="cancelProductEditButton" onclick="cancelProductEdit()" class="hidden w-full py-2.5 rounded-xl border border-[#ead9cf] text-[#690d28] text-sm font-bold">إلغاء التعديل</button>
             </div>
           </div>
         </div>
@@ -1816,6 +1811,7 @@
     let customExtraItems = [{ name: '', qty: '1' }];
     let newProdProcessedDataUrl = '';
     let newProdOriginalDataUrl = '';
+    let editingProductId = null;
     let aiStudioAttachedMedia = null;
     let aiStudioGeneratedImageUrl = '';
     let aiStudioCharacterSheet = null;
@@ -2275,7 +2271,7 @@
     // =========================================================================
     // 3. INITIALIZATION & VISITOR COUNTER
     // =========================================================================
-    const HALA_LOADING_MIN_DURATION = 5000;
+    const HALA_LOADING_MIN_DURATION = 3000;
     const HALA_LOADING_STARTED_AT = Date.now();
     let halaLoadingHideRequested = false;
     let halaLoadingHideTimer = null;
@@ -3658,48 +3654,58 @@
       const desc = document.getElementById('newProdDesc').value.trim();
       const featured = document.getElementById('newProdFeatured').checked;
       const button = document.querySelector('#adminTab-products button[onclick="saveNewProduct()"]');
-
-      if (!name || !price) {
-        showToast('يرجى إدخال اسم المنتج والسعر بالريال اليمني', 'warning');
-        return;
-      }
-
-      if (button) { button.disabled = true; button.textContent = 'جارٍ رفع الصورة وحفظ المنتج...'; }
+      if (!name || !price) { showToast('يرجى إدخال اسم المنتج والسعر بالريال اليمني', 'warning'); return; }
+      const existing = editingProductId ? state.products.find(p => p.id === editingProductId) : null;
+      if (editingProductId && !existing) { showToast('تعذر العثور على المنتج المراد تعديله.', 'error'); cancelProductEdit(); return; }
+      const wasEditing = !!existing;
+      if (button) { button.disabled = true; button.textContent = wasEditing ? 'جارٍ حفظ التعديلات...' : 'جارٍ رفع الصورة وحفظ المنتج...'; }
       try {
-        let productImage = newProdProcessedDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#fffaf3');
-        if (productImage.startsWith('data:image/') && productImage.length > 4000) {
-          productImage = await uploadHalaImageDataUrl(productImage, 'images/products');
-        }
-        const prod = {
-          id: 'prod-' + Date.now(),
-          name,
-          price,
-          category,
-          desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',
-          image: productImage,
-          featured
-        };
-
-        state.products.unshift(prod);
-        saveState();
-        renderProducts();
-        renderFeaturedProducts();
-        renderAdminProducts();
-
-        document.getElementById('newProdName').value = '';
-        document.getElementById('newProdPrice').value = '';
-        document.getElementById('newProdDesc').value = '';
-        document.getElementById('newProdImageInput').value = '';
-        newProdProcessedDataUrl = '';
-        newProdOriginalDataUrl = '';
-        document.getElementById('newProdImagePreviewWrap').classList.add('hidden');
-        showToast('تم رفع صورة المنتج إلى Supabase ونشر المنتج بنجاح 🎂');
+        let productImage = newProdProcessedDataUrl || (existing ? existing.image : generateCakeSvg('#f5dce2', '#690d28', '#fffaf3'));
+        if (productImage.startsWith('data:image/') && productImage.length > 4000) productImage = await uploadHalaImageDataUrl(productImage, 'images/products');
+        if (existing) Object.assign(existing, { name, price, category, desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.', image: productImage, featured });
+        else state.products.unshift({ id: 'prod-' + Date.now(), name, price, category, desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.', image: productImage, featured });
+        saveState(); renderProducts(); renderFeaturedProducts(); renderAdminProducts();
+        cancelProductEdit();
+        showToast(wasEditing ? 'تم تحديث المنتج المنشور بنجاح ✓' : 'تم رفع صورة المنتج إلى Supabase ونشر المنتج بنجاح 🎂');
       } catch (error) {
-        console.error('Product image upload failed:', error);
+        console.error('Product save failed:', error);
         showToast('لم يتم حفظ المنتج: ' + error.message, 'error');
       } finally {
         if (button) { button.disabled = false; button.textContent = '💾 حفظ ونشر المنتج'; }
       }
+    }
+
+    function editProduct(productId) {
+      const product = state.products.find(p => p.id === productId);
+      if (!product) return showToast('لم يتم العثور على المنتج.', 'error');
+      editingProductId = productId;
+      document.getElementById('newProdName').value = product.name || '';
+      document.getElementById('newProdPrice').value = product.price || '';
+      document.getElementById('newProdCategory').value = product.category || '';
+      document.getElementById('newProdDesc').value = product.desc || '';
+      document.getElementById('newProdFeatured').checked = !!product.featured;
+      newProdProcessedDataUrl = ''; newProdOriginalDataUrl = '';
+      document.getElementById('newProdImageInput').value = '';
+      document.getElementById('newProdImagePreview').src = product.image || '';
+      document.getElementById('newProdImagePreviewWrap').classList.remove('hidden');
+      const btn = document.querySelector('#adminTab-products button[onclick="saveNewProduct()"]');
+      if (btn) btn.textContent = '💾 حفظ التعديلات';
+      const cancel = document.getElementById('cancelProductEditButton');
+      if (cancel) cancel.classList.remove('hidden');
+      document.getElementById('adminTab-products').scrollIntoView({behavior:'smooth',block:'start'});
+      showToast('عدّل بيانات المنتج أو اختر صورة جديدة ثم احفظ التعديلات.');
+    }
+
+    function cancelProductEdit() {
+      editingProductId = null;
+      ['newProdName','newProdPrice','newProdDesc','newProdImageInput'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+      const preview=document.getElementById('newProdImagePreview'); if(preview) preview.src='';
+      const wrap=document.getElementById('newProdImagePreviewWrap'); if(wrap) wrap.classList.add('hidden');
+      const featured=document.getElementById('newProdFeatured'); if(featured) featured.checked=true;
+      newProdProcessedDataUrl='';newProdOriginalDataUrl='';
+      const btn=document.querySelector('#adminTab-products button[onclick="saveNewProduct()"]');
+      if(btn){btn.textContent='💾 حفظ ونشر المنتج';btn.disabled=false;}
+      const cancel=document.getElementById('cancelProductEditButton');if(cancel)cancel.classList.add('hidden');
     }
 
     function renderAdminProducts() {
@@ -3716,7 +3722,10 @@
               <div class="text-[11px] text-[#88777a]">${p.category} • <strong>${formatYER(p.price)}</strong></div>
             </div>
           </div>
-          <button type="button" onclick="deleteProduct(${idx})" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold shrink-0">حذف</button>
+          <div class="flex flex-col gap-1 shrink-0">
+            <button type="button" onclick="editProduct('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-[#f5dce2] text-[#690d28] text-xs font-bold">تعديل</button>
+            <button type="button" onclick="deleteProduct(${idx})" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold">حذف</button>
+          </div>
         </div>
       `).join('');
     }
