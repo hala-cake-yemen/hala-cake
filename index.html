@@ -3773,7 +3773,19 @@
     async function callHalaGemini(payload) {
       await ensureHalaStorageSession();
       const { data, error } = await halaSupabase.functions.invoke('hala-gemini', { body: payload });
-      if (error) throw new Error(error.message || 'تعذر الاتصال بوظيفة الذكاء الاصطناعي.');
+      if (error) {
+        let detail = '';
+        try {
+          const context = error.context;
+          if (context && typeof context.json === 'function') {
+            const body = await context.json();
+            detail = body?.error || body?.message || '';
+            if (body?.upstreamStatus) detail += ' (Google HTTP ' + body.upstreamStatus + ')';
+            if (body?.stage) detail += ' — المرحلة: ' + body.stage;
+          }
+        } catch (_) {}
+        throw new Error(detail || error.message || 'تعذر الاتصال بوظيفة الذكاء الاصطناعي.');
+      }
       if (!data?.ok) throw new Error(data?.error || 'تعذر تنفيذ طلب الذكاء الاصطناعي.');
       return data;
     }
@@ -3910,12 +3922,8 @@
           '7) لا تخترع مكونات أو مزايا أو عروضاً أو معلومات غير واردة في بيانات المنتج.',
           'اكتب سيناريو جاهزاً للتنفيذ فقط، بعناوين مشاهد واضحة ومن دون مقدمة أو خاتمة مكررة.'
         ].join('\n');
-        await ensureHalaStorageSession();
-        const { data, error } = await halaSupabase.functions.invoke('hala-gemini', {
-          body: { action: 'generate', prompt: requestPrompt }
-        });
-        if (error) throw new Error(error.message || 'تعذر الاتصال بخدمة Gemini الآمنة.');
-        if (!data?.ok || !data?.text) throw new Error(data?.error || 'لم يُرجع Gemini نصاً صالحاً.');
+        const data = await callHalaGemini({ action: 'generate', prompt: requestPrompt });
+        if (!data?.text) throw new Error('لم يُرجع Gemini نصاً صالحاً.');
         const generated = data.text.trim();
         if (!generated) throw new Error('لم يُرجع Gemini نصاً صالحاً.');
         output.value = generated;
