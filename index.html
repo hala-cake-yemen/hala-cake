@@ -16,7 +16,20 @@
       input,button{width:100%;padding:14px;border-radius:12px;font-size:16px;margin-top:12px}
       input{border:1px solid #ead9cf;text-align:center}button{border:0;background:#690d28;color:#fff;font-weight:bold}
       #msg{padding:12px;border-radius:10px;margin-top:14px;font-size:14px;line-height:1.7;display:none}
-    </style></head><body><main class="card"><h1>تعيين كلمة مرور حلا كيك</h1><p>أدخل كلمة المرور الجديدة مرتين. سيتم توحيدها مع كلمة مرور لوحة التحكم.</p>
+    </style>
+  <style id="hala-loading-screen-styles">
+    #halaLoadingScreen{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:radial-gradient(ellipse at center,#fffdf9 0%,#fff4ed 58%,#f4dfe3 100%);opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
+    #halaLoadingScreen.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    #halaLoadingScreen .loading-card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;text-align:center}
+    #halaLoadingScreen img{width:112px;height:112px;object-fit:contain;border-radius:50%;border:3px solid #c49a50;background:#fffaf3;padding:5px;box-shadow:0 10px 28px #690d2820}
+    #halaLoadingScreen .loading-name{font-family:'Cairo',sans-serif;color:#690d28;font-size:clamp(26px,7vw,36px);font-weight:900}
+    #halaLoadingScreen .loading-subtitle{font-family:'Cairo',sans-serif;color:#88777a;font-size:13px}
+    #halaLoadingScreen .loading-spinner{width:27px;height:27px;border:3px solid #ead9cf;border-top-color:#690d28;border-radius:50%;animation:halaLoadingSpin .8s linear infinite}
+    @keyframes halaLoadingSpin{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){#halaLoadingScreen,#halaLoadingScreen .loading-spinner{transition:none;animation:none}}
+  </style>
+
+</head><body><main class="card"><h1>تعيين كلمة مرور حلا كيك</h1><p>أدخل كلمة المرور الجديدة مرتين. سيتم توحيدها مع كلمة مرور لوحة التحكم.</p>
     <form id="resetForm"><input id="pw1" type="password" minlength="6" autocomplete="new-password" placeholder="كلمة المرور الجديدة" required><input id="pw2" type="password" minlength="6" autocomplete="new-password" placeholder="تأكيد كلمة المرور" required><button id="save" type="submit">حفظ كلمة المرور</button></form><div id="msg"></div></main></body></html>`;
     const addScript = document.createElement('script');
     addScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -185,6 +198,15 @@
   </style>
 </head>
 <body class="pb-20 md:pb-0">
+  <div id="halaLoadingScreen" role="status" aria-live="polite" aria-label="جارٍ تحميل متجر حلا كيك">
+    <div class="loading-card">
+      <img id="loadingLogoImg" alt="شعار حلا كيك" />
+      <div class="loading-name">حلا كيك</div>
+      <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
+      <div class="loading-spinner" aria-hidden="true"></div>
+    </div>
+  </div>
+
 
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed top-4 left-4 right-4 md:left-auto md:right-6 md:w-96 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
@@ -2207,6 +2229,16 @@
     // =========================================================================
     // 3. INITIALIZATION & VISITOR COUNTER
     // =========================================================================
+    function hideHalaLoadingScreen() {
+      const screen = document.getElementById('halaLoadingScreen');
+      if (screen) {
+        screen.classList.add('is-hidden');
+        window.setTimeout(() => screen.remove(), 450);
+      }
+    }
+    // Safety fallback: never leave the storefront covered if a remote service is slow.
+    window.setTimeout(hideHalaLoadingScreen, 8000);
+
     window.addEventListener('DOMContentLoaded', async () => {
       try {
         await loadCloudStoreState();
@@ -2235,6 +2267,8 @@
         syncPaymentSettingsUI();
       } catch (err) {
         console.error('Initialization error:', err);
+      } finally {
+        hideHalaLoadingScreen();
       }
     });
 
@@ -2300,6 +2334,8 @@
         footerBannerSection.classList.toggle('hidden', !state.brand.footerBannerImg);
       }
       document.getElementById('headerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
+      const loadingLogo = document.getElementById('loadingLogoImg');
+      if (loadingLogo) loadingLogo.src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       document.getElementById('footerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       document.getElementById('chefHeroPortraitImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
       document.getElementById('aboutSmileChefImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
