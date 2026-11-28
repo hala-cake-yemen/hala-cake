@@ -941,6 +941,30 @@
           </div>
           <textarea id="aiStudioPromptOutput" rows="4" placeholder="اكتب وصف الصورة أو الفيديو أو أنشئ سيناريو إعلانياً بالذكاء الاصطناعي..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
 
+          <div class="p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf] space-y-3">
+            <div class="font-extrabold text-sm text-[#690d28]">🧩 المراجع البصرية قبل التوليد</div>
+            <p class="text-[11px] text-[#88777a]">ارفع Character Sheet للشخصية وصور المنتجات الأصلية. تحفظ الملفات في Supabase Storage، وتبقى قائمة المراجع محفوظة عند إعادة فتح لوحة الإدارة.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-[#690d28]">🎭 Character Sheet — صورة مرجعية للشخصية</label>
+                <input id="aiCharacterSheetInput" type="file" accept="image/*" onchange="uploadAiStudioReference(event,'character')" class="w-full text-xs" />
+                <div id="aiCharacterSheetPreview" class="space-y-2 text-[11px] text-[#88777a]">لم يتم رفع Character Sheet بعد.</div>
+              </div>
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-[#690d28]">🎂 صور المنتجات — حتى 5 صور</label>
+                <input id="aiProductReferencesInput" type="file" accept="image/*" multiple onchange="uploadAiStudioReference(event,'product')" class="w-full text-xs" />
+                <div id="aiProductReferencesPreview" class="space-y-2 text-[11px] text-[#88777a]">لم تُرفع صور منتجات مرجعية بعد.</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span id="aiStudioReferenceCount" class="text-[11px] text-[#88777a]">0 صور مرجعية محفوظة في Supabase</span>
+              <a href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener" class="text-xs font-bold text-[#690d28] underline">فتح Google Flow المجاني</a>
+            </div>
+            <div id="aiStudioReferenceStatus" class="text-[11px] text-[#88777a]" aria-live="polite"></div>
+            <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900">الاختبار المجاني: رفع المراجع وتجهيز البرومبت متاحان هنا. توليد الصور والفيديو عبر Gemini API يحتاج حصة مدفوعة؛ ويمكن اختبار التوليد داخل Google Flow برصيده اليومي، مع إرفاق المراجع يدوياً.</div>
+            <button type="button" onclick="openGoogleFlowFree()" class="w-full py-2.5 btn-hala-gold text-xs">✨ نسخ البرومبت وفتح Google Flow المجاني</button>
+          </div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf]">
             <div class="space-y-2">
               <div class="font-extrabold text-xs text-[#690d28]">🖼️ إعدادات توليد الصور</div>
@@ -1714,6 +1738,63 @@
     let newProdOriginalDataUrl = '';
     let aiStudioAttachedMedia = null;
     let aiStudioGeneratedImageUrl = '';
+    let aiStudioCharacterSheet = null;
+    let aiStudioProductReferences = [];
+
+    function saveAiStudioReferences() {
+      try { localStorage.setItem('hala_ai_studio_references_v1', JSON.stringify({ character: aiStudioCharacterSheet, products: aiStudioProductReferences })); }
+      catch (error) { console.warn('تعذر حفظ قائمة المراجع محلياً:', error); }
+    }
+    function loadAiStudioReferences() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('hala_ai_studio_references_v1') || 'null');
+        aiStudioCharacterSheet = saved?.character || null;
+        aiStudioProductReferences = Array.isArray(saved?.products) ? saved.products.slice(0, 5) : [];
+      } catch (_) { aiStudioCharacterSheet = null; aiStudioProductReferences = []; }
+      renderAiStudioReferences();
+    }
+    function renderAiStudioReferences() {
+      const characterBox = document.getElementById('aiCharacterSheetPreview');
+      const productsBox = document.getElementById('aiProductReferencesPreview');
+      const makeCard = (item, removeAction) => {
+        const card = document.createElement('div'); card.className = 'flex items-center gap-2 p-2 rounded-lg border border-[#ead9cf] bg-white';
+        const img = document.createElement('img'); img.src = item.url; img.alt = item.name || 'مرجع بصري'; img.className = 'w-14 h-14 object-cover rounded-lg bg-[#f7efe5]';
+        const name = document.createElement('span'); name.className = 'text-[11px] font-bold flex-1 min-w-0 break-all'; name.textContent = item.name || 'صورة مرجعية';
+        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'إزالة'; remove.className = 'text-[11px] font-bold text-red-700 px-2 py-1'; remove.addEventListener('click', removeAction);
+        card.append(img, name, remove); return card;
+      };
+      if (characterBox) { characterBox.replaceChildren(); if (aiStudioCharacterSheet) characterBox.append(makeCard(aiStudioCharacterSheet, () => { aiStudioCharacterSheet = null; saveAiStudioReferences(); renderAiStudioReferences(); })); else characterBox.textContent = 'لم يتم رفع Character Sheet بعد.'; }
+      if (productsBox) { productsBox.replaceChildren(); if (!aiStudioProductReferences.length) productsBox.textContent = 'لم تُرفع صور منتجات مرجعية بعد.'; aiStudioProductReferences.forEach((item, index) => productsBox.append(makeCard(item, () => { aiStudioProductReferences.splice(index, 1); saveAiStudioReferences(); renderAiStudioReferences(); }))); }
+      const count = document.getElementById('aiStudioReferenceCount'); if (count) count.textContent = (aiStudioCharacterSheet ? 1 : 0) + aiStudioProductReferences.length + ' صور مرجعية محفوظة في Supabase';
+    }
+    async function uploadAiStudioReference(event, kind) {
+      const input = event.target, files = Array.from(input.files || []); if (!files.length) return;
+      const status = document.getElementById('aiStudioReferenceStatus');
+      try {
+        if (!await refreshHalaStorageAuthStatus()) throw new Error('سجّل الدخول إلى لوحة الإدارة أولاً.');
+        if (kind === 'character' && files.length > 1) throw new Error('ارفع ملف Character Sheet واحداً فقط.');
+        if (kind === 'product' && aiStudioProductReferences.length + files.length > 5) throw new Error('يمكن حفظ خمس صور منتجات مرجعية كحد أقصى.');
+        for (const file of files) { if (!file.type?.startsWith('image/')) throw new Error('المراجع يجب أن تكون صوراً.'); if (file.size > 10 * 1024 * 1024) throw new Error('الحد الأقصى لكل صورة 10 ميجابايت.'); }
+        status.textContent = 'جارٍ رفع الصور المرجعية إلى Supabase...';
+        for (const file of files) {
+          const url = await uploadHalaImage(file, kind === 'character' ? 'ai-references/character' : 'ai-references/products');
+          const item = { name: file.name, type: file.type, url };
+          if (kind === 'character') aiStudioCharacterSheet = item; else aiStudioProductReferences.push(item);
+        }
+        saveAiStudioReferences(); renderAiStudioReferences(); status.textContent = '✓ تم رفع المراجع وحفظها في Supabase Storage.';
+        showToast('تم حفظ الصور المرجعية سحابياً ✓');
+      } catch (error) { status.textContent = '✕ تعذر رفع المراجع: ' + error.message; showToast(error.message, 'error'); }
+      finally { input.value = ''; }
+    }
+    function getAiStudioReferenceUrls() {
+      return [...(aiStudioCharacterSheet?.url ? [aiStudioCharacterSheet.url] : []), ...aiStudioProductReferences.map(item => item.url).filter(Boolean)].slice(0, 5);
+    }
+    async function openGoogleFlowFree() {
+      const prompt = getAiStudioProductPrompt('image');
+      try { await navigator.clipboard.writeText(prompt); } catch (_) {}
+      setAiStudioStatus('تم نسخ البرومبت. افتح Google Flow المجاني وأرفق صور المراجع من المعاينات أعلاه.', 'success');
+      window.open('https://labs.google/fx/tools/flow', '_blank', 'noopener');
+    }
     let secretTapCounter = 0;
     let secretTapTimer = null;
     let currentVoucherOrderId = null;
@@ -2097,6 +2178,7 @@
         await loadCloudStoreState();
         await loadCloudReels();
         await refreshHalaStorageAuthStatus();
+        loadAiStudioReferences();
         // Increment visitor counter once per session
         if (!sessionStorage.getItem('hala_visited_session')) {
           state.visitorCount = (Number(state.visitorCount) || 0) + 1;
@@ -3819,7 +3901,8 @@
           action: 'generate_image', prompt,
           aspectRatio: document.getElementById('aiImageAspectRatio').value,
           imageSize: document.getElementById('aiImageSize').value,
-          sourceImageUrl: aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : ''
+          sourceImageUrl: aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : '',
+          referenceImageUrls: getAiStudioReferenceUrls()
         });
         aiStudioGeneratedImageUrl = data.imageUrl;
         document.getElementById('aiStudioGeneratedImage').src = data.imageUrl;
@@ -3840,10 +3923,11 @@
       try {
         const prompt = getAiStudioProductPrompt('video');
         const sourceImageUrl = aiStudioGeneratedImageUrl || (aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : '');
+        const referenceImageUrls = getAiStudioReferenceUrls();
         if (button) { button.disabled = true; button.textContent = '⏳ جارٍ بدء مهمة الفيديو...'; }
         setAiStudioStatus('جارٍ إرسال طلب الفيديو إلى Gemini Omni. قد يستغرق الإكمال عدة دقائق...');
         const data = await callHalaGemini({
-          action: 'start_video', prompt, sourceImageUrl,
+          action: 'start_video', prompt, sourceImageUrl, referenceImageUrls,
           aspectRatio: document.getElementById('aiVideoAspectRatio').value,
           resolution: document.getElementById('aiVideoResolution').value
         });
