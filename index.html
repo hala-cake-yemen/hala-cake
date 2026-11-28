@@ -558,7 +558,9 @@
     <div class="max-w-5xl mx-auto hala-card p-6 sm:p-8">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <div class="md:col-span-5">
-          <img id="aboutSmileChefImg" alt="ابتسامة حلا كيك" class="w-full h-auto rounded-2xl border-2 border-[#c49a50] shadow" />
+          <div class="w-full rounded-2xl border-2 border-[#c49a50] shadow bg-white p-1 flex items-center justify-center overflow-hidden">
+            <img id="aboutSmileChefImg" alt="ابتسامة حلا كيك" class="w-full h-auto max-h-[340px] sm:max-h-[440px] object-contain object-center rounded-xl" />
+          </div>
         </div>
         <div class="md:col-span-7 space-y-4 text-center md:text-right">
           <span class="inline-block px-3 py-1 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">سر الابتسامة في حلا كيك</span>
@@ -1256,7 +1258,9 @@
               <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'footerBanner')" class="w-full" />
             </div>
             <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
-              <label class="block font-extrabold text-[#690d28]">👩‍🍳 تغيير صورة الشيف حلا الرئيسية:</label>
+              <label class="block font-extrabold text-[#690d28]">👩‍🍳 صورة قسم «سر الابتسامة في حلا كيك»:</label>
+              <p class="text-[11px] text-[#88777a]">يمكنك تغيير الصورة في أي وقت. ستظهر كاملة دون قص في واجهة العملاء.</p>
+              <img id="aboutChefAdminPreview" alt="معاينة صورة قسم سر الابتسامة" class="w-full max-h-52 object-contain rounded-xl bg-white border border-[#ead9cf] p-1" />
               <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'chefPortrait')" class="w-full" />
             </div>
             <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
@@ -2533,6 +2537,8 @@
       document.getElementById('footerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
       document.getElementById('chefHeroPortraitImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
       document.getElementById('aboutSmileChefImg').src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
+      const aboutChefPreview = document.getElementById('aboutChefAdminPreview');
+      if (aboutChefPreview) aboutChefPreview.src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
 
       document.getElementById('headerStoreName').textContent = state.brand.storeName;
       document.getElementById('heroTitleText').textContent = state.brand.heroTitle;
@@ -4693,6 +4699,8 @@
     function renderAdminSettingsTab() {
       const splashPreview = document.getElementById('loadingSplashAdminPreview');
       if (splashPreview) splashPreview.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
+      const aboutChefPreview = document.getElementById('aboutChefAdminPreview');
+      if (aboutChefPreview) aboutChefPreview.src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
       document.getElementById('colorPrimaryInput').value = state.brand.primaryColor;
       document.getElementById('colorGoldInput').value = state.brand.goldColor;
       document.getElementById('colorCreamInput').value = state.brand.creamColor;
