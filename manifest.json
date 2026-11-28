@@ -21,16 +21,16 @@
   ],
   "icons": [
     {
-      "src": "/hala-cake/assets/hala-cake-app-icon.png?v=4",
+      "src": "/hala-cake/assets/hala-cake-app-icon.png?v=5",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/hala-cake/assets/hala-cake-app-icon-512.jpg?v=4",
+      "src": "/hala-cake/assets/hala-cake-app-icon-512.jpg?v=5",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
