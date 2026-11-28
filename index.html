@@ -1556,6 +1556,78 @@
       return data?.session || null;
     }
 
+    // Restore the Supabase admin session from the same password used by the dashboard.
+    async function ensureHalaStorageSession() {
+      let session = await refreshHalaStorageAuthStatus();
+      if (session) return session;
+      let adminPassword = '';
+      try { adminPassword = atob(state.settings.adminPassword || ''); } catch (_) {}
+      if (!adminPassword) throw new Error('تعذر استعادة جلسة التخزين. سجّل الدخول إلى لوحة التحكم مجدداً.');
+      session = await loginHalaStorage(adminPassword);
+      if (!session) throw new Error('تعذر الاتصال بحساب التخزين: ' + (halaStorageAuthError || 'تحقق من كلمة مرور الإدارة في Supabase'));
+      return session;
+    }
+
+    async function uploadHalaImage(file, folder = 'images') {
+      if (!file || !file.type?.startsWith('image/')) throw new Error('الملف المحدد ليس صورة صالحة.');
+      if (file.size > 10 * 1024 * 1024) throw new Error('حجم الصورة يجب ألا يتجاوز 10 ميجابايت.');
+      await ensureHalaStorageSession();
+      const ext = (file.name || '').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || (file.type.split('/')[1] || 'jpg').replace(/[^a-z0-9]/g, '');
+      const path = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 10) + '.' + ext;
+      const { error } = await halaSupabase.storage.from(HALA_VIDEO_BUCKET).upload(path, file, {
+        cacheControl: '31536000', upsert: false, contentType: file.type
+      });
+      if (error) throw error;
+      return halaSupabase.storage.from(HALA_VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+
+    async function uploadHalaImageDataUrl(dataUrl, folder = 'images/migrated') {
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const ext = (blob.type.split('/')[1] || 'png').split('+')[0].replace(/[^a-z0-9]/gi, '') || 'png';
+      const file = new File([blob], 'legacy-image.' + ext, { type: blob.type || 'image/png' });
+      return uploadHalaImage(file, folder);
+    }
+
+    async function migrateLegacyStoreImages() {
+      if (!halaSupabase) throw new Error('اتصال Supabase غير متاح.');
+      await ensureHalaStorageSession();
+      const replacements = new Map();
+      const migrate = async (owner, key, folder) => {
+        const value = owner?.[key];
+        if (typeof value !== 'string' || !value.startsWith('data:image/') || value.length < 4000) return;
+        if (replacements.has(value)) { owner[key] = replacements.get(value); return; }
+        const url = await uploadHalaImageDataUrl(value, folder);
+        replacements.set(value, url);
+        owner[key] = url;
+      };
+      for (const key of ['topBannerImg', 'footerBannerImg', 'chefPortraitImg', 'logoImg']) await migrate(state.brand, key, 'images/branding');
+      for (const product of (state.products || [])) await migrate(product, 'image', 'images/products');
+      for (const category of (state.categories || [])) await migrate(category, 'img', 'images/categories');
+      for (const review of (state.reviews || [])) await migrate(review, 'image', 'images/reviews');
+      // Replace duplicate product image copies in cart/order snapshots without uploading private receipts.
+      const replaceKnown = value => {
+        if (typeof value === 'string') return replacements.get(value) || value;
+        if (Array.isArray(value)) { value.forEach((item, index) => { value[index] = replaceKnown(item); }); return value; }
+        if (value && typeof value === 'object') { Object.keys(value).forEach(key => { if (key !== 'receiptImage' && key !== 'customRefImage') value[key] = replaceKnown(value[key]); }); }
+        return value;
+      };
+      if (replacements.size) {
+        replaceKnown(state.cart || []);
+        replaceKnown(state.orders || []);
+        saveState();
+        applyBranding();
+        renderProducts();
+        renderFeaturedProducts();
+        renderCategories();
+        renderCustomerReviews();
+        showToast('تم نقل ' + replacements.size + ' صورة قديمة إلى Supabase وتخفيف ذاكرة المتصفح ✓');
+      } else {
+        showToast('الصور الأساسية محفوظة بالفعل بروابط سحابية ✓');
+      }
+      return replacements.size;
+    }
+
     async function loadCloudReels() {
       if (!halaSupabase) return;
       try {
@@ -2597,10 +2669,18 @@
       }
 
       if (isMatch) {
-        // Use the already-entered admin password for the silent Supabase session.
-        await loginHalaStorage(input);
+        // Use the same admin password to establish the cloud session without a second password prompt.
+        const cloudSession = await loginHalaStorage(input);
         closeAdminGate();
         openAdminDashboard();
+        if (cloudSession) {
+          migrateLegacyStoreImages().catch(error => {
+            console.error('Store image migration failed:', error);
+            showToast('تعذر نقل بعض الصور إلى التخزين السحابي: ' + error.message, 'warning');
+          });
+        } else {
+          showToast('تم فتح لوحة التحكم، لكن تعذر الاتصال بالتخزين السحابي. راجع تطابق كلمة مرور Supabase.', 'warning');
+        }
       } else if (err) {
         err.textContent = 'رمز الدخول غير صحيح';
         err.classList.remove('hidden');
@@ -3265,24 +3345,24 @@
     async function deleteReel(idx) {
       const reel = state.reels[idx];
       if (!reel) return;
-      if (halaSupabase) {
-        const { data: sessionData } = await halaSupabase.auth.getSession();
-        const session = sessionData?.session;
-        if (!session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
-          showToast('سجّل الدخول إلى لوحة التحكم أولاً لحذف الفيديو.', 'warning');
-          return;
-        }
-        const { error } = await halaSupabase.from('hala_reels').delete().eq('id', reel.id);
-        if (error) {
-          showToast('تعذر حذف الفيديو من التخزين السحابي: ' + error.message, 'error');
-          return;
-        }
+      if (!halaSupabase) {
+        showToast('اتصال التخزين السحابي غير متاح. لم يتم حذف الفيديو.', 'error');
+        return;
       }
-      state.reels.splice(idx, 1);
-      activeReelIndex = 0;
-      saveState();
-      renderActiveReel();
-      renderAdminReels();
+      try {
+        await ensureHalaStorageSession();
+        const { error } = await halaSupabase.from('hala_reels').delete().eq('id', reel.id);
+        if (error) throw error;
+        state.reels.splice(idx, 1);
+        activeReelIndex = 0;
+        saveState();
+        renderActiveReel();
+        renderAdminReels();
+        showToast('تم حذف الفيديو بنجاح ✓');
+      } catch (error) {
+        console.error('Reel delete failed:', error);
+        showToast('تعذر حذف الفيديو: ' + error.message, 'error');
+      }
     }
 
     // --- Tab 4: AI Studio, Social Media & WhatsApp Groups ---
