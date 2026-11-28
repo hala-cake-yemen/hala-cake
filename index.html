@@ -958,14 +958,15 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2">
               <span id="aiStudioReferenceCount" class="text-[11px] text-[#88777a]">0 صور مرجعية محفوظة في Supabase</span>
-              <a href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener" class="text-xs font-bold text-[#690d28] underline">فتح Google Flow المجاني</a>
+              <a href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener" class="text-xs font-bold text-[#690d28] underline">فتح Google Flow</a>
             </div>
             <div id="aiStudioReferenceStatus" class="text-[11px] text-[#88777a]" aria-live="polite"></div>
             <div class="p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf] space-y-2">
               <label for="aiGenerationModeSelect" class="block text-xs font-extrabold text-[#690d28]">⚙️ وضع تشغيل الذكاء الاصطناعي</label>
               <select id="aiGenerationModeSelect" onchange="saveAiGenerationMode(this.value)" class="w-full p-2.5 text-xs border border-[#c49a50] rounded-lg bg-white">
                 <option value="free">مجاني — Gemini للنصوص وFlow للصور والفيديو</option>
-                <option value="paid">مدفوع — Gemini للنصوص والصور والفيديو داخل الموقع</option>
+                <option value="flow_paid">Flow المدفوع — الصور والفيديو برصيد اشتراك Google AI</option>
+                <option value="paid">Gemini المدفوع — النصوص والصور والفيديو داخل الموقع</option>
               </select>
               <div id="aiGenerationModeHelp" class="text-[11px] text-[#88777a] leading-6"></div>
               <div class="text-[11px] text-red-800 bg-red-50 border border-red-100 rounded-lg p-2">شرط الفيديو: ممنوع ظهور أي كلمات أو حروف أو عناوين أو ترجمة أو شعارات نصية أو علامة مائية داخل الفيديو.</div>
@@ -1801,15 +1802,13 @@
       return [...(aiStudioCharacterSheet?.url ? [aiStudioCharacterSheet.url] : []), ...aiStudioProductReferences.map(item => item.url).filter(Boolean)].slice(0, 5);
     }
     function getAiGenerationMode() {
-      return state.aiGenerationMode === 'paid' ? 'paid' : 'free';
+      return state.aiGenerationMode === 'paid' ? 'paid' : (state.aiGenerationMode === 'flow_paid' ? 'flow_paid' : 'free');
     }
     function saveAiGenerationMode(mode) {
-      state.aiGenerationMode = mode === 'paid' ? 'paid' : 'free';
+      state.aiGenerationMode = mode === 'paid' ? 'paid' : (mode === 'flow_paid' ? 'flow_paid' : 'free');
       saveState();
       updateAiGenerationModeUI();
-      showToast(state.aiGenerationMode === 'paid'
-        ? 'تم تفعيل التوليد المدفوع عبر Gemini داخل الموقع.'
-        : 'تم تفعيل الوضع المجاني: Gemini للنصوص وFlow للصور والفيديو.');
+      showToast(state.aiGenerationMode === 'paid' ? 'تم تفعيل Gemini المدفوع داخل الموقع.' : (state.aiGenerationMode === 'flow_paid' ? 'تم تفعيل Flow المدفوع باستخدام رصيد اشتراك Google AI.' : 'تم تفعيل الوضع المجاني: Gemini للنصوص وFlow للصور والفيديو.'));
     }
     function updateAiGenerationModeUI() {
       const mode = getAiGenerationMode();
@@ -1817,12 +1816,12 @@
       const help = document.getElementById('aiGenerationModeHelp');
       if (select) select.value = mode;
       if (help) help.textContent = mode === 'paid'
-        ? 'الوضع المدفوع: النصوص والصور والفيديو عبر Gemini API داخل الموقع. يتطلب تفعيل فوترة Google API وحصة متاحة؛ الرسوم تخص حساب المؤسسة.'
-        : 'الوضع المجاني: النصوص عبر Gemini API، والصور والفيديو عبر واجهة Google Flow الرسمية. أرفق الصور المرجعية يدوياً داخل Flow.';
+        ? 'Gemini المدفوع: النصوص والصور والفيديو داخل الموقع عبر Gemini API. يتطلب فوترة وحصة API.'
+        : (mode === 'flow_paid' ? 'Flow المدفوع: افتح Google Flow بحساب Google AI Plus أو Pro أو Ultra للاستفادة من رصيد الاشتراك. يُنسخ البرومبت تلقائياً، وتُرفق المراجع داخل Flow يدوياً.' : 'الوضع المجاني: Gemini للنصوص وGoogle Flow للصور والفيديو باستخدام الرصيد المجاني المتاح. أرفق المراجع داخل Flow يدوياً.');
       const imageButton = document.getElementById('aiGenerateImageButton');
       const videoButton = document.getElementById('aiGenerateNativeVideoButton');
-      if (imageButton) imageButton.textContent = mode === 'paid' ? '🖼️ توليد الصورة عبر Gemini وحفظها' : '🖼️ توليد الصورة عبر Flow';
-      if (videoButton) videoButton.textContent = mode === 'paid' ? '🎥 توليد الفيديو عبر Gemini وحفظه' : '🎥 توليد الفيديو عبر Flow';
+      if (imageButton) imageButton.textContent = mode === 'paid' ? '🖼️ توليد الصورة عبر Gemini وحفظها' : (mode === 'flow_paid' ? '🖼️ توليد الصورة عبر Flow المدفوع' : '🖼️ توليد الصورة عبر Flow');
+      if (videoButton) videoButton.textContent = mode === 'paid' ? '🎥 توليد الفيديو عبر Gemini وحفظه' : (mode === 'flow_paid' ? '🎥 توليد الفيديو عبر Flow المدفوع' : '🎥 توليد الفيديو عبر Flow');
     }
     async function openGoogleFlowFree(kind = 'image') {
       const prompt = getAiStudioProductPrompt(kind);
@@ -3928,7 +3927,7 @@
     }
 
     async function generateAiImage() {
-      if (getAiGenerationMode() === 'free') { await openGoogleFlowFree('image'); return; }
+      if (getAiGenerationMode() !== 'paid') { await openGoogleFlowFree('image'); return; }
       const button = document.getElementById('aiGenerateImageButton');
       try {
         const prompt = getAiStudioProductPrompt('image');
@@ -3956,7 +3955,7 @@
     }
 
     async function generateAiVideoWithGemini() {
-      if (getAiGenerationMode() === 'free') { await openGoogleFlowFree('video'); return; }
+      if (getAiGenerationMode() !== 'paid') { await openGoogleFlowFree('video'); return; }
       const button = document.getElementById('aiGenerateNativeVideoButton');
       try {
         const prompt = getAiStudioProductPrompt('video');
@@ -4135,7 +4134,7 @@
 
     async function generateAiVideoWithFlow() {
       // Keep this legacy button aligned with the selected AI mode; Flow Webhook is optional and not required.
-      if (getAiGenerationMode() === 'free') {
+      if (getAiGenerationMode() !== 'paid') {
         await openGoogleFlowFree('video');
         return;
       }
