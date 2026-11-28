@@ -1659,11 +1659,7 @@
 
     async function saveReelToCloud(reel) {
       if (!halaSupabase) throw new Error('مكتبة التخزين غير متاحة');
-      const { data: sessionData } = await halaSupabase.auth.getSession();
-      const session = sessionData?.session;
-      if (!session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
-        throw new Error('سجّل الدخول بحساب الإدارة أولاً لحفظ الفيديو في المتجر');
-      }
+      await ensureHalaStorageSession();
       const { error } = await halaSupabase.from('hala_reels').upsert({
         id: reel.id,
         reel,
@@ -1701,11 +1697,7 @@
       if (file.size > HALA_VIDEO_MAX_BYTES) throw new Error('حجم الفيديو يتجاوز 50 ميجابايت');
       if (!['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type)) throw new Error('الصيغ المدعومة هي MP4 وWEBM وMOV فقط');
       if (!window.tus?.Upload) throw new Error('تعذر تحميل مكتبة الرفع الآمن. أعد تحميل الصفحة.');
-      const { data: sessionData, error: sessionError } = await halaSupabase.auth.getSession();
-      const session = sessionData?.session;
-      if (sessionError || !session || session.user?.email !== 'hala.cake.yemen@gmail.com') {
-        throw new Error('يجب تسجيل الدخول بحساب الإدارة قبل رفع الفيديوهات');
-      }
+      const session = await ensureHalaStorageSession();
 
       const safeName = file.name.replace(/[^a-zA-Z0-9._()-]+/g, '_').slice(-100) || 'video';
       const path = 'videos/' + Date.now() + '-' + Math.random().toString(36).slice(2, 10) + '-' + safeName;
