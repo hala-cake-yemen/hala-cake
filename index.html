@@ -1013,7 +1013,7 @@
 
           <div class="flex flex-wrap gap-2">
             <button type="button" onclick="generateAiPromptScript()" class="px-4 py-2.5 btn-hala-gold text-xs">✨ توليد السيناريو بالذكاء الاصطناعي</button>
-            <button type="button" id="aiGenerateVideoButton" onclick="generateAiVideoWithFlow()" class="px-4 py-2.5 rounded-xl border border-[#c49a50] text-xs font-bold">⚙️ تحسين/تمرير عبر Flow Webhook (اختياري)</button>
+            <button type="button" id="aiGenerateVideoButton" onclick="generateAiVideoWithFlow()" class="px-4 py-2.5 rounded-xl border border-[#c49a50] text-xs font-bold">🎬 توليد الفيديو حسب وضع التشغيل المحدد</button>
             <button type="button" onclick="transferPromptAndMediaToPublisher()" class="px-4 py-2.5 btn-hala-primary text-xs">🚀 نقل البرومت والوسائط إلى محرر النشر</button>
           </div>
         </div>
@@ -4104,54 +4104,12 @@
     }
 
     async function generateAiVideoWithFlow() {
-      const webhook = (state.aiConfig?.flowWebhookUrl || '').trim();
-      const prompt = document.getElementById('aiStudioPromptOutput').value.trim();
-      const prodId = document.getElementById('aiStudioProductSelect').value;
-      const prod = state.products.find(p => p.id === prodId) || state.products[0];
-      if (!webhook) { showToast('أضف رابط Webhook الخاص بتوليد الفيديو في إعدادات Flow أولاً.', 'warning'); return; }
-      if (!prompt) { showToast('ولّد سيناريو الفيديو أولاً ثم اطلب إنشاء الفيديو.', 'warning'); return; }
-      const button = document.getElementById('aiGenerateVideoButton');
-      if (button) { button.disabled = true; button.textContent = 'جارٍ إرسال طلب التوليد...'; }
-      try {
-        const response = await fetch(webhook, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: prompt,
-            aspect_ratio: '9:16',
-            brand: 'Hala Cake',
-            product: prod ? { id: prod.id, name: prod.name, description: prod.desc } : null,
-            source_media_url: aiStudioAttachedMedia?.url || null
-          })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data?.message || data?.error || ('HTTP ' + response.status));
-        const videoUrl = data.video_url || data.url || data.output?.video_url || data.data?.video_url || data.result?.video_url;
-        if (!videoUrl) {
-          const jobId = data.job_id || data.id || data.operation_id;
-          showToast(jobId ? 'تم إرسال طلب التوليد. معرّف المهمة: ' + jobId : 'استقبل Flow الطلب لكنه لم يُرجع رابط فيديو مباشر. راجع إعدادات الـWebhook.', 'warning');
-          return;
-        }
-        const reel = {
-          id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
-          title: prod?.name ? 'فيديو ' + prod.name : 'فيديو حلا كيك',
-          badge: 'مولّد بالذكاء الاصطناعي ✨',
-          desc: 'فيديو ترويجي عمودي مولّد بالذكاء الاصطناعي',
-          videoUrl: videoUrl,
-          productId: prod?.id || ''
-        };
-        await saveReelToCloud(reel);
-        state.reels.unshift(reel);
-        saveState();
-        activeReelIndex = 0;
-        renderActiveReel();
-        renderAdminReels();
-        showToast('تم توليد الفيديو وحفظه في قائمة فيديوهات المتجر ✓');
-      } catch (error) {
-        showToast('تعذر توليد الفيديو عبر Flow: ' + error.message, 'error');
-      } finally {
-        if (button) { button.disabled = false; button.textContent = '🎬 توليد الفيديو بالذكاء الاصطناعي عبر Flow'; }
+      // Keep this legacy button aligned with the selected AI mode; Flow Webhook is optional and not required.
+      if (getAiGenerationMode() === 'free') {
+        await openGoogleFlowFree('video');
+        return;
       }
+      await generateAiVideoWithGemini();
     }
 
     async function transferPromptAndMediaToPublisher() {
