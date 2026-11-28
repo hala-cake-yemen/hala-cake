@@ -3126,41 +3126,55 @@
       showToast('تم اقتراح اسم ووصف المنتج بالذكاء الاصطناعي ✨');
     }
 
-    function saveNewProduct() {
+    async function saveNewProduct() {
       const name = document.getElementById('newProdName').value.trim();
       const price = Number(document.getElementById('newProdPrice').value);
       const category = document.getElementById('newProdCategory').value;
       const desc = document.getElementById('newProdDesc').value.trim();
       const featured = document.getElementById('newProdFeatured').checked;
+      const button = document.querySelector('#adminTab-products button[onclick="saveNewProduct()"]');
 
       if (!name || !price) {
         showToast('يرجى إدخال اسم المنتج والسعر بالريال اليمني', 'warning');
         return;
       }
 
-      const prod = {
-        id: 'prod-' + Date.now(),
-        name,
-        price,
-        category,
-        desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',
-        image: newProdProcessedDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#fffaf3'),
-        featured
-      };
+      if (button) { button.disabled = true; button.textContent = 'جارٍ رفع الصورة وحفظ المنتج...'; }
+      try {
+        let productImage = newProdProcessedDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#fffaf3');
+        if (productImage.startsWith('data:image/') && productImage.length > 4000) {
+          productImage = await uploadHalaImageDataUrl(productImage, 'images/products');
+        }
+        const prod = {
+          id: 'prod-' + Date.now(),
+          name,
+          price,
+          category,
+          desc: desc || 'محضرة طازجة بأجود المكونات الطبيعية في حلا كيك.',
+          image: productImage,
+          featured
+        };
 
-      state.products.unshift(prod);
-      saveState();
-      renderProducts();
-      renderFeaturedProducts();
-      renderAdminProducts();
+        state.products.unshift(prod);
+        saveState();
+        renderProducts();
+        renderFeaturedProducts();
+        renderAdminProducts();
 
-      document.getElementById('newProdName').value = '';
-      document.getElementById('newProdPrice').value = '';
-      document.getElementById('newProdDesc').value = '';
-      newProdProcessedDataUrl = '';
-      newProdOriginalDataUrl = '';
-      document.getElementById('newProdImagePreviewWrap').classList.add('hidden');
-      showToast('تم نشر المنتج الجديد في المتجر بنجاح 🎂');
+        document.getElementById('newProdName').value = '';
+        document.getElementById('newProdPrice').value = '';
+        document.getElementById('newProdDesc').value = '';
+        document.getElementById('newProdImageInput').value = '';
+        newProdProcessedDataUrl = '';
+        newProdOriginalDataUrl = '';
+        document.getElementById('newProdImagePreviewWrap').classList.add('hidden');
+        showToast('تم رفع صورة المنتج إلى Supabase ونشر المنتج بنجاح 🎂');
+      } catch (error) {
+        console.error('Product image upload failed:', error);
+        showToast('لم يتم حفظ المنتج: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '💾 حفظ ونشر المنتج'; }
+      }
     }
 
     function renderAdminProducts() {
@@ -3815,20 +3829,29 @@
     }
 
     // --- Tab 8: Settings, Branding, Reviews & Visitor Counter ---
-    function uploadBrandAsset(event, assetKey) {
-      const file = event.target.files[0];
+    async function uploadBrandAsset(event, assetKey) {
+      const file = event.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        if (assetKey === 'topBanner') state.brand.topBannerImg = e.target.result;
-        if (assetKey === 'footerBanner') state.brand.footerBannerImg = e.target.result;
-        if (assetKey === 'chefPortrait') state.brand.chefPortraitImg = e.target.result;
-        if (assetKey === 'logo') state.brand.logoImg = e.target.result;
+      const input = event.target;
+      try {
+        input.disabled = true;
+        showToast('جارٍ رفع الصورة إلى Supabase...');
+        const folders = { topBanner: 'images/branding', footerBanner: 'images/branding', chefPortrait: 'images/branding', logo: 'images/branding' };
+        const publicUrl = await uploadHalaImage(file, folders[assetKey] || 'images/branding');
+        if (assetKey === 'topBanner') state.brand.topBannerImg = publicUrl;
+        if (assetKey === 'footerBanner') state.brand.footerBannerImg = publicUrl;
+        if (assetKey === 'chefPortrait') state.brand.chefPortraitImg = publicUrl;
+        if (assetKey === 'logo') state.brand.logoImg = publicUrl;
         saveState();
         applyBranding();
-        showToast('تم تحديث الصورة في المتجر بنجاح ✓');
-      };
-      reader.readAsDataURL(file);
+        showToast('تم رفع الصورة إلى Supabase وتحديث المتجر بنجاح ✓');
+      } catch (error) {
+        console.error('Brand asset upload failed:', error);
+        showToast('تعذر رفع الصورة: ' + error.message, 'error');
+      } finally {
+        input.disabled = false;
+        input.value = '';
+      }
     }
 
     function updateThemeColors() {
@@ -3883,40 +3906,41 @@
       showToast('تم حفظ العدادات وتحديثها في المتجر ✓');
     }
 
-    function addCustomerReviewScreenshot() {
+    async function addCustomerReviewScreenshot() {
       const customerName = document.getElementById('newReviewCustomerName').value.trim();
       const platform = document.getElementById('newReviewPlatform').value;
       const caption = document.getElementById('newReviewCaption').value.trim() || 'تجربة رائعة ومذاق لا يُقاوم من حلا كيك!';
-      const file = document.getElementById('newReviewScreenshotInput').files[0];
-
+      const fileInput = document.getElementById('newReviewScreenshotInput');
+      const file = fileInput.files?.[0];
       if (!customerName) {
         showToast('يرجى إدخال اسم العميل', 'warning');
         return;
       }
-
-      const finalizeReview = (imgDataUrl) => {
+      const button = document.querySelector('button[onclick="addCustomerReviewScreenshot()"]');
+      try {
+        if (button) { button.disabled = true; button.textContent = 'جارٍ رفع الصورة...'; }
+        const imageUrl = file
+          ? await uploadHalaImage(file, 'images/reviews')
+          : generateReviewScreenshotSvg(platform, customerName, caption.slice(0, 38), caption.slice(38, 76));
         state.reviews.unshift({
           id: 'rev-' + Date.now(),
           customerName,
           platform,
           caption,
-          image: imgDataUrl
+          image: imageUrl
         });
         saveState();
         renderCustomerReviews();
         renderAdminSettingsTab();
         document.getElementById('newReviewCustomerName').value = '';
         document.getElementById('newReviewCaption').value = '';
-        document.getElementById('newReviewScreenshotInput').value = '';
-        showToast('تم نشر رأي العميل بنجاح 💬');
-      };
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => finalizeReview(e.target.result);
-        reader.readAsDataURL(file);
-      } else {
-        finalizeReview(generateReviewScreenshotSvg(platform, customerName, caption.slice(0, 38), caption.slice(38, 76)));
+        fileInput.value = '';
+        showToast(file ? 'تم رفع صورة رأي العميل إلى Supabase ونشرها ✓' : 'تم نشر رأي العميل بنجاح 💬');
+      } catch (error) {
+        console.error('Review image upload failed:', error);
+        showToast('تعذر نشر رأي العميل: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '+ نشر رأي العميل'; }
       }
     }
 
