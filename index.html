@@ -1142,7 +1142,12 @@
         <!-- Store Counters & Social Review Screenshots Manager -->
         <div class="hala-card p-5 space-y-4">
           <h3 class="text-lg font-black text-[#690d28]">💬 إدارة العدادات ولقطات آراء العملاء (واتساب / فيسبوك / سوشيال)</h3>
-          <div id="adminCountersEditor" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+          <div id="adminCountersEditor" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2.5 p-3 rounded-xl bg-[#fffaf3] border border-dashed border-[#c49a50]">
+            <input type="text" id="newCounterValue" placeholder="قيمة العداد الجديد مثال: 250+" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <input type="text" id="newCounterLabel" placeholder="اسم العداد مثال: طلب مكتمل" class="p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
+            <button type="button" onclick="addStoreCounter()" class="px-4 py-2 btn-hala-primary text-xs">➕ إضافة عداد</button>
+          </div>
           <button type="button" onclick="saveStoreCounters()" class="px-4 py-2 btn-hala-gold text-xs">💾 حفظ العدادات</button>
 
           <div class="pt-4 border-t border-[#ead9cf] space-y-3">
@@ -1624,9 +1629,11 @@
         }
       ],
       counters: [
-        { id: 'cnt-1', value: '+850', label: 'تورتة ومناسبة سعيدة' },
-        { id: 'cnt-2', value: '100%', label: 'مكونات طبيعية طازجة' },
-        { id: 'cnt-3', value: '4.9 ★', label: 'تقييم رضا العملاء' }
+        { id: 'cnt-1', value: '+850', label: 'تورتة ومناسبة سعيدة', visible: true },
+        { id: 'cnt-2', value: '100%', label: 'مكونات طبيعية طازجة', visible: true },
+        { id: 'cnt-3', value: '4.9 ★', label: 'تقييم رضا العملاء', visible: true },
+        { id: 'cnt-4', value: '1,250+', label: 'عميل سعيد', visible: true },
+        { id: 'cnt-5', value: '6+', label: 'سنوات الخبرة', visible: true }
       ],
       reviews: [
         {
@@ -1835,6 +1842,16 @@
               else state[key] = cloud[key];
             }
           });
+          // Migrate older stores: preserve existing counters and append the two new editable defaults once.
+          state.counters = Array.isArray(state.counters) ? state.counters : [];
+          const addedCounterDefaults = [
+            { id: 'cnt-4', value: '1,250+', label: 'عميل سعيد', visible: true },
+            { id: 'cnt-5', value: '6+', label: 'سنوات الخبرة', visible: true }
+          ];
+          addedCounterDefaults.forEach(item => {
+            if (!state.counters.some(counter => counter.id === item.id)) state.counters.push({ ...item });
+          });
+          state.counters.forEach(counter => { if (counter.visible === undefined) counter.visible = true; });
           saveState();
           halaPublicStateLoaded = true;
           console.info('Hala Cake public storefront loaded from Supabase.');
@@ -2382,12 +2399,14 @@
 
     function renderStoreCounters() {
       const grid = document.getElementById('storeCountersGrid');
-      grid.innerHTML = state.counters.map(c => `
+      const visibleCounters = (state.counters || []).filter(counter => counter.visible !== false);
+      grid.innerHTML = visibleCounters.map(c => `
         <div class="p-3 rounded-2xl bg-[#fffaf3] border border-[#c49a50]/50 text-center">
-          <div class="text-lg sm:text-xl font-black text-[#690d28]">${c.value}</div>
-          <div class="text-[11px] font-bold text-[#88777a] mt-0.5">${c.label}</div>
+          <div class="text-lg sm:text-xl font-black text-[#690d28]">${String(c.value ?? '')}</div>
+          <div class="text-[11px] font-bold text-[#88777a] mt-0.5">${String(c.label ?? '')}</div>
         </div>
       `).join('');
+      grid.classList.toggle('hidden', visibleCounters.length === 0);
     }
 
     function renderCustomerReviews() {
@@ -4265,10 +4284,19 @@
       document.getElementById('settingKuraimiAccount').value = state.settings.kuraimiAccount;
       document.getElementById('settingJaibAccount').value = state.settings.jaibAccount;
       updateWhatsappApiStatusBadges();
-      document.getElementById('adminCountersEditor').innerHTML = state.counters.map((c, idx) => `
-        <div class="p-2.5 rounded-xl bg-[#f7efe5] space-y-1.5 text-xs">
-          <input type="text" id="cntVal_${idx}" value="${c.value}" class="w-full p-1.5 font-black text-center border border-[#ead9cf] rounded-lg bg-white" />
-          <input type="text" id="cntLbl_${idx}" value="${c.label}" class="w-full p-1.5 text-center border border-[#ead9cf] rounded-lg bg-white" />
+      const counterEscape = value => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      document.getElementById('adminCountersEditor').innerHTML = (state.counters || []).map((c, idx) => `
+        <div class="p-3 rounded-xl bg-[#f7efe5] border border-[#ead9cf] space-y-2 text-xs">
+          <div class="flex items-center justify-between gap-2">
+            <strong class="text-[#690d28]">العداد ${idx + 1}</strong>
+            <button type="button" onclick="removeStoreCounter('${String(c.id).replace(/'/g, '')}')" class="text-red-600 font-bold">حذف</button>
+          </div>
+          <input type="text" id="cntVal_${idx}" value="${counterEscape(c.value)}" placeholder="القيمة" class="w-full p-2 font-black text-center border border-[#ead9cf] rounded-lg bg-white" />
+          <input type="text" id="cntLbl_${idx}" value="${counterEscape(c.label)}" placeholder="اسم العداد" class="w-full p-2 text-center border border-[#ead9cf] rounded-lg bg-white" />
+          <label class="flex items-center gap-2 font-bold cursor-pointer">
+            <input type="checkbox" id="cntVisible_${idx}" ${c.visible !== false ? 'checked' : ''} class="w-4 h-4 accent-[#690d28]" />
+            إظهار هذا العداد للعملاء
+          </label>
         </div>
       `).join('');
 
@@ -4288,13 +4316,38 @@
     }
 
     function saveStoreCounters() {
-      state.counters.forEach((c, idx) => {
-        c.value = document.getElementById(`cntVal_${idx}`).value.trim() || c.value;
-        c.label = document.getElementById(`cntLbl_${idx}`).value.trim() || c.label;
+      (state.counters || []).forEach((c, idx) => {
+        c.value = document.getElementById(`cntVal_${idx}`)?.value.trim() ?? c.value;
+        c.label = document.getElementById(`cntLbl_${idx}`)?.value.trim() ?? c.label;
+        c.visible = !!document.getElementById(`cntVisible_${idx}`)?.checked;
       });
       saveState();
       renderStoreCounters();
-      showToast('تم حفظ العدادات وتحديثها في المتجر ✓');
+      renderAdminSettingsTab();
+      showToast('تم حفظ العدادات وتحديث ظهورها في المتجر ✓');
+    }
+
+    function addStoreCounter() {
+      const value = document.getElementById('newCounterValue').value.trim();
+      const label = document.getElementById('newCounterLabel').value.trim();
+      if (!value || !label) { showToast('أدخل قيمة العداد واسمه أولاً.', 'warning'); return; }
+      if ((state.counters || []).length >= 12) { showToast('الحد الأقصى 12 عداداً.', 'warning'); return; }
+      state.counters = state.counters || [];
+      state.counters.push({ id: 'cnt-' + Date.now(), value, label, visible: true });
+      document.getElementById('newCounterValue').value = '';
+      document.getElementById('newCounterLabel').value = '';
+      saveState();
+      renderAdminSettingsTab();
+      renderStoreCounters();
+      showToast('تمت إضافة العداد. اضغط حفظ العدادات لاعتماد التعديلات ✓');
+    }
+
+    function removeStoreCounter(id) {
+      state.counters = (state.counters || []).filter(counter => counter.id !== id);
+      saveState();
+      renderAdminSettingsTab();
+      renderStoreCounters();
+      showToast('تم حذف العداد ✓');
     }
 
     async function addCustomerReviewScreenshot() {
