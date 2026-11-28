@@ -193,8 +193,13 @@
     #halaLoadingScreen{background:#fff6f1!important}
     #halaLoadingScreen .loading-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0;text-align:center}
     #halaLoadingScreen .loading-splash{display:block;width:100%;height:auto;max-height:76dvh;object-fit:contain;object-position:center;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
-    #halaLoadingScreen .loading-subtitle{font-family:'Cairo',sans-serif;color:#88777a;font-size:13px}
-    #halaLoadingScreen .loading-spinner{width:25px;height:25px;border:3px solid #ead9cf;border-top-color:#690d28;border-radius:50%;animation:halaLoadingSpin .8s linear infinite}
+    #halaLoadingScreen .loading-subtitle{font-family:'Cairo',sans-serif;color:#690d28;font-size:14px;font-weight:700}
+    #halaLoadingScreen .loading-progress{width:min(76vw,390px);margin-top:4px}
+    #halaLoadingScreen .loading-progress-track{height:13px;padding:2px;border:1px solid #c49a50;border-radius:999px;background:#fffaf3;box-shadow:0 3px 12px #690d2815;overflow:hidden}
+    #halaLoadingScreen .loading-progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#690d28,#a21c45,#c49a50);transition:width .22s ease}
+    #halaLoadingScreen .loading-progress-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:#690d28;font-family:'Cairo',sans-serif;font-size:13px;font-weight:800}
+    #halaLoadingScreen .loading-progress-percent{font-size:20px;color:#690d28;font-variant-numeric:tabular-nums}
+    #halaLoadingScreen .loading-spinner{display:none}
     @keyframes halaLoadingSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){#halaLoadingScreen,#halaLoadingScreen .loading-spinner{transition:none;animation:none}}
   </style>
@@ -215,7 +220,10 @@
     <div class="loading-card">
       <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="حلا كيك" fetchpriority="high" onerror="this.onerror=null;this.src=document.getElementById('chefHeroPortraitImg')?.src||''" />
       <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
-      <div class="loading-spinner" aria-hidden="true"></div>
+      <div class="loading-progress" role="progressbar" aria-label="نسبة تحميل المتجر" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="loading-progress-track"><div id="halaLoadingProgressFill" class="loading-progress-fill"></div></div>
+        <div class="loading-progress-meta"><span id="halaLoadingProgressLabel">جارٍ تجهيز المتجر...</span><span id="halaLoadingProgressPercent" class="loading-progress-percent">0%</span></div>
+      </div>
     </div>
   </div>
 
@@ -2275,11 +2283,24 @@
     const HALA_LOADING_STARTED_AT = Date.now();
     let halaLoadingHideRequested = false;
     let halaLoadingHideTimer = null;
+    let halaLoadingProgress = 0;
+    function setHalaLoadingProgress(value,label) {
+      halaLoadingProgress = Math.max(halaLoadingProgress,Math.min(100,Math.round(value)));
+      const fill=document.getElementById('halaLoadingProgressFill');
+      const pct=document.getElementById('halaLoadingProgressPercent');
+      const text=document.getElementById('halaLoadingProgressLabel');
+      const bar=document.querySelector('#halaLoadingScreen [role="progressbar"]');
+      if(fill)fill.style.width=halaLoadingProgress+'%';
+      if(pct)pct.textContent=halaLoadingProgress+'%';
+      if(text&&label)text.textContent=label;
+      if(bar)bar.setAttribute('aria-valuenow',String(halaLoadingProgress));
+    }
 
     function hideHalaLoadingScreen() {
       if (halaLoadingHideRequested) return;
       const screen = document.getElementById('halaLoadingScreen');
       if (!screen) return;
+      setHalaLoadingProgress(100,'اكتمل تحميل المتجر');
       const remaining = Math.max(0, HALA_LOADING_MIN_DURATION - (Date.now() - HALA_LOADING_STARTED_AT));
       halaLoadingHideRequested = true;
       halaLoadingHideTimer = window.setTimeout(() => {
@@ -2315,8 +2336,11 @@
       try {
         // Show the saved/default Hala branding immediately while cloud data loads.
         applyBranding();
+        setHalaLoadingProgress(12,'جارٍ تحميل بيانات المتجر...');
         await loadCloudStoreState();
+        setHalaLoadingProgress(48,'جارٍ تجهيز المنتجات والأقسام...');
         await loadCloudReels();
+        setHalaLoadingProgress(66,'جارٍ تجهيز العروض والصور...');
         await refreshHalaStorageAuthStatus();
         loadAiStudioReferences();
         // Increment visitor counter once per session
@@ -2339,7 +2363,9 @@
         updateWishlistBadge();
         updateVisitorCounterUI();
         syncPaymentSettingsUI();
+        setHalaLoadingProgress(88,'لمسات أخيرة...');
         await waitForHalaStorefrontImages();
+        setHalaLoadingProgress(96,'المتجر جاهز تقريباً...');
       } catch (err) {
         console.error('Initialization error:', err);
       } finally {
