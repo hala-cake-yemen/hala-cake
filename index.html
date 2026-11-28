@@ -1259,16 +1259,10 @@
         if (!sessionData?.session) throw new Error('انتهت صلاحية رابط الاستعادة. اطلب رابطاً جديداً.');
         const { error } = await halaSupabase.auth.updateUser({ password });
         if (error) throw error;
-        try {
-          const stored = localStorage.getItem('halaCakeState');
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            parsed.settings = parsed.settings || {};
-            parsed.settings.adminPassword = btoa(unescape(encodeURIComponent(password)));
-            localStorage.setItem('halaCakeState', JSON.stringify(parsed));
-          }
-        } catch (_) {}
-        show('تم تحديث كلمة مرور Supabase بنجاح. اجعل كلمة مرور لوحة التحكم مطابقة لها من إعدادات الإدارة.', true);
+        state.settings = state.settings || {};
+        state.settings.adminPassword = btoa(password);
+        saveState();
+        show('تم تحديث كلمة مرور Supabase بنجاح. تم توحيد كلمة مرور لوحة التحكم معها.', true);
         history.replaceState(null, document.title, location.pathname + location.search);
         setTimeout(() => { const m = document.getElementById('supabaseRecoveryModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }, 2200);
       } catch (error) {
