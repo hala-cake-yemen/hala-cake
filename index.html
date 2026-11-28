@@ -4693,7 +4693,7 @@
     }
     function heDraw(){
       const st=halaImageEditorState,img=st.image,c=document.getElementById('heCanvas'); if(!img)return;
-      const ctx=c.getContext('2d');ctx.fillStyle='#24131a';ctx.fillRect(0,0,c.width,c.height);
+      const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
       const scale=st.zoom, dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
       const minX=c.width-dw,maxX=0,minY=c.height-dh,maxY=0;
       st.offsetX=Math.min(maxX,Math.max(minX,st.offsetX));st.offsetY=Math.min(maxY,Math.max(minY,st.offsetY));
@@ -4717,11 +4717,15 @@
     function halaImageEditorReset(){const st=halaImageEditorState;st.zoom=st.minZoom;st.offsetX=0;st.offsetY=0;document.getElementById('heZoom').value=100;document.getElementById('heZoomValue').textContent='100%';heDraw();}
     async function halaImageEditorConfirm(){
       const st=halaImageEditorState;if(!st.input||!st.image)return;
-      const c=document.getElementById('heCanvas');
-      const blob=await new Promise(resolve=>c.toBlob(resolve,'image/jpeg',.92));
+      const c=document.getElementById('heCanvas'),old=st.files[st.index];
+      const keepAlpha=/image\/(png|webp)/i.test(old.type);
+      const outputType=keepAlpha?old.type:'image/jpeg';
+      if(!keepAlpha){const ctx=c.getContext('2d'),pixels=ctx.getImageData(0,0,c.width,c.height);for(let i=3;i<pixels.data.length;i+=4)if(pixels.data[i]===0){pixels.data[i-3]=255;pixels.data[i-2]=255;pixels.data[i-1]=255;}ctx.putImageData(pixels,0,0);}
+      const blob=await new Promise(resolve=>c.toBlob(resolve,outputType,.92));
       if(!blob){showToast('تعذر تجهيز الصورة المعدلة','error');return;}
-      const old=st.files[st.index],name=(old.name||'hala-image').replace(/\.[^.]+$/,'')+'-edited.jpg';
-      st.results.push(new File([blob],name,{type:'image/jpeg',lastModified:Date.now()}));
+      const ext=outputType==='image/png'?'png':outputType==='image/webp'?'webp':'jpg';
+      const name=(old.name||'hala-image').replace(/\.[^.]+$/,'')+'-edited.'+ext;
+      st.results.push(new File([blob],name,{type:outputType,lastModified:Date.now()}));
       st.index++;
       if(st.index<st.files.length){heLoadCurrent();return;}
       const input=st.input,dt=new DataTransfer();st.results.forEach(f=>dt.items.add(f));input.files=dt.files;
