@@ -218,7 +218,7 @@
 <body class="pb-20 md:pb-0">
   <div id="halaLoadingScreen" role="status" aria-live="polite" aria-label="جارٍ تحميل متجر حلا كيك">
     <div class="loading-card">
-      <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="حلا كيك" fetchpriority="high" onerror="this.onerror=null;this.src=document.getElementById('chefHeroPortraitImg')?.src||''" />
+      <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="صورة شاشة بداية حلا كيك" fetchpriority="high" />
       <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
       <div class="loading-progress" role="progressbar" aria-label="نسبة تحميل المتجر" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="loading-progress-track"><div id="halaLoadingProgressFill" class="loading-progress-fill"></div></div>
@@ -1249,6 +1249,16 @@
             <div class="p-3 rounded-xl bg-[#f7efe5] space-y-2">
               <label class="block font-extrabold text-[#690d28]">🏷️ تغيير شعار المتجر:</label>
               <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'logo')" class="w-full" />
+            </div>
+            <div class="p-3 rounded-xl bg-[#fffaf0] border-2 border-[#c49a50] space-y-2 md:col-span-2">
+              <label class="block font-extrabold text-[#8b6425]">✨ صورة شاشة البداية (الصورة التي تظهر أول ما يفتح العميل المتجر)</label>
+              <p class="text-[11px] text-[#88777a]">ارفعي صورة التابلت والموبايل التي تريدينها. ستظهر هنا للمعاينة، ويمكنك تغييرها متى شئت.</p>
+              <img id="loadingSplashAdminPreview" alt="معاينة صورة شاشة البداية" class="w-full max-h-48 object-contain rounded-xl bg-white border border-[#ead9cf]" />
+              <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'loadingSplash')" class="w-full text-xs" />
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="resetLoadingSplashImage()" class="px-4 py-2 rounded-xl border border-[#c49a50] text-[#690d28] text-xs font-bold">استعادة الصورة الافتراضية</button>
+                <span class="text-[10px] text-[#88777a] self-center">تُحفظ الصورة في Supabase وتظهر لكل الزوار</span>
+              </div>
             </div>
             <div class="p-3 rounded-xl bg-[#fff8e9] border-2 border-[#c49a50] space-y-2 md:col-span-2">
               <label class="block font-extrabold text-[#8b6425]">✨ صورة شاشة البداية (التابلت والهاتف)</label>
@@ -2486,6 +2496,11 @@
         footerBannerSection.classList.toggle('hidden', !state.brand.footerBannerImg);
       }
       document.getElementById('headerLogoImg').src = state.brand.logoImg || DEFAULT_IMAGES.logo;
+      const loadingSplash = document.getElementById('loadingSplashImg');
+      const splashUrl = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
+      if (loadingSplash && loadingSplash.getAttribute('src') !== splashUrl) loadingSplash.src = splashUrl;
+      const splashPreview = document.getElementById('loadingSplashAdminPreview');
+      if (splashPreview) splashPreview.src = splashUrl;
       const loadingLogo = document.getElementById('loadingLogoImg');
       if (loadingLogo) {
         loadingLogo.src = state.brand.logoImg || DEFAULT_IMAGES.logo;
@@ -4605,6 +4620,7 @@
         if (assetKey === 'logo') state.brand.logoImg = publicUrl;
         if (assetKey === 'loadingSplash') state.brand.loadingSplashImg = publicUrl;
         saveState();
+        scheduleHalaPublicStateSave();
         applyBranding();
         showToast('تم رفع الصورة إلى Supabase وتحديث المتجر بنجاح ✓');
       } catch (error) {
@@ -4619,6 +4635,7 @@
     function resetLoadingSplashImage() {
       if (state.brand) delete state.brand.loadingSplashImg;
       saveState();
+      scheduleHalaPublicStateSave();
       applyBranding();
       showToast('تمت استعادة صورة شاشة البداية الافتراضية ✓');
     }
