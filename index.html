@@ -3962,47 +3962,23 @@
         const sourceImageUrl = aiStudioGeneratedImageUrl || (aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : '');
         const referenceImageUrls = getAiStudioReferenceUrls();
         await ensureHalaStorageSession();
-        const { data: sessionData, error: sessionError } = await halaSupabase.auth.getSession();
-        if (sessionError || !sessionData?.session?.access_token) throw new Error('سجّل الدخول إلى لوحة إدارة حلا كيك أولاً.');
-        if (button) { button.disabled = true; button.textContent = '⏳ جارٍ توليد الفيديو...'; }
-        setAiStudioStatus('تم إرسال طلب الفيديو إلى n8n ثم Gemini Omni. سيُحفظ الفيديو تلقائياً في Supabase Storage عند اكتماله.');
-        const response = await fetch('https://hala-cake.app.n8n.cloud/webhook/hala-cake-video-gemini', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt,
-            sourceImageUrl,
-            referenceImageUrls,
-            aspectRatio: document.getElementById('aiVideoAspectRatio').value,
-            resolution: document.getElementById('aiVideoResolution').value,
-            accessToken: sessionData.session.access_token
-          })
+        if (button) { button.disabled = true; button.textContent = '⏳ جارٍ بدء توليد الفيديو...'; }
+        setAiStudioStatus('جارٍ إرسال المهمة مباشرة إلى Gemini عبر Supabase؛ لن ينتظر الموقع n8n حتى يكتمل الفيديو.');
+        const data = await callHalaGemini({
+          action: 'start_video',
+          prompt,
+          sourceImageUrl,
+          referenceImageUrls,
+          aspectRatio: document.getElementById('aiVideoAspectRatio').value,
+          resolution: document.getElementById('aiVideoResolution').value
         });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data?.ok || !data?.videoUrl) throw new Error(data?.error || data?.message || 'لم يُرجع n8n رابط الفيديو النهائي.');
-        const video = document.getElementById('aiStudioGeneratedVideo');
-        video.src = data.videoUrl;
-        document.getElementById('aiStudioGeneratedVideoLink').href = data.videoUrl;
-        document.getElementById('aiStudioGeneratedVideoBox').classList.remove('hidden');
-        const prod = state.products.find(p => p.id === document.getElementById('aiStudioProductSelect').value) || state.products[0];
-        const reel = {
-          id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
-          title: prod?.name ? 'فيديو ' + prod.name : 'فيديو حلا كيك',
-          badge: 'مولّد بالذكاء الاصطناعي ✨',
-          desc: 'فيديو إعلاني مولّد بواسطة Gemini Omni عبر n8n',
-          videoUrl: data.videoUrl,
-          productId: prod?.id || ''
-        };
-        await saveReelToCloud(reel);
-        state.reels.unshift(reel);
-        saveState();
-        activeReelIndex = 0;
-        renderActiveReel();
-        renderAdminReels();
-        setAiStudioStatus('✓ اكتمل الفيديو وحُفظ في Supabase وأُضيف إلى فيديوهات المتجر.', 'success');
-        showToast('اكتمل الفيديو وحُفظ في فيديوهات حلا كيك ✓');
+        if (!data?.ok || !data?.jobId) throw new Error(data?.error || 'لم يُرجع Gemini رقم مهمة الفيديو.');
+        const productId = document.getElementById('aiStudioProductSelect').value || '';
+        localStorage.setItem('hala_ai_video_job', JSON.stringify({ jobId: data.jobId, productId, startedAt: Date.now(), provider: 'gemini' }));
+        setAiStudioStatus('تم بدء توليد الفيديو لدى Gemini. يمكنك مغادرة الصفحة والعودة لاحقاً والضغط على «استكمال مهمة فيديو سابقة».');
+        await pollAiVideoJob(data.jobId, productId);
       } catch (error) {
-        setAiStudioStatus('تعذر توليد الفيديو: ' + error.message, 'error');
+        setAiStudioStatus('تعذر بدء/متابعة الفيديو: ' + error.message, 'error');
         showToast('تعذر توليد الفيديو: ' + error.message, 'error');
       } finally {
         if (button) { button.disabled = false; button.textContent = getAiGenerationMode() === 'paid' ? '🎥 توليد الفيديو عبر Gemini وحفظه' : '🎥 توليد الفيديو عبر Flow'; }
@@ -4021,8 +3997,8 @@
       const button = document.getElementById('aiResumeVideoButton');
       if (button) { button.disabled = true; button.textContent = '⏳ جارٍ متابعة المهمة...'; }
       try {
-        for (let attempt = 0; attempt < 60; attempt++) {
-          await new Promise(resolve => setTimeout(resolve, 5000));
+        for (let attempt = 0; attempt < 180; attempt++) {
+          await new Promise(resolve => setTimeout(resolve, 10000));
           const data = await callHalaGemini({ action: 'poll_video', jobId });
           if (data.status === 'completed' && data.videoUrl) {
             const video = document.getElementById('aiStudioGeneratedVideo');
@@ -4046,7 +4022,7 @@
             return;
           }
           if (data.status === 'failed' || data.status === 'cancelled') throw new Error(data.error || 'فشلت مهمة الفيديو.');
-          setAiStudioStatus('الفيديو قيد التوليد لدى Gemini Omni... الفحص ' + (attempt + 1) + ' من 60');
+          setAiStudioStatus('الفيديو قيد التوليد لدى Gemini... الفحص ' + (attempt + 1) + ' من 180');
         }
         setAiStudioStatus('ما زالت المهمة قيد التنفيذ. اضغط «استكمال مهمة فيديو سابقة» لمتابعة النتيجة لاحقاً.');
       } finally {
