@@ -1,9 +1,9 @@
-const CACHE_NAME = 'hala-cake-pwa-v4';
+const CACHE_NAME = 'hala-cake-pwa-v5';
 const APP_SHELL = [
   '/hala-cake/',
   '/hala-cake/index.html',
   '/hala-cake/manifest.json',
-  '/hala-cake/assets/hala-cake-app-icon.png?v=4',
+  '/hala-cake/assets/hala-cake-app-icon.png?v=5',
   '/hala-cake/assets/hala-cake-app-icon-512.jpg?v=4'
 ];
 
