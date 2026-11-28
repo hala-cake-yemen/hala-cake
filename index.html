@@ -1862,7 +1862,29 @@
 
     function saveState() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        // Keep large cloud-backed image data out of browser storage. The live in-memory
+        // state remains untouched; images are reloaded from hala_store_public on each browser.
+        const localSnapshot = JSON.parse(JSON.stringify(state));
+        if (halaPublicStateLoaded) {
+          const isLargeDataImage = value => typeof value === 'string' && value.startsWith('data:image/') && value.length > 4000;
+          if (localSnapshot.brand) {
+            ['topBannerImg', 'footerBannerImg', 'chefPortraitImg', 'logoImg'].forEach(key => {
+              if (isLargeDataImage(localSnapshot.brand[key])) {
+                localSnapshot.brand[key] = key === 'footerBannerImg' ? '' : DEFAULT_STATE.brand[key];
+              }
+            });
+          }
+          (localSnapshot.products || []).forEach(product => {
+            if (isLargeDataImage(product.image)) product.image = DEFAULT_STATE.products?.[0]?.image || '';
+          });
+          (localSnapshot.categories || []).forEach((category, index) => {
+            if (isLargeDataImage(category.img)) category.img = DEFAULT_STATE.categories?.[index]?.img || '';
+          });
+          (localSnapshot.reviews || []).forEach(review => {
+            if (isLargeDataImage(review.image)) review.image = '';
+          });
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(localSnapshot));
       } catch (e) {
         showToast('تنبيه: مساحة التخزين ممتلئة، يرجى تقليل حجم الصور المرفوعة.', 'warning');
       }
