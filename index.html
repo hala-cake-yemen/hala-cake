@@ -1221,23 +1221,50 @@
       ? window.supabase.createClient(HALA_SUPABASE_URL, HALA_SUPABASE_ANON_KEY)
       : null;
 
-    // Show a real password-reset form when Supabase redirects back with a recovery session.
+    // Robustly consume Supabase recovery links (implicit hash tokens and PKCE query codes).
+    function showSupabaseRecoveryForm() {
+      const modal = document.getElementById('supabaseRecoveryModal');
+      if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+    }
     if (halaSupabase) {
       halaSupabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'PASSWORD_RECOVERY' && session) {
-          const modal = document.getElementById('supabaseRecoveryModal');
-          if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session && (location.hash.includes('type=recovery') || new URLSearchParams(location.search).has('code'))) {
+          showSupabaseRecoveryForm();
         }
       });
-      if (location.hash.includes('type=recovery')) {
-        setTimeout(async () => {
-          const { data } = await halaSupabase.auth.getSession();
-          if (data?.session) {
-            const modal = document.getElementById('supabaseRecoveryModal');
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+      (async () => {
+        try {
+          const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          const recoveryType = params.get('type') === 'recovery';
+          if (accessToken && refreshToken && recoveryType) {
+            const { data, error } = await halaSupabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+            if (error) throw error;
+            if (data?.session) showSupabaseRecoveryForm();
+            return;
           }
-        }, 500);
-      }
+          const code = new URLSearchParams(location.search).get('code');
+          if (code) {
+            const { data, error } = await halaSupabase.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+            if (data?.session) showSupabaseRecoveryForm();
+            return;
+          }
+          if (recoveryType) {
+            const { data, error } = await halaSupabase.auth.getSession();
+            if (error) throw error;
+            if (data?.session) showSupabaseRecoveryForm();
+          }
+        } catch (error) {
+          const box = document.getElementById('supabaseRecoveryMessage');
+          if (box) {
+            box.textContent = 'تعذر التحقق من رابط الاستعادة: ' + (error.message || 'الرابط غير صالح أو منتهي الصلاحية. اطلب رسالة جديدة.');
+            box.className = 'rounded-xl p-3 text-sm font-bold bg-red-50 text-red-700';
+          }
+          showSupabaseRecoveryForm();
+        }
+      })();
     }
 
     async function submitSupabaseRecovery(event) {
