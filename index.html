@@ -3967,7 +3967,7 @@
         if (sessionError || !sessionData?.session?.access_token) throw new Error('سجّل الدخول إلى لوحة إدارة حلا كيك أولاً.');
         if (button) { button.disabled = true; button.textContent = '⏳ جارٍ توليد الفيديو...'; }
         setAiStudioStatus('تم إرسال طلب الفيديو إلى n8n ثم Gemini Omni. سيُحفظ الفيديو تلقائياً في Supabase Storage عند اكتماله.');
-        const response = await fetch('https://hala-cake.app.n8n.cloud/webhook/hala-cake-video', {
+        const response = await fetch('https://hala-cake.app.n8n.cloud/webhook/hala-cake-video-gemini', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
