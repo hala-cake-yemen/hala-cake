@@ -481,6 +481,27 @@
       </div>
 
       <form id="customCakeForm" onsubmit="submitCustomCakeToCart(event)" class="space-y-5">
+        <div class="rounded-2xl border-2 border-[#c49a50] bg-gradient-to-l from-[#fffaf0] to-white p-4 space-y-3">
+          <div class="flex items-center gap-2 text-[#8b6425] font-black"><span class="text-xl">✨</span><div><div>الطلبات الخاصة وتجهيز المناسبات</div><p class="text-[11px] font-medium text-[#88777a]">حفلات وأعراس وخطوبة وجلسات خاصة وتجهيز متكامل حسب طلبك</p></div></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><label class="block text-xs font-extrabold text-[#690d28] mb-1">نوع المناسبة</label><select id="customOccasionType" class="w-full p-2.5 text-xs border border-[#c49a50] rounded-xl bg-white"><option>طلب متنوع بدون مناسبة</option><option>حفلة عيد ميلاد</option><option>تجهيز حفلة</option><option>جلسة خاصة</option><option>حفل زفاف</option><option>خطوبة</option><option>تخرج</option><option>استقبال مولود</option><option>مناسبة عائلية</option><option>مناسبة أخرى</option></select></div>
+            <div><label class="block text-xs font-extrabold text-[#690d28] mb-1">عدد الضيوف التقريبي</label><input id="customGuestCount" type="number" min="1" placeholder="مثلاً 30" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"/></div>
+            <div><label class="block text-xs font-extrabold text-[#690d28] mb-1">تاريخ المناسبة</label><input id="customEventDate" type="date" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"/></div>
+            <div><label class="block text-xs font-extrabold text-[#690d28] mb-1">مكان المناسبة / المنطقة</label><input id="customEventLocation" type="text" placeholder="المدينة أو المنطقة" class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"/></div>
+          </div>
+          <div><div class="text-xs font-extrabold text-[#690d28] mb-2">الخدمات المطلوبة (يمكن اختيار أكثر من خدمة)</div><div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-bold text-[#5b3440]">
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="تجهيز حفلات" class="accent-[#c49a50]"/> تجهيز حفلات</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="تنسيق طاولات وديكور" class="accent-[#c49a50]"/> تنسيق طاولات وديكور</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="جلسات خاصة" class="accent-[#c49a50]"/> جلسات خاصة</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="ضيافة وتقديم" class="accent-[#c49a50]"/> ضيافة وتقديم</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="بوفيه وحلويات" class="accent-[#c49a50]"/> بوفيه وحلويات</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="customEventService" value="تجهيز كامل للمناسبة" class="accent-[#c49a50]"/> تجهيز كامل</label>
+          </div></div>
+          <div><div class="text-xs font-extrabold text-[#690d28] mb-2">الأصناف المطلوبة</div><div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-bold text-[#5b3440]">
+            <label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="تورتات وكيكات" class="accent-[#c49a50]"/> تورتات وكيكات</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="كيك الشوكولاتة" class="accent-[#c49a50]"/> كيك الشوكولاتة</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="الشوكولاتة" class="accent-[#c49a50]"/> الشوكولاتة</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="المعجنات" class="accent-[#c49a50]"/> المعجنات</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="الكعك" class="accent-[#c49a50]"/> الكعك</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="البتيفور" class="accent-[#c49a50]"/> البتيفور</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="الحلويات" class="accent-[#c49a50]"/> الحلويات</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="حلويات يمنية" class="accent-[#c49a50]"/> حلويات يمنية</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="حلويات شرقية" class="accent-[#c49a50]"/> حلويات شرقية</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="البيتزا" class="accent-[#c49a50]"/> البيتزا</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="مخبوزات وضيافة" class="accent-[#c49a50]"/> مخبوزات وضيافة</label><label class="flex items-center gap-2"><input type="checkbox" name="customRequestedItems" value="تشكيلات متنوعة" class="accent-[#c49a50]"/> تشكيلات متنوعة</label>
+          </div></div>
+          <div><label class="block text-xs font-extrabold text-[#690d28] mb-1">تفاصيل إضافية وذوق التصميم</label><textarea id="customEventNotes" rows="2" placeholder="الألوان، الثيم، الكميات، متطلبات خاصة..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl bg-white"></textarea></div>
+        </div>
         <div id="dynamicCustomCakeFields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Rendered dynamically from Admin Custom Builder config -->
         </div>
@@ -2029,7 +2050,18 @@
               else state[key] = cloud[key];
             }
           });
-          // Migrate older stores: preserve existing counters and append the two new editable defaults once.
+          // Migrate older stores without deleting or renaming any existing categories.
+          state.categories = Array.isArray(state.categories) ? state.categories : [];
+          const categoryDefaults = [
+            ['cat-cakes','الكيكات','🎂'],['cat-tortes','التورتات','🍰'],['cat-pastries','المعجنات','🥐'],
+            ['cat-kaak','الكعك','🍪'],['cat-petitfour','البتيفور','🍪'],['cat-yemeni-sweets','حلويات يمنية','🇾🇪'],
+            ['cat-eastern-sweets','حلويات شرقية','🧁'],['cat-pizza','البيتزا','🍕'],['cat-party-setup','تجهيز الحفلات','🎈'],
+            ['cat-chocolate','الشوكولاتة','🍫']
+          ];
+          categoryDefaults.forEach(([id,name,icon])=>{
+            if(!state.categories.some(c=>c.id===id||c.name===name)) state.categories.push({id,name,icon,img:generateCakeSvg('#fffaf3','#c49a50','#f5dce2')});
+          });
+          // Preserve existing counters and append defaults only once.
           state.counters = Array.isArray(state.counters) ? state.counters : [];
           const addedCounterDefaults = [
             { id: 'cnt-4', value: '1,250+', label: 'عميل سعيد', visible: true },
@@ -2350,6 +2382,14 @@
           saveState();
         }
 
+        // Ensure new product categories also appear when cloud data is unavailable.
+        state.categories = Array.isArray(state.categories) ? state.categories : [];
+        [
+          ['cat-cakes','الكيكات','🎂'],['cat-tortes','التورتات','🍰'],['cat-pastries','المعجنات','🥐'],
+          ['cat-kaak','الكعك','🍪'],['cat-petitfour','البتيفور','🍪'],['cat-yemeni-sweets','حلويات يمنية','🇾🇪'],
+          ['cat-eastern-sweets','حلويات شرقية','🧁'],['cat-pizza','البيتزا','🍕'],['cat-party-setup','تجهيز الحفلات','🎈'],
+          ['cat-chocolate','الشوكولاتة','🍫']
+        ].forEach(([id,name,icon])=>{if(!state.categories.some(c=>c.id===id||c.name===name))state.categories.push({id,name,icon,img:generateCakeSvg('#fffaf3','#c49a50','#f5dce2')});});
         applyBranding();
         renderCategories();
         renderProducts();
@@ -2779,11 +2819,25 @@
       const extras = customExtraItems.filter(i => i.name.trim()).map(i => `${i.name.trim()} (×${i.qty})`);
       if (extras.length) specs.push(`إضافات موسّعة: ${extras.join('، ')}`);
       if (customCakeRefDataUrl) specs.push('مرفق صورة نموذج للتورتة');
+      const occasion=document.getElementById('customOccasionType')?.value;
+      const guests=document.getElementById('customGuestCount')?.value.trim();
+      const eventDate=document.getElementById('customEventDate')?.value;
+      const location=document.getElementById('customEventLocation')?.value.trim();
+      const eventNotes=document.getElementById('customEventNotes')?.value.trim();
+      const services=Array.from(document.querySelectorAll('input[name="customEventService"]:checked')).map(x=>x.value);
+      const requested=Array.from(document.querySelectorAll('input[name="customRequestedItems"]:checked')).map(x=>x.value);
+      if(occasion)specs.push('نوع المناسبة: '+occasion);
+      if(guests)specs.push('عدد الضيوف: '+guests);
+      if(eventDate)specs.push('تاريخ المناسبة: '+eventDate);
+      if(location)specs.push('الموقع: '+location);
+      if(services.length)specs.push('الخدمات: '+services.join('، '));
+      if(requested.length)specs.push('الأصناف المطلوبة: '+requested.join('، '));
+      if(eventNotes)specs.push('تفاصيل المناسبة: '+eventNotes);
 
       const price = recalculateCustomCakeEstimate();
       const customItem = {
         id: 'custom-' + Date.now(),
-        name: '🎂 تورتة خاصة وطلب موسّع',
+        name: '✨ طلب خاص وتجهيز مناسبة — '+(occasion || 'طلب مخصص'),
         price: price,
         qty: 1,
         image: customCakeRefDataUrl || generateCakeSvg('#f5dce2', '#690d28', '#efd79b'),
