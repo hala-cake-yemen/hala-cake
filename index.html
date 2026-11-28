@@ -2234,18 +2234,50 @@
     // =========================================================================
     // 3. INITIALIZATION & VISITOR COUNTER
     // =========================================================================
+    const HALA_LOADING_MIN_DURATION = 5000;
+    const HALA_LOADING_STARTED_AT = Date.now();
+    let halaLoadingHideRequested = false;
+    let halaLoadingHideTimer = null;
+
     function hideHalaLoadingScreen() {
+      if (halaLoadingHideRequested) return;
       const screen = document.getElementById('halaLoadingScreen');
-      if (screen) {
+      if (!screen) return;
+      const remaining = Math.max(0, HALA_LOADING_MIN_DURATION - (Date.now() - HALA_LOADING_STARTED_AT));
+      halaLoadingHideRequested = true;
+      halaLoadingHideTimer = window.setTimeout(() => {
         screen.classList.add('is-hidden');
         window.setTimeout(() => screen.remove(), 450);
-      }
+      }, remaining);
     }
-    // Safety fallback: never leave the storefront covered if a remote service is slow.
-    window.setTimeout(hideHalaLoadingScreen, 8000);
+
+    async function waitForHalaStorefrontImages() {
+      const images = Array.from(document.querySelectorAll(
+        '#topBannerImg, #headerLogoImg, #chefHeroPortraitImg, #categoriesGrid img'
+      ));
+      const pending = images.filter(img => img.src && !img.complete);
+      if (!pending.length) return;
+      await Promise.race([
+        Promise.all(pending.map(img => new Promise(resolve => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        }))),
+        new Promise(resolve => window.setTimeout(resolve, 2500))
+      ]);
+    }
+
+    // Last-resort guard only; normal dismissal waits for initialization and the 5-second minimum.
+    window.setTimeout(() => {
+      if (!halaLoadingHideRequested) {
+        console.warn('Hala Cake loading screen safety timeout reached.');
+        hideHalaLoadingScreen();
+      }
+    }, 15000);
 
     window.addEventListener('DOMContentLoaded', async () => {
       try {
+        // Show the saved/default Hala branding immediately while cloud data loads.
+        applyBranding();
         await loadCloudStoreState();
         await loadCloudReels();
         await refreshHalaStorageAuthStatus();
@@ -2270,6 +2302,7 @@
         updateWishlistBadge();
         updateVisitorCounterUI();
         syncPaymentSettingsUI();
+        await waitForHalaStorefrontImages();
       } catch (err) {
         console.error('Initialization error:', err);
       } finally {
