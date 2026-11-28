@@ -3749,12 +3749,21 @@
         const { data, error } = await halaSupabase.functions.invoke('hala-gemini', {
           body: { action: 'test' }
         });
-        if (error) throw new Error(error.message || 'تعذر الاتصال بوظيفة Gemini على Supabase.');
+        if (error) {
+          let detail = '';
+          try {
+            if (error.context && typeof error.context.json === 'function') {
+              const body = await error.context.json();
+              detail = body?.error || body?.message || '';
+            }
+          } catch (_) {}
+          throw new Error(detail || error.message || 'تعذر الاتصال بوظيفة Gemini على Supabase.');
+        }
         if (!data?.ok) throw new Error(data?.error || 'لم يؤكد Gemini نجاح الاتصال.');
-        box.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800';
         const availability = ['النصوص ' + (data.textModel ? '✓' : 'غير ظاهر بالمفتاح'), 'الصور ' + (data.imageModel ? '✓' : 'غير متاح بالمفتاح'), 'الفيديو ' + (data.videoModel ? '✓' : 'غير متاح بالمفتاح')].join(' · ');
+        const modelNames = (data.availableModels || []).join('، ');
         box.className = 'p-3 rounded-xl text-xs font-bold ' + (data.textModel && data.imageModel && data.videoModel ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-900');
-        box.textContent = 'تم الاتصال بـ Gemini API. ' + availability + ' — عدد النماذج المفحوصة: ' + data.modelsChecked;
+        box.textContent = 'تم الاتصال بـ Gemini API. ' + availability + ' — النماذج التي أرجعها المفتاح: ' + (modelNames || 'لم تُرجع القائمة أسماء مطابقة') + ' — العدد: ' + data.modelsChecked;
       } catch (error) {
         box.className = 'p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700';
         box.textContent = 'فشل اتصال Gemini: ' + error.message;
