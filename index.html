@@ -213,7 +213,7 @@
 <body class="pb-20 md:pb-0">
   <div id="halaLoadingScreen" role="status" aria-live="polite" aria-label="جارٍ تحميل متجر حلا كيك">
     <div class="loading-card">
-      <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="حلا كيك" fetchpriority="high" />
+      <img id="loadingSplashImg" class="loading-splash" src="assets/hala-splash.jpg" alt="حلا كيك" fetchpriority="high" onerror="this.onerror=null;this.src=document.getElementById('chefHeroPortraitImg')?.src||''" />
       <div class="loading-subtitle">لحظات حلوة تبدأ من هنا</div>
       <div class="loading-spinner" aria-hidden="true"></div>
     </div>
