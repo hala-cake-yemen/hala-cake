@@ -363,7 +363,7 @@
        ========================================================= -->
   <section class="bg-gradient-to-b from-[#f5dce2]/60 via-[#fffaf3] to-[#f7efe5] py-8 px-4 border-b border-[#ead9cf]">
     <div class="max-w-4xl mx-auto text-center space-y-4">
-      <button id="pwaInstallButton" type="button" class="mx-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#690d28] text-white border-2 border-[#c49a50] font-extrabold text-sm shadow-lg hover:brightness-110 active:scale-[.98] transition" aria-label="تثبيت حلا كيك كتطبيق على الهاتف">
+      <button id="pwaInstallButton" type="button" hidden aria-hidden="true" class="mx-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#690d28] text-white border-2 border-[#c49a50] font-extrabold text-sm shadow-lg hover:brightness-110 active:scale-[.98] transition" aria-label="تثبيت حلا كيك كتطبيق على الهاتف">
         <span aria-hidden="true">📲</span><span>حمّل حلا كيك كتطبيق</span>
       </button>
       <span class="inline-block px-4 py-1 rounded-full bg-[#f5dce2] text-[#690d28] border border-[#c49a50]/50 text-xs sm:text-sm font-extrabold">
@@ -4980,15 +4980,7 @@
 
       installButton.addEventListener('click', async () => {
         if (isInstalled()) { hideInstallButton(); return; }
-        if (!deferredInstallPrompt) {
-          const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-          const message = isIOS
-            ? 'لتثبيت حلا كيك على iPhone أو iPad: اضغط زر المشاركة في Safari ثم اختر «إضافة إلى الشاشة الرئيسية».'
-            : 'لتثبيت حلا كيك كتطبيق: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». إذا لم يظهر الخيار، افتح الموقع في Chrome وتأكد من الاتصال بالإنترنت.';
-          if (typeof showToast === 'function') showToast(message, 'info');
-          else window.alert(message);
-          return;
-        }
+        if (!deferredInstallPrompt) return;
         deferredInstallPrompt.prompt();
         const choice = await deferredInstallPrompt.userChoice;
         deferredInstallPrompt = null;

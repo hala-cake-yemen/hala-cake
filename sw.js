@@ -1,9 +1,10 @@
-const CACHE_NAME = 'hala-cake-pwa-v3';
+const CACHE_NAME = 'hala-cake-pwa-v4';
 const APP_SHELL = [
   '/hala-cake/',
   '/hala-cake/index.html',
   '/hala-cake/manifest.json',
-  '/hala-cake/assets/hala-cake-app-icon.png?v=3'
+  '/hala-cake/assets/hala-cake-app-icon.png?v=4',
+  '/hala-cake/assets/hala-cake-app-icon-512.jpg?v=4'
 ];
 
 self.addEventListener('install', event => {
