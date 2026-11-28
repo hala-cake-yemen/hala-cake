@@ -870,6 +870,7 @@
         <button type="button" onclick="switchAdminTab('customBuilder')" data-tab="customBuilder" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">✨ حقول تصميم تورتة خاصة</button>
         <button type="button" onclick="switchAdminTab('customers')" data-tab="customers" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">👥 قاعدة بيانات العملاء والمواقع</button>
         <button type="button" onclick="switchAdminTab('settings')" data-tab="settings" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">⚙️ الهوية، الدفع، والأمان</button>
+        <button type="button" onclick="switchAdminTab('support')" data-tab="support" class="admin-tab-btn px-3 py-2.5 rounded-xl text-xs font-extrabold text-center bg-white text-[#690d28] border border-[#ead9cf]">🆘 الدعم الفني</button>
       </div>
     </div>
 
@@ -1390,6 +1391,43 @@
           <div class="pt-3 border-t border-[#ead9cf] flex flex-col sm:flex-row gap-2">
             <input type="password" id="newAdminPasswordInput" placeholder="تغيير كلمة سر لوحة التحكم..." class="flex-1 p-2.5 text-xs border border-[#ead9cf] rounded-xl" />
             <button type="button" onclick="savePaymentAndSecuritySettings()" class="px-6 py-2.5 btn-hala-primary text-xs">💾 حفظ الإعدادات والأمان</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TECHNICAL SUPPORT -->
+      <div id="adminTab-support" class="admin-tab-panel hidden space-y-5">
+        <div class="hala-card p-5 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-xl font-black text-[#690d28]">🆘 الدعم الفني لمتجر حلا كيك</h3>
+              <p class="text-sm text-[#88777a] mt-1">نحن هنا لمساعدتك عند مواجهة مشكلة في المتجر أو لوحة التحكم.</p>
+            </div>
+            <span class="px-3 py-1.5 rounded-full bg-[#f5dce2] text-[#690d28] text-xs font-extrabold">مركز المساعدة</span>
+          </div>
+          <div class="rounded-2xl border-2 border-[#c49a50] bg-[#fffaf3] p-5 text-center space-y-2">
+            <div class="text-sm font-bold text-[#88777a]">رقم الدعم الفني</div>
+            <div dir="ltr" class="text-2xl sm:text-3xl font-black tracking-wide text-[#690d28]">00201111094182</div>
+            <p class="text-xs text-[#88777a]">اضغط على الزر المناسب للتواصل أو لإعداد بلاغ واضح بمساعدة الذكاء الاصطناعي.</p>
+            <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-2 pt-2">
+              <a href="https://wa.me/201111094182" target="_blank" rel="noopener" class="px-5 py-3 rounded-xl bg-[#20b968] text-white text-sm font-extrabold text-center">💬 مراسلة الدعم عبر واتساب</a>
+              <a href="tel:00201111094182" class="px-5 py-3 rounded-xl btn-hala-primary text-sm font-extrabold text-center">📞 الاتصال بالدعم الفني</a>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="rounded-xl border border-[#ead9cf] bg-white p-4 space-y-2">
+              <div class="font-extrabold text-[#690d28]">🤖 إعداد بلاغ بمساعدة الذكاء الاصطناعي</div>
+              <p class="text-xs text-[#88777a]">أجب عن أسئلة بسيطة حول المشكلة، وسيتم تجهيز رسالة مرتبة تتضمن الصفحة والخطوات ورسالة الخطأ والنتيجة المتوقعة.</p>
+              <a href="/hala-cake/guide.html#support" target="_blank" rel="noopener" class="inline-block px-4 py-2 rounded-xl btn-hala-primary text-xs font-extrabold">فتح مساعد البلاغ الذكي</a>
+            </div>
+            <div class="rounded-xl border border-[#ead9cf] bg-white p-4 space-y-2">
+              <div class="font-extrabold text-[#690d28]">📘 دليل الاستخدام وحلول المشكلات</div>
+              <p class="text-xs text-[#88777a]">راجع الشرح التفصيلي لكل قسم في لوحة التحكم، وتعرّف على وظيفة الأزرار وطريقة حل الأخطاء الشائعة.</p>
+              <a href="/hala-cake/guide.html" target="_blank" rel="noopener" class="inline-block px-4 py-2 rounded-xl btn-hala-gold text-xs font-extrabold">فتح دليل الاستخدام</a>
+            </div>
+          </div>
+          <div class="rounded-xl bg-[#fff5dc] border border-[#e9ce91] p-4 text-xs text-[#6d5426]">
+            <b>قبل إرسال البلاغ:</b> اكتب اسم الصفحة التي ظهرت فيها المشكلة، وما الزر الذي ضغطت عليه، وما الذي ظهر أمامك. أرفق صورة للشاشة إن أمكن. لا ترسل كلمة المرور أو رموز التحقق أو مفاتيح API أو بيانات الدفع السرية.
           </div>
         </div>
       </div>
