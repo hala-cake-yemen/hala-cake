@@ -1250,6 +1250,17 @@
               <label class="block font-extrabold text-[#690d28]">🏷️ تغيير شعار المتجر:</label>
               <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'logo')" class="w-full" />
             </div>
+            <div class="p-3 rounded-xl bg-[#fff8e9] border-2 border-[#c49a50] space-y-2 md:col-span-2">
+              <label class="block font-extrabold text-[#8b6425]">✨ صورة شاشة البداية (التابلت والهاتف)</label>
+              <p class="text-[11px] text-[#88777a]">اختر الصورة التي تريد ظهورها أول ما يفتح المتجر. ستُرفع إلى Supabase وتُحفظ تلقائياً، ويمكنك تغييرها في أي وقت.</p>
+              <div class="flex flex-col sm:flex-row items-center gap-3">
+                <img id="loadingSplashAdminPreview" src="assets/hala-splash.jpg" alt="معاينة صورة البداية" class="w-full sm:w-56 aspect-video object-contain rounded-xl border border-[#ead9cf] bg-white" />
+                <div class="flex-1 w-full space-y-2">
+                  <input type="file" accept="image/*" onchange="uploadBrandAsset(event, 'loadingSplash')" class="w-full text-xs" />
+                  <button type="button" onclick="resetLoadingSplashImage()" class="px-4 py-2 rounded-xl border border-[#c49a50] text-[#690d28] text-xs font-bold">استعادة صورة البداية الافتراضية</button>
+                </div>
+              </div>
+            </div>
             <div class="p-3 rounded-xl bg-[#f7efe5] grid grid-cols-3 gap-2">
               <div>
                 <label class="block font-bold mb-1">العنابي</label>
@@ -1992,7 +2003,7 @@
         replacements.set(value, url);
         owner[key] = url;
       };
-      for (const key of ['topBannerImg', 'footerBannerImg', 'chefPortraitImg', 'logoImg']) await migrate(state.brand, key, 'images/branding');
+      for (const key of ['topBannerImg', 'footerBannerImg', 'chefPortraitImg', 'logoImg', 'loadingSplashImg']) await migrate(state.brand, key, 'images/branding');
       for (const product of (state.products || [])) await migrate(product, 'image', 'images/products');
       for (const category of (state.categories || [])) await migrate(category, 'img', 'images/categories');
       for (const review of (state.reviews || [])) await migrate(review, 'image', 'images/reviews');
@@ -2481,6 +2492,14 @@
         loadingLogo.loading = 'eager';
         loadingLogo.fetchPriority = 'high';
       }
+      const loadingSplash = document.getElementById('loadingSplashImg');
+      if (loadingSplash) {
+        loadingSplash.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
+        loadingSplash.loading = 'eager';
+        loadingSplash.fetchPriority = 'high';
+      }
+      const splashPreview = document.getElementById('loadingSplashAdminPreview');
+      if (splashPreview) splashPreview.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
       const loadingChef = document.getElementById('loadingChefImg');
       if (loadingChef) {
         loadingChef.src = state.brand.chefPortraitImg || DEFAULT_IMAGES.chefPortrait;
@@ -4578,12 +4597,13 @@
       try {
         input.disabled = true;
         showToast('جارٍ رفع الصورة إلى Supabase...');
-        const folders = { topBanner: 'images/branding', footerBanner: 'images/branding', chefPortrait: 'images/branding', logo: 'images/branding' };
+        const folders = { topBanner: 'images/branding', footerBanner: 'images/branding', chefPortrait: 'images/branding', logo: 'images/branding', loadingSplash: 'images/branding' };
         const publicUrl = await uploadHalaImage(file, folders[assetKey] || 'images/branding');
         if (assetKey === 'topBanner') state.brand.topBannerImg = publicUrl;
         if (assetKey === 'footerBanner') state.brand.footerBannerImg = publicUrl;
         if (assetKey === 'chefPortrait') state.brand.chefPortraitImg = publicUrl;
         if (assetKey === 'logo') state.brand.logoImg = publicUrl;
+        if (assetKey === 'loadingSplash') state.brand.loadingSplashImg = publicUrl;
         saveState();
         applyBranding();
         showToast('تم رفع الصورة إلى Supabase وتحديث المتجر بنجاح ✓');
@@ -4596,6 +4616,13 @@
       }
     }
 
+    function resetLoadingSplashImage() {
+      if (state.brand) delete state.brand.loadingSplashImg;
+      saveState();
+      applyBranding();
+      showToast('تمت استعادة صورة شاشة البداية الافتراضية ✓');
+    }
+
     function updateThemeColors() {
       state.brand.primaryColor = document.getElementById('colorPrimaryInput').value;
       state.brand.goldColor = document.getElementById('colorGoldInput').value;
@@ -4605,6 +4632,8 @@
     }
 
     function renderAdminSettingsTab() {
+      const splashPreview = document.getElementById('loadingSplashAdminPreview');
+      if (splashPreview) splashPreview.src = state.brand.loadingSplashImg || 'assets/hala-splash.jpg';
       document.getElementById('colorPrimaryInput').value = state.brand.primaryColor;
       document.getElementById('colorGoldInput').value = state.brand.goldColor;
       document.getElementById('colorCreamInput').value = state.brand.creamColor;
