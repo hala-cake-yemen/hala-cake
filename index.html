@@ -1826,9 +1826,9 @@
     }
     async function openGoogleFlowFree(kind = 'image') {
       const prompt = getAiStudioProductPrompt(kind);
+      const flowWindow = window.open('https://labs.google/fx/tools/flow', '_blank', 'noopener');
       try { await navigator.clipboard.writeText(prompt); } catch (_) {}
-      setAiStudioStatus('تم نسخ برومبت ' + (kind === 'video' ? 'الفيديو' : 'الصورة') + '. افتح Google Flow وأرفق Character Sheet وصور المنتجات يدوياً من جهازك؛ مراجع Supabase محفوظة في المعاينات أعلاه. برومبت الفيديو يمنع أي كتابة داخل المشهد.', 'success');
-      window.open('https://labs.google/fx/tools/flow', '_blank', 'noopener');
+      setAiStudioStatus((flowWindow ? 'تم فتح Google Flow ونسخ برومبت ' : 'تم نسخ برومبت ') + (kind === 'video' ? 'الفيديو' : 'الصورة') + '. أرفق Character Sheet وصور المنتجات يدوياً من جهازك؛ مراجع Supabase محفوظة في المعاينات أعلاه. برومبت الفيديو يمنع أي كتابة داخل المشهد.', 'success');
     }
     let secretTapCounter = 0;
     let secretTapTimer = null;
@@ -3951,7 +3951,7 @@
         setAiStudioStatus('فشل توليد الصورة: ' + error.message, 'error');
         showToast('تعذر توليد الصورة: ' + error.message, 'error');
       } finally {
-        if (button) { button.disabled = false; button.textContent = '🖼️ توليد الصورة وحفظها في Supabase'; }
+        if (button) { button.disabled = false; button.textContent = getAiGenerationMode() === 'paid' ? '🖼️ توليد الصورة عبر Gemini وحفظها' : '🖼️ توليد الصورة عبر Flow'; }
       }
     }
 
@@ -3976,7 +3976,7 @@
         setAiStudioStatus('تعذر بدء توليد الفيديو: ' + error.message, 'error');
         showToast('تعذر توليد الفيديو: ' + error.message, 'error');
       } finally {
-        if (button) { button.disabled = false; button.textContent = '🎥 توليد فيديو مباشرة عبر Gemini Omni'; }
+        if (button) { button.disabled = false; button.textContent = getAiGenerationMode() === 'paid' ? '🎥 توليد الفيديو عبر Gemini وحفظه' : '🎥 توليد الفيديو عبر Flow'; }
       }
     }
 
