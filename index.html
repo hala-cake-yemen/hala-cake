@@ -962,7 +962,10 @@
             </div>
             <div id="aiStudioReferenceStatus" class="text-[11px] text-[#88777a]" aria-live="polite"></div>
             <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900">الاختبار المجاني: رفع المراجع وتجهيز البرومبت متاحان هنا. توليد الصور والفيديو عبر Gemini API يحتاج حصة مدفوعة؛ ويمكن اختبار التوليد داخل Google Flow برصيده اليومي، مع إرفاق المراجع يدوياً.</div>
-            <button type="button" onclick="openGoogleFlowFree()" class="w-full py-2.5 btn-hala-gold text-xs">✨ نسخ البرومبت وفتح Google Flow المجاني</button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button type="button" onclick="openGoogleFlowFree('image')" class="w-full py-2.5 btn-hala-gold text-xs">🖼️ نسخ برومبت الصورة وفتح Flow</button>
+              <button type="button" onclick="openGoogleFlowFree('video')" class="w-full py-2.5 btn-hala-primary text-xs">🎬 نسخ برومبت الفيديو وفتح Flow</button>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf]">
@@ -1789,10 +1792,11 @@
     function getAiStudioReferenceUrls() {
       return [...(aiStudioCharacterSheet?.url ? [aiStudioCharacterSheet.url] : []), ...aiStudioProductReferences.map(item => item.url).filter(Boolean)].slice(0, 5);
     }
-    async function openGoogleFlowFree() {
-      const prompt = getAiStudioProductPrompt('image');
+    const AI_STUDIO_PAID_GENERATION_ENABLED = false; // مرحلة الاختبار المجاني؛ فعّلها بعد ربط فوترة Google.
+    async function openGoogleFlowFree(kind = 'image') {
+      const prompt = getAiStudioProductPrompt(kind);
       try { await navigator.clipboard.writeText(prompt); } catch (_) {}
-      setAiStudioStatus('تم نسخ البرومبت. افتح Google Flow المجاني وأرفق صور المراجع من المعاينات أعلاه.', 'success');
+      setAiStudioStatus('تم نسخ برومبت ' + (kind === 'video' ? 'الفيديو' : 'الصورة') + '. افتح Google Flow وأرفق Character Sheet وصور المنتجات من جهازك؛ مراجع Supabase محفوظة في المعاينات أعلاه.', 'success');
       window.open('https://labs.google/fx/tools/flow', '_blank', 'noopener');
     }
     let secretTapCounter = 0;
@@ -3892,6 +3896,7 @@
     }
 
     async function generateAiImage() {
+      if (!AI_STUDIO_PAID_GENERATION_ENABLED) { await openGoogleFlowFree('image'); return; }
       const button = document.getElementById('aiGenerateImageButton');
       try {
         const prompt = getAiStudioProductPrompt('image');
@@ -3919,6 +3924,7 @@
     }
 
     async function generateAiVideoWithGemini() {
+      if (!AI_STUDIO_PAID_GENERATION_ENABLED) { await openGoogleFlowFree('video'); return; }
       const button = document.getElementById('aiGenerateNativeVideoButton');
       try {
         const prompt = getAiStudioProductPrompt('video');
