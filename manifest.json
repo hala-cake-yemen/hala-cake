@@ -1,0 +1,30 @@
+{
+  "id": "/hala-cake/",
+  "name": "حلا كيك | Hala Cake",
+  "short_name": "حلا كيك",
+  "description": "متجر حلا كيك للكيكات والحلويات والطلبات الخاصة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/hala-cake/?source=pwa",
+  "scope": "/hala-cake/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#fffaf3",
+  "theme_color": "#690d28",
+  "categories": ["shopping", "food"],
+  "icons": [
+    {
+      "src": "/hala-cake/assets/hala-pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/hala-cake/assets/hala-pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
