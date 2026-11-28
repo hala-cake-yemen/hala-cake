@@ -1155,6 +1155,18 @@
     </div>
   </div>
 
+  <!-- Supabase password recovery dialog -->
+  <div id="supabaseRecoveryModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/70 p-4" dir="rtl">
+    <form onsubmit="submitSupabaseRecovery(event)" class="w-full max-w-md rounded-2xl border-2 border-[#c49a50] bg-white p-6 shadow-2xl space-y-4">
+      <h2 class="text-xl font-black text-[#690d28]">تعيين كلمة المرور الموحدة</h2>
+      <p class="text-sm text-gray-600">عيّن كلمة مرور حساب التخزين لتكون نفس كلمة مرور لوحة التحكم.</p>
+      <input id="supabaseRecoveryPassword" type="password" minlength="6" required autocomplete="new-password" placeholder="كلمة المرور الجديدة" class="w-full rounded-xl border p-3 text-center">
+      <input id="supabaseRecoveryPasswordConfirm" type="password" minlength="6" required autocomplete="new-password" placeholder="تأكيد كلمة المرور" class="w-full rounded-xl border p-3 text-center">
+      <div id="supabaseRecoveryMessage" class="hidden rounded-xl p-3 text-sm font-bold"></div>
+      <button id="supabaseRecoverySubmit" type="submit" class="w-full rounded-xl bg-[#690d28] p-3 font-bold text-white">حفظ كلمة المرور</button>
+    </form>
+  </div>
+
   <!-- =========================================================
        18. DELIVERY RECEIPT VOUCHER MODAL (سند استلام وتوصيل)
        ========================================================= -->
@@ -1208,6 +1220,64 @@
     const halaSupabase = window.supabase?.createClient
       ? window.supabase.createClient(HALA_SUPABASE_URL, HALA_SUPABASE_ANON_KEY)
       : null;
+
+    // Show a real password-reset form when Supabase redirects back with a recovery session.
+    if (halaSupabase) {
+      halaSupabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY' && session) {
+          const modal = document.getElementById('supabaseRecoveryModal');
+          if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        }
+      });
+      if (location.hash.includes('type=recovery')) {
+        setTimeout(async () => {
+          const { data } = await halaSupabase.auth.getSession();
+          if (data?.session) {
+            const modal = document.getElementById('supabaseRecoveryModal');
+            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+          }
+        }, 500);
+      }
+    }
+
+    async function submitSupabaseRecovery(event) {
+      event.preventDefault();
+      const password = document.getElementById('supabaseRecoveryPassword').value;
+      const confirm = document.getElementById('supabaseRecoveryPasswordConfirm').value;
+      const message = document.getElementById('supabaseRecoveryMessage');
+      const button = document.getElementById('supabaseRecoverySubmit');
+      const show = (text, ok = false) => {
+        message.textContent = text;
+        message.className = 'rounded-xl p-3 text-sm font-bold ' + (ok ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-700');
+      };
+      if (password !== confirm) return show('كلمتا المرور غير متطابقتين.');
+      if (password.length < 6) return show('كلمة المرور يجب ألا تقل عن 6 أحرف.');
+      button.disabled = true;
+      button.textContent = 'جارٍ حفظ كلمة المرور...';
+      try {
+        const { data: sessionData } = await halaSupabase.auth.getSession();
+        if (!sessionData?.session) throw new Error('انتهت صلاحية رابط الاستعادة. اطلب رابطاً جديداً.');
+        const { error } = await halaSupabase.auth.updateUser({ password });
+        if (error) throw error;
+        try {
+          const stored = localStorage.getItem('halaCakeState');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            parsed.settings = parsed.settings || {};
+            parsed.settings.adminPassword = btoa(unescape(encodeURIComponent(password)));
+            localStorage.setItem('halaCakeState', JSON.stringify(parsed));
+          }
+        } catch (_) {}
+        show('تم تحديث كلمة مرور Supabase بنجاح. اجعل كلمة مرور لوحة التحكم مطابقة لها من إعدادات الإدارة.', true);
+        history.replaceState(null, document.title, location.pathname + location.search);
+        setTimeout(() => { const m = document.getElementById('supabaseRecoveryModal'); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } }, 2200);
+      } catch (error) {
+        show('تعذر تحديث كلمة المرور: ' + (error.message || 'خطأ غير معروف'));
+      } finally {
+        button.disabled = false;
+        button.textContent = 'حفظ كلمة المرور';
+      }
+    }
 
     // =========================================================================
     // 1. SELF-CONTAINED SVG DATA URI GENERATORS (ZERO BROKEN IMAGES EVER)
