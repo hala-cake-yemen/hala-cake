@@ -860,7 +860,7 @@
             <div class="p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-xs leading-6 text-emerald-900">
               <strong>🔐 Gemini API — اتصال آمن</strong>
               <div>يُدار المفتاح على خادم Supabase ولا يُحفظ في المتصفح أو ملفات الموقع.</div>
-              <div class="font-bold">النموذج: gemini-3.8-flash · Interactions API</div>
+              <div class="font-bold">النصوص: Gemini 3.8 Flash · الصور: Nano Banana 2 · الفيديو: Gemini Omni 1.2</div>
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">حساب Flow / رابط Webhook التوليد:</label>
@@ -884,7 +884,36 @@
               <option value="أسلوب تسويقي فاخر للمناسبات">أسلوب تسويقي فاخر للمناسبات</option>
             </select>
           </div>
-          <textarea id="aiStudioPromptOutput" rows="3" placeholder="سيظهر هنا البرومت/السيناريو المولد بالذكاء الاصطناعي..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
+          <textarea id="aiStudioPromptOutput" rows="4" placeholder="اكتب وصف الصورة أو الفيديو أو أنشئ سيناريو إعلانياً بالذكاء الاصطناعي..." class="w-full p-2.5 text-xs border border-[#ead9cf] rounded-xl"></textarea>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-xl bg-[#fffaf3] border border-[#ead9cf]">
+            <div class="space-y-2">
+              <div class="font-extrabold text-xs text-[#690d28]">🖼️ إعدادات توليد الصور</div>
+              <label class="block text-[11px] font-bold">نسبة الأبعاد</label>
+              <select id="aiImageAspectRatio" class="w-full p-2 text-xs border rounded-lg bg-white">
+                <option value="1:1">مربع 1:1 — منشورات</option><option value="4:5">4:5 — فيسبوك وإنستجرام</option><option value="9:16">9:16 — ستوري وريلز</option><option value="16:9">16:9 — غلاف أفقي</option><option value="3:4">3:4 — صورة منتج</option>
+              </select>
+              <label class="block text-[11px] font-bold">جودة الصورة</label>
+              <select id="aiImageSize" class="w-full p-2 text-xs border rounded-lg bg-white"><option value="1K">1K — أسرع وأقل تكلفة</option><option value="2K" selected>2K — متوازن</option><option value="4K">4K — أعلى جودة</option></select>
+              <button type="button" id="aiGenerateImageButton" onclick="generateAiImage()" class="w-full py-2.5 btn-hala-gold text-xs">🖼️ توليد الصورة وحفظها في Supabase</button>
+            </div>
+            <div class="space-y-2">
+              <div class="font-extrabold text-xs text-[#690d28]">🎬 إعدادات توليد الفيديو</div>
+              <label class="block text-[11px] font-bold">نسبة الفيديو</label>
+              <select id="aiVideoAspectRatio" class="w-full p-2 text-xs border rounded-lg bg-white"><option value="9:16">عمودي 9:16 — ريلز</option><option value="16:9">أفقي 16:9 — إعلان</option><option value="1:1">مربع 1:1</option></select>
+              <label class="block text-[11px] font-bold">دقة الفيديو</label>
+              <select id="aiVideoResolution" class="w-full p-2 text-xs border rounded-lg bg-white"><option value="360p">360p — معاينة اقتصادية</option><option value="720p" selected>720p — موصى بها</option><option value="1080p">1080p — جودة عالية</option></select>
+              <button type="button" id="aiGenerateNativeVideoButton" onclick="generateAiVideoWithGemini()" class="w-full py-2.5 btn-hala-primary text-xs">🎥 توليد فيديو مباشرة عبر Gemini Omni</button>
+              <button type="button" id="aiResumeVideoButton" onclick="resumeAiVideoJob()" class="w-full py-2 rounded-lg border border-[#c49a50] text-xs font-bold">↻ استكمال مهمة فيديو سابقة</button>
+            </div>
+          </div>
+          <div id="aiStudioGeneratedImageBox" class="hidden p-3 rounded-xl border border-[#ead9cf] bg-white space-y-2">
+            <div class="font-bold text-xs text-[#690d28]">الصورة الناتجة</div><img id="aiStudioGeneratedImage" alt="الصورة التي أنشأها الذكاء الاصطناعي" class="w-full max-h-96 object-contain rounded-xl bg-[#f7efe5]" /><a id="aiStudioGeneratedImageLink" target="_blank" rel="noopener" class="text-xs text-blue-700 underline">فتح الصورة الأصلية</a>
+          </div>
+          <div id="aiStudioGeneratedVideoBox" class="hidden p-3 rounded-xl border border-[#ead9cf] bg-white space-y-2">
+            <div class="font-bold text-xs text-[#690d28]">الفيديو الناتج</div><video id="aiStudioGeneratedVideo" controls playsinline class="w-full max-h-96 rounded-xl bg-black"></video><a id="aiStudioGeneratedVideoLink" target="_blank" rel="noopener" class="text-xs text-blue-700 underline">فتح الفيديو الأصلي</a>
+          </div>
+          <div id="aiStudioGenerationStatus" class="hidden p-3 rounded-xl text-xs font-bold" aria-live="polite"></div>
 
           <div class="p-3 rounded-xl bg-[#f7efe5] border border-dashed border-[#c49a50]">
             <label class="block text-xs font-extrabold text-[#690d28] mb-1">📤 رفع صورة أو فيديو (من جهازك أو من Flow) للنشر:</label>
@@ -894,7 +923,7 @@
 
           <div class="flex flex-wrap gap-2">
             <button type="button" onclick="generateAiPromptScript()" class="px-4 py-2.5 btn-hala-gold text-xs">✨ توليد السيناريو بالذكاء الاصطناعي</button>
-            <button type="button" id="aiGenerateVideoButton" onclick="generateAiVideoWithFlow()" class="px-4 py-2.5 btn-hala-primary text-xs">🎬 توليد الفيديو بالذكاء الاصطناعي عبر Flow</button>
+            <button type="button" id="aiGenerateVideoButton" onclick="generateAiVideoWithFlow()" class="px-4 py-2.5 rounded-xl border border-[#c49a50] text-xs font-bold">⚙️ تحسين/تمرير عبر Flow Webhook (اختياري)</button>
             <button type="button" onclick="transferPromptAndMediaToPublisher()" class="px-4 py-2.5 btn-hala-primary text-xs">🚀 نقل البرومت والوسائط إلى محرر النشر</button>
           </div>
         </div>
@@ -1531,6 +1560,7 @@
     let newProdProcessedDataUrl = '';
     let newProdOriginalDataUrl = '';
     let aiStudioAttachedMedia = null;
+    let aiStudioGeneratedImageUrl = '';
     let secretTapCounter = 0;
     let secretTapTimer = null;
     let currentVoucherOrderId = null;
@@ -3576,10 +3606,135 @@
         if (error) throw new Error(error.message || 'تعذر الاتصال بوظيفة Gemini على Supabase.');
         if (!data?.ok) throw new Error(data?.error || 'لم يؤكد Gemini نجاح الاتصال.');
         box.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800';
-        box.textContent = '✓ الاتصال الآمن بـ Gemini يعمل بنجاح (' + (data.model || 'gemini-3.8-flash') + ').';
+        const availability = ['النصوص ' + (data.textModel ? '✓' : 'غير ظاهر بالمفتاح'), 'الصور ' + (data.imageModel ? '✓' : 'غير متاح بالمفتاح'), 'الفيديو ' + (data.videoModel ? '✓' : 'غير متاح بالمفتاح')].join(' · ');
+        box.className = 'p-3 rounded-xl text-xs font-bold ' + (data.textModel && data.imageModel && data.videoModel ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-900');
+        box.textContent = 'تم الاتصال بـ Gemini API. ' + availability + ' — عدد النماذج المفحوصة: ' + data.modelsChecked;
       } catch (error) {
         box.className = 'p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700';
         box.textContent = 'فشل اتصال Gemini: ' + error.message;
+      }
+    }
+
+    function setAiStudioStatus(message, type = 'info') {
+      const box = document.getElementById('aiStudioGenerationStatus');
+      if (!box) return;
+      box.classList.remove('hidden');
+      const styles = { info: 'bg-amber-50 text-amber-900 border border-amber-200', success: 'bg-emerald-50 text-emerald-800 border border-emerald-200', error: 'bg-red-50 text-red-700 border border-red-200' };
+      box.className = 'p-3 rounded-xl text-xs font-bold ' + (styles[type] || styles.info);
+      box.textContent = message;
+    }
+
+    async function callHalaGemini(payload) {
+      await ensureHalaStorageSession();
+      const { data, error } = await halaSupabase.functions.invoke('hala-gemini', { body: payload });
+      if (error) throw new Error(error.message || 'تعذر الاتصال بوظيفة الذكاء الاصطناعي.');
+      if (!data?.ok) throw new Error(data?.error || 'تعذر تنفيذ طلب الذكاء الاصطناعي.');
+      return data;
+    }
+
+    function getAiStudioProductPrompt(kind) {
+      const prodId = document.getElementById('aiStudioProductSelect')?.value;
+      const prod = state.products.find(p => p.id === prodId) || state.products[0];
+      const userPrompt = document.getElementById('aiStudioPromptOutput')?.value.trim() || '';
+      if (!prod && !userPrompt) throw new Error('اختر منتجاً أو اكتب وصفاً للمحتوى أولاً.');
+      const context = prod ? 'العلامة: حلا كيك. المنتج: ' + prod.name + '. وصف المنتج: ' + prod.desc + '. السعر: ' + formatYER(prod.price) + '.' : 'العلامة: حلا كيك.';
+      const instructions = kind === 'image'
+        ? 'أنشئ صورة إعلانية فوتوغرافية واقعية وفاخرة لمنتج حلويات. حافظ على تفاصيل المنتج الحقيقية، ولا تضف نصوصاً عربية مشوهة أو أسعاراً غير مذكورة. هوية حلا كيك: خمري وذهبي وكريمي، إضاءة استوديو راقية، تكوين تجاري نظيف.'
+        : 'أنشئ فيديو إعلانياً سينمائياً واقعياً لمنتج حلا كيك. حركة كاميرا ناعمة، تفاصيل شهية واقعية، إضاءة احترافية، دون تغيير شكل المنتج أو اختراع مكونات أو ادعاءات.';
+      return [context, instructions, userPrompt].filter(Boolean).join('\n\n');
+    }
+
+    async function generateAiImage() {
+      const button = document.getElementById('aiGenerateImageButton');
+      try {
+        const prompt = getAiStudioProductPrompt('image');
+        if (button) { button.disabled = true; button.textContent = '⏳ جارٍ توليد الصورة...'; }
+        setAiStudioStatus('جارٍ إنشاء الصورة عبر Nano Banana 2 وحفظها في Supabase Storage...');
+        const data = await callHalaGemini({
+          action: 'generate_image', prompt,
+          aspectRatio: document.getElementById('aiImageAspectRatio').value,
+          imageSize: document.getElementById('aiImageSize').value,
+          sourceImageUrl: aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : ''
+        });
+        aiStudioGeneratedImageUrl = data.imageUrl;
+        document.getElementById('aiStudioGeneratedImage').src = data.imageUrl;
+        document.getElementById('aiStudioGeneratedImageLink').href = data.imageUrl;
+        document.getElementById('aiStudioGeneratedImageBox').classList.remove('hidden');
+        setAiStudioStatus('✓ تم توليد الصورة وحفظها في Supabase Storage. النموذج: ' + data.model, 'success');
+        showToast('تم إنشاء الصورة وحفظها سحابياً ✓');
+      } catch (error) {
+        setAiStudioStatus('فشل توليد الصورة: ' + error.message, 'error');
+        showToast('تعذر توليد الصورة: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '🖼️ توليد الصورة وحفظها في Supabase'; }
+      }
+    }
+
+    async function generateAiVideoWithGemini() {
+      const button = document.getElementById('aiGenerateNativeVideoButton');
+      try {
+        const prompt = getAiStudioProductPrompt('video');
+        const sourceImageUrl = aiStudioGeneratedImageUrl || (aiStudioAttachedMedia?.type?.startsWith('image/') ? aiStudioAttachedMedia.url : '');
+        if (button) { button.disabled = true; button.textContent = '⏳ جارٍ بدء مهمة الفيديو...'; }
+        setAiStudioStatus('جارٍ إرسال طلب الفيديو إلى Gemini Omni. قد يستغرق الإكمال عدة دقائق...');
+        const data = await callHalaGemini({
+          action: 'start_video', prompt, sourceImageUrl,
+          aspectRatio: document.getElementById('aiVideoAspectRatio').value,
+          resolution: document.getElementById('aiVideoResolution').value
+        });
+        localStorage.setItem('hala_ai_video_job', JSON.stringify({ jobId: data.jobId, productId: document.getElementById('aiStudioProductSelect').value, createdAt: Date.now() }));
+        setAiStudioStatus('بدأ توليد الفيديو. معرّف المهمة محفوظ، وسيتم فحص الحالة تلقائياً...');
+        await pollAiVideoJob(data.jobId);
+      } catch (error) {
+        setAiStudioStatus('تعذر بدء توليد الفيديو: ' + error.message, 'error');
+        showToast('تعذر توليد الفيديو: ' + error.message, 'error');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '🎥 توليد فيديو مباشرة عبر Gemini Omni'; }
+      }
+    }
+
+    async function resumeAiVideoJob() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('hala_ai_video_job') || 'null');
+        if (!saved?.jobId) throw new Error('لا توجد مهمة فيديو محفوظة للمتابعة.');
+        await pollAiVideoJob(saved.jobId, saved.productId);
+      } catch (error) { setAiStudioStatus(error.message, 'error'); }
+    }
+
+    async function pollAiVideoJob(jobId, productId = '') {
+      const button = document.getElementById('aiResumeVideoButton');
+      if (button) { button.disabled = true; button.textContent = '⏳ جارٍ متابعة المهمة...'; }
+      try {
+        for (let attempt = 0; attempt < 60; attempt++) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          const data = await callHalaGemini({ action: 'poll_video', jobId });
+          if (data.status === 'completed' && data.videoUrl) {
+            const video = document.getElementById('aiStudioGeneratedVideo');
+            video.src = data.videoUrl;
+            document.getElementById('aiStudioGeneratedVideoLink').href = data.videoUrl;
+            document.getElementById('aiStudioGeneratedVideoBox').classList.remove('hidden');
+            const prod = state.products.find(p => p.id === productId) || state.products.find(p => p.id === document.getElementById('aiStudioProductSelect').value) || state.products[0];
+            const reel = {
+              id: 'reel-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+              title: prod?.name ? 'فيديو ' + prod.name : 'فيديو حلا كيك',
+              badge: 'مولّد بالذكاء الاصطناعي ✨',
+              desc: 'فيديو إعلاني مولّد بواسطة Gemini Omni',
+              videoUrl: data.videoUrl, productId: prod?.id || ''
+            };
+            await saveReelToCloud(reel);
+            state.reels.unshift(reel); saveState();
+            activeReelIndex = 0; renderActiveReel(); renderAdminReels();
+            localStorage.removeItem('hala_ai_video_job');
+            setAiStudioStatus('✓ اكتمل الفيديو وحُفظ في Supabase وأُضيف إلى فيديوهات المتجر.', 'success');
+            showToast('اكتمل الفيديو وحُفظ في فيديوهات حلا كيك ✓');
+            return;
+          }
+          if (data.status === 'failed' || data.status === 'cancelled') throw new Error(data.error || 'فشلت مهمة الفيديو.');
+          setAiStudioStatus('الفيديو قيد التوليد لدى Gemini Omni... الفحص ' + (attempt + 1) + ' من 60');
+        }
+        setAiStudioStatus('ما زالت المهمة قيد التنفيذ. اضغط «استكمال مهمة فيديو سابقة» لمتابعة النتيجة لاحقاً.');
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '↻ استكمال مهمة فيديو سابقة'; }
       }
     }
 
@@ -3713,15 +3868,19 @@
       showToast('تم نقل البرومت والوسائط إلى محرر النشر وجارٍ الصياغة 🤖');
     }
 
-    function improvePostWithAi() {
+    async function improvePostWithAi() {
       const editor = document.getElementById('socialPostEditorText');
-      if (!editor.value.trim()) {
-        generateAiPromptScript();
-        editor.value = document.getElementById('aiStudioPromptOutput').value;
-      } else {
-        editor.value = `✨ حلا كيك - نصنع لحظاتكم بحلاوة خاصة ✨\n\n${editor.value.trim()}\n\n📲 للطلب المباشر والتوصيل عبر واتساب: 00967771211154\n#حلا_كيك #HalaCake #كيكات_فاخرة`;
-      }
-      showToast('تمت صياغة المنشور بأسلوب تسويقي جذاب ✨');
+      const original = editor.value.trim();
+      if (!original) { showToast('اكتب فكرة المنشور أولاً حتى يحسّنها Gemini.', 'warning'); return; }
+      try {
+        showToast('جارٍ تحسين المنشور بواسطة Gemini...');
+        const data = await callHalaGemini({
+          action: 'improve_post',
+          prompt: 'حسّن النص التالي كمنشور تسويقي عربي طبيعي لمتجر حلا كيك. حافظ على المعلومات والأسعار كما هي ولا تخترع خصومات أو مزايا أو مكونات. أعد النص النهائي فقط، مع دعوة واضحة للطلب ورموز تعبيرية باعتدال:\n\n' + original
+        });
+        editor.value = data.text;
+        showToast('تم تحسين المنشور فعلياً بواسطة Gemini ✓');
+      } catch (error) { showToast('تعذر تحسين المنشور: ' + error.message, 'error'); }
     }
 
     function publishToConnectedSocials() {
